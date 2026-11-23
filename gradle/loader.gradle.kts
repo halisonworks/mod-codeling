@@ -49,7 +49,7 @@ gameTestTasks.configureEach {
     finalizedBy(gameTestHang)
 }
 
-// The jar redistributes the editor's libraries (THIRD-PARTY-NOTICES.md), so their licences travel with it (issue #61).
+// The jar redistributes the editor's libraries (THIRD-PARTY-NOTICES.md), so their licences travel with it (issue #199).
 tasks.named<Jar>("jar") {
     from(rootProject.files("LICENSE", "THIRD-PARTY-NOTICES.md")) { into("META-INF") }
 }
