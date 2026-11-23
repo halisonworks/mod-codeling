@@ -2144,8 +2144,8 @@ public class RobotGameTests {
         return player;
     }
 
-    private static void allowed(GameTestHelper helper, String refusal, String what) {
-        helper.assertTrue(refusal == null, what + " refused: " + refusal);
+    private static void allowed(GameTestHelper helper, net.minecraft.network.chat.Component refusal, String what) {
+        helper.assertTrue(refusal == null, what + " refused: " + (refusal == null ? "" : refusal.getString()));
     }
 
     // Issue #175: the owner may look through the robot, another player may not; an op may in the default mode.
@@ -2155,7 +2155,7 @@ public class RobotGameTests {
         ServerPlayer other = cameraPlayer(helper);
         RobotEntity robot = RobotManager.robot(spawn(helper, owner.getUUID()));
         var players = helper.getLevel().getServer().getPlayerList();
-        helper.assertValueEqual(RobotCamera.start(other, robot), "This is not your robot.", "a stranger");
+        helper.assertValueEqual(RobotCamera.start(other, robot).getString(), "This is not your robot", "a stranger");
         helper.assertTrue(RobotCamera.viewing(other) == null, "the stranger sees nothing");
         allowed(helper, RobotCamera.start(owner, robot), "the owner");
         helper.assertTrue(RobotCamera.viewing(owner) == robot, "the owner looks through the robot");
@@ -2177,9 +2177,9 @@ public class RobotGameTests {
         var server = helper.getLevel().getServer();
         try {
             GameTestCompat.setCamera(server, RobotCamera.Mode.off);
-            helper.assertValueEqual(RobotCamera.start(owner, robot), "The robot camera is turned off on this server.", "off");
+            helper.assertValueEqual(RobotCamera.start(owner, robot).getString(), "The robot camera is turned off on this server", "off");
             GameTestCompat.setCamera(server, RobotCamera.Mode.ops);
-            helper.assertValueEqual(RobotCamera.start(owner, robot), "Only operators may use the robot camera on this server.", "ops, owner not op");
+            helper.assertValueEqual(RobotCamera.start(owner, robot).getString(), "Only operators may use the robot camera on this server", "ops, owner not op");
             GameTestCompat.op(owner);
             allowed(helper, RobotCamera.start(owner, robot), "ops, owner is op");
             // Permission taken away: the next tick ends the view.
@@ -2201,7 +2201,7 @@ public class RobotGameTests {
         RobotEntity robot = RobotManager.robot(spawn(helper, owner.getUUID()));
         ChunkPos far = new ChunkPos(McCompat.chunkX(robot.chunkPosition()) + 10, McCompat.chunkZ(robot.chunkPosition()));
         owner.setChunkTrackingView(ChunkTrackingView.of(far, 2));
-        helper.assertValueEqual(RobotCamera.start(owner, robot), "Your robot is too far away for the camera.", "out of range");
+        helper.assertValueEqual(RobotCamera.start(owner, robot).getString(), "Your robot is too far away for the camera. Go closer to it", "out of range");
         helper.getLevel().getServer().getPlayerList().remove(owner);
         helper.succeed();
     }
@@ -2224,7 +2224,7 @@ public class RobotGameTests {
         ServerPlayer owner = cameraPlayer(helper);
         ServerPlayer other = cameraPlayer(helper);
         RobotEntity robot = RobotManager.robot(spawn(helper, owner.getUUID()));
-        helper.assertValueEqual(RobotCamera.start(other, robot, true), "This is not your robot.", "a stranger");
+        helper.assertValueEqual(RobotCamera.start(other, robot, true).getString(), "This is not your robot", "a stranger");
         helper.assertTrue(RobotCamera.viewing(other) == null, "the stranger sees nothing");
         allowed(helper, RobotCamera.start(owner, robot, true), "the owner");
         helper.assertTrue(RobotCamera.viewing(owner) == robot && RobotCamera.following(owner), "the owner follows the robot");

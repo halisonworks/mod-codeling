@@ -401,6 +401,25 @@ runners (issue #229). So CI does not catch a real slowdown; the maintainer runs 
 
 English and Norwegian UI. Mod strings: standard `en_us.json` and `nb_no.json` lang files. Editor: pxt knows `nb` and `nn-NO`; the micro:bit target ships both. Coverage measured 2026-11-09: `nb` 1153 keys, `nn-NO` 1106, against 2443 for German, so about half is translated and the rest falls back to English. Our own block and target strings we translate ourselves. Target config: `availableLocales: ["en","nb","nn-NO"]`, `disableLiveTranslations: true` (otherwise a static build downloads from makecode.com), and translations bundled at build time with `pxt staticpkg --locs-src <dir>` ([docs](https://github.com/microsoft/pxt/blob/master/docs/cli/staticpkg.md)). Blockly's own messages are not needed: pxt overrides them with its strings. The licence for reusing the community (Crowdin) translations in a non-Microsoft target is **[UNVERIFIED]**; check it before bundling. **(spike 2026-11-09)** Bundling works: `locales/nb/strings.json` and `webstrings.json` (core) plus `locales/nb/codeling/*.json` (our block and target strings) give a Norwegian UI at `?lang=nb` with no network. Docs pages (the Examples gallery, issue #216) have no bundled translations in pxt: the packaged editor asks for `docs/<page>.md?lang=nb`, and the relay answers with `docs/_locales/nb/<page>.md` when the editor has one.
 
+### Messages to the player
+
+Everything the mod says to a player goes through `codeling.Messages` (issue #278), so it looks and reads like the game's
+own messages. `PlayerMessageTest` fails when other code sends a message itself, or when a key has no text.
+
+| Kind | How it is shown | With |
+|---|---|---|
+| A command did what it should | White, only to the caller; silent when the game rule `sendCommandFeedback` is off | `Messages.success` |
+| An operator's command for the whole server (`/robot stop all`) | White, other operators see it too | `Messages.operatorSuccess` |
+| A command could not do it | Red, the command's result is 0; says what happened and what to do next | `Messages.failure` |
+| A wrong argument | Red with the game's own pointer (`<--[HERE]`); use literals and Brigadier's ranges first | `Messages.argumentError` |
+| A refusal of something done with the mouse | Above the hotbar, as for a locked chest | `Messages.actionBar` |
+| The client's own command (`/codeling`) tells what it did | The game's client system message | `Messages.of` and the chat's client message |
+
+Keys are `commands.codeling.*` for command replies and `message.codeling.*` for the rest, with `%s` arguments and no
+full stop at the end. There are no separate warnings or hints: a refusal carries its own hint. Every message carries its English text as a fallback, because vanilla clients may join. Error
+codes and op names stay in the editor's log and the game log; a player never sees them. The exceptions are text that
+is not Codeling's own: `player.say` and the speech bubble (the program's words) and a robot's name.
+
 ## 12. Distribution
 
 - **Modrinth** first, CurseForge later. One jar per loader (Fabric, NeoForge), each with client and server parts. Servers need the jar to host robots; players need it to open the editor. Vanilla clients can still join but cannot program.

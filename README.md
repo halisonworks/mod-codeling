@@ -268,7 +268,7 @@ Every command that acts on one robot takes an optional robot name as its last wo
 All commands except `spawn`, `stop`, `status` and `inventory` go through the same validator and queue as the browser commands; `come` is built from your position and skips the validator.
 A robot that is killed drops its inventory where it stood. `/robot spawn` in another dimension moves the inventory to the new robot.
 If the old robot was unloaded when you spawned a new one, it keeps its items and drops them where it stood when its chunk loads again (once). Any other stale copy of a robot (an older save, a structure-block copy) is removed without dropping, so items never double.
-Right-click the robot to open its 27 slots as a chest screen (the selected slot has a gold frame). Only the owner and ops can open it; others get "This is not your robot." The screen is the robot's own inventory, so a running program sees every change at once.
+Right-click the robot to open its 27 slots as a chest screen (the selected slot has a gold frame). Only the owner and ops can open it; others get "This is not your robot" above the hotbar. The screen is the robot's own inventory, so a running program sees every change at once.
 
 ## Open in IntelliJ IDEA
 

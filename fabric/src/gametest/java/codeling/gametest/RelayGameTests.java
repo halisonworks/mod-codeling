@@ -665,7 +665,7 @@ public class RelayGameTests {
         helper.assertValueEqual(execute(helper, "codeling signal @s qr 2.5", op), 1, "reached");
         helper.assertValueEqual(execute(helper, "codeling signal @s door", op), 0, "a name it does not listen for");
         helper.assertValueEqual(execute(helper, "codeling signal @s qr", op.withEntity(idle)), 0, "no listening program");
-        helper.assertValueEqual(execute(helper, "codeling signal @s \"two words\"", op), 0, "bad name");
+        helper.assertValueEqual(execute(helper, "codeling signal @s \"two words\"", op), -1, "a bad name is a wrong argument: an error, no result");
         helper.assertValueEqual(execute(helper, "codeling signal @s qr 9", b.player().createCommandSourceStack()), -1, "not for a player without operator rights");
         helper.succeedWhen(() -> {
             helper.assertValueEqual(events(b).stream().map(e -> e.get("args").toString()).toList(), List.of("[\"qr\",2.5]"), "events");
