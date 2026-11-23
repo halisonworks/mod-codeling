@@ -285,6 +285,15 @@ Right-click the robot to open its 27 slots as a chest screen (the selected slot 
 The npm run configurations and good TypeScript editing in `target/` need IntelliJ IDEA Ultimate (or the JavaScript and TypeScript plugin).
 On Community, use the Gradle configuration above or a terminal.
 
+## Contribute
+
+Bug reports, ideas, texts, translations and code are welcome, in English or Norwegian.
+
+- Something does not work: [report a bug](https://github.com/halisonworks/mod-codeling/issues/new?template=bug_report.yml).
+- You have an idea: [tell us about it](https://github.com/halisonworks/mod-codeling/issues/new?template=feature_request.yml).
+- You found a security problem: report it privately, see [SECURITY.md](SECURITY.md).
+- You want to help: [CONTRIBUTING.md](CONTRIBUTING.md) says how to build, test and open a pull request.
+
 ## Licence
 
 MIT, see [LICENSE](LICENSE).
