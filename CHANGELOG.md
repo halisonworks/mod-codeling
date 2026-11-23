@@ -6,6 +6,11 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The project moved to `github.com/halisonworks/mod-codeling`. The links in the mod list (homepage, sources, issues) and
+  the downloads in `scripts/setup-multimc.ps1` use the new address.
+
 ## [0.0.3] - 2026-11-12
 
 The third pre-release, for testing.
