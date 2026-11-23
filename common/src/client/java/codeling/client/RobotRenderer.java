@@ -72,7 +72,7 @@ public class RobotRenderer extends EntityRenderer<RobotEntity, RobotRenderer.Sta
             lines.add(Component.literal(entity.said()));
             return lines;
         }
-        if (lookedAtUpClose(entity, distance) && !entity.ownerName().isEmpty()) lines.add(Component.literal(entity.ownerName() + "'s robot"));
+        if (lookedAtUpClose(entity, distance) && !entity.ownerName().isEmpty()) lines.add(codeling.Messages.of("message.codeling.owner", entity.ownerName()));
         if (showName) lines.add(entity.getCustomName());
         return lines;
     }

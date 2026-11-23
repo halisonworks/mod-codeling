@@ -1,6 +1,7 @@
 package codeling.gametest;
 
 import codeling.Codeling;
+import codeling.Messages;
 import codeling.net.ServerRelay;
 import codeling.robot.Result;
 import codeling.robot.RobotCommand;
@@ -22,6 +23,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -98,6 +100,58 @@ public class MultiRobotGameTests {
 
     private static void leave(GameTestHelper helper, ServerPlayer... players) {
         for (ServerPlayer p : players) helper.getLevel().getServer().getPlayerList().remove(p);
+    }
+
+    // Issue #278: messages read like the game's own: its errors for wrong arguments, plain words and no internal codes.
+    @GameTest(maxTicks = 100)
+    public void commandMessagesReadLikeTheGames(GameTestHelper helper) {
+        ServerPlayer player = player(helper);
+        List<String> all = new ArrayList<>();
+        says(helper, all, run(player, "robot move forward 1"), "You have no robot. Use /robot spawn to get one");
+        says(helper, all, run(player, "robot status"), "You have no robot. Use /robot spawn to get one");
+        says(helper, all, run(player, "robot status Miner"), "You have no robot called Miner");
+        says(helper, all, run(player, "robot spawn"), "Robot spawned, facing ");
+        RobotManager.robot(player.getUUID()).snapTo(Vec3.atBottomCenterOf(helper.absolutePos(START)));
+        says(helper, all, run(player, "robot move forward 0"), "must not be less than 1");
+        says(helper, all, run(player, "robot move forward 65"), "must not be more than 64");
+        says(helper, all, run(player, "robot slot 28"), "must not be more than 27");
+        says(helper, all, run(player, "robot give nosuchblock 1"), "Unknown block or item \"nosuchblock\"");
+        says(helper, all, run(player, "robot give 99999999999 1"), "Unknown block or item");
+        says(helper, all, run(player, "robot color blue"), "Invalid color \"blue\"");
+        says(helper, all, run(player, "robot animation dance"), "Incorrect argument");
+        says(helper, all, run(player, "robot status"), "Commands waiting: ");
+        says(helper, all, run(player, "robot list"), "default robot (agent)");
+        List<String> give = run(player, "robot give stone 5 3");
+        List<String> place = run(player, "robot place forward");
+        List<String> detect = run(player, "robot detect up");
+        List<String> inspect = run(player, "robot inspect up");
+        List<String> turn = run(player, "robot turn left");
+        List<String> move = run(player, "robot move up 1");
+        helper.succeedWhen(() -> {
+            says(helper, all, give, "Gave Robot 5 [Stone] in slot 3");
+            says(helper, all, place, "Robot could not place a block (forward)");
+            says(helper, all, detect, "No block in the way (up)");
+            says(helper, all, inspect, "The block (up) is Air");
+            says(helper, all, turn, "Robot turned left");
+            says(helper, all, move, "Robot moved up, blocks: 1");
+            for (String text : all) {
+                helper.assertTrue(!text.matches("(?s).*(agent\\.|\\bok (true|false|null)|[A-Z]+_[A-Z]+|UNLOADED|STOPPED).*"), "internal code in: " + text);
+            }
+            leave(helper, player);
+        });
+    }
+
+    private static void says(GameTestHelper helper, List<String> all, List<String> out, String text) {
+        all.addAll(out);
+        helper.assertTrue(out.toString().contains(text), "expected \"" + text + "\", got " + out);
+    }
+
+    // A vanilla client on a Codeling server has no Codeling keys, so every message carries its English text.
+    @GameTest
+    public void messagesCarryEnglishForVanillaClients(GameTestHelper helper) {
+        Component text = Messages.of("message.codeling.robot.none", "/robot spawn");
+        helper.assertTrue(text.getContents() instanceof TranslatableContents t && "You have no robot. Use %s to get one".equals(t.getFallback()), "fallback of " + text);
+        helper.succeed();
     }
 
     // With the default rule (1) a player has the default robot only: a named robot is refused with the rule's name.
@@ -322,7 +376,7 @@ public class MultiRobotGameTests {
         run(player, "robot spawn Miner");
         helper.assertTrue(run(player, "robot skin industrial Miner").toString().contains("industrial"), "skin set");
         run(player, "robot color 3366FF Miner");
-        helper.assertTrue(run(player, "robot skin chrome Miner").toString().contains("workshop, industrial or mint"), "unknown skin refused");
+        helper.assertTrue(run(player, "robot skin chrome Miner").toString().contains("Incorrect argument"), "unknown skin refused as the game does");
         RobotEntity miner = RobotManager.robot(key(player, "Miner"));
         RobotEntity first = RobotManager.robot(player.getUUID());
         helper.assertValueEqual(miner.skin(), "industrial", "Miner's skin");

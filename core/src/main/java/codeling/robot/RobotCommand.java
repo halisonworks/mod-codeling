@@ -141,8 +141,13 @@ public record RobotCommand(Op op, int a, int b, int c, int d, int e, int f, int 
         if (name == null || !name.matches("[A-Za-z][A-Za-z0-9_-]{0," + (MAX_NAME - 1) + "}")) {
             return "A robot name starts with a letter and has at most " + MAX_NAME + " letters, digits, _ or - (no spaces)";
         }
-        if (RESERVED_NAMES.contains(name.toLowerCase(java.util.Locale.ROOT))) return "\"" + name + "\" is a word the /robot commands use, choose another name";
+        if (reservedName(name)) return "\"" + name + "\" is a word the /robot commands use, choose another name";
         return null;
+    }
+
+    /** Whether the /robot commands use the word {@code name} themselves. */
+    public static boolean reservedName(String name) {
+        return RESERVED_NAMES.contains(name.toLowerCase(java.util.Locale.ROOT));
     }
 
     public RobotCommand(Op op, int a, int b, int c, int d, int e, int f, String text) {
