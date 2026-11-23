@@ -61,7 +61,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 
 ### 10. CODE_OF_CONDUCT.md (Should, S)
 
-- **Current state.** Missing (`git ls-files`, community profile `code_of_conduct: null`).
+- **Current state.** Done (issue #269): `CODE_OF_CONDUCT.md`, Contributor Covenant 2.1, with the contact form on
+  halison.io as the contact.
 - **Why it matters.** The audience includes children and parents (docs/player/guide-en.md: "A parent can do the
   install"). A code of conduct with a contact address sets expectations for issues and pull requests.
 - **Action.** Add Contributor Covenant 2.1 with a contact method that is not a personal address (for example a
@@ -69,8 +70,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 
 ### 11. Issue and pull request templates (Should, S)
 
-- **Current state.** No `.github/ISSUE_TEMPLATE/` and no `.github/pull_request_template.md`. The repo has 24 labels
-  already (`type: feature`, `area: relay`, `P0` to `P3`, and so on), but nothing applies them.
+- **Current state.** Done (issue #270): issue forms for bug and idea, a `config.yml` with links to the guides and to
+  private reporting, and a pull request template. Discussions are off, so questions go to the guides.
 - **Why it matters.** A bug report for this mod is only useful with the Minecraft version, loader and version, mod
   version, the editor's log line and the game log (`codeling/relay` logger). Templates ask for that up front.
 - **Action.** Issue forms (YAML) for bug report (versions, loader, singleplayer or server, steps, log), feature or

@@ -3,6 +3,38 @@
 Thanks for helping. This page says how to build, run and test Codeling, and what a pull request needs.
 The [README](README.md) has the details on each part; this page links to it instead of repeating it.
 
+## Ways to contribute
+
+You do not have to write code. Issues and pull requests can be in English or Norwegian; code, comments and
+documentation are in English, except the Norwegian player guide and block texts.
+
+| You want to | Do this |
+|---|---|
+| Report a bug | [Open a bug report](https://github.com/halisonworks/mod-codeling/issues/new?template=bug_report.yml). Look in the troubleshooting table of the player guide ([English](docs/player/guide-en.md#troubleshooting), [norsk](docs/player/guide-nb.md)) and in the open issues first. |
+| Suggest an idea | [Open an idea](https://github.com/halisonworks/mod-codeling/issues/new?template=feature_request.yml). Say what you want to do and why it is useful or fun; a solution is welcome but not needed. |
+| Report a security problem | Never in a public issue. See [SECURITY.md](SECURITY.md). |
+| Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/codeling/`. |
+| Share an example program | Open an idea with the program in it. |
+| Fix a bug or build a feature | See below. |
+
+Issues and pull requests are public. Leave out real names, email addresses, editor links (they contain a token) and
+other people's chat.
+
+### Before you write code
+
+1. Find an issue, or open one. `good first issue` and `help wanted` mark issues that are free to take, when there are any.
+2. Comment on the issue that you want to do it, and wait for an answer before starting on anything large. A change to
+   the protocol, the editor API or saved data needs an agreed plan first.
+3. Fork the repository, and continue with [Branches and pull requests](#branches-and-pull-requests).
+
+Codeling is a volunteer project, so an answer can take some days. Everyone who takes part follows the
+[code of conduct](CODE_OF_CONDUCT.md).
+
+### How issues are organised
+
+- `type: epic` holds features, and `type: feature` holds stories (`type: story`), as sub-issues. Each says what a player gets from it.
+- `P0` (first) to `P3` (when there is time) is the priority, `area: ...` is the part of the code, and the milestone says when. Maintainers set these.
+
 ## Prerequisites
 
 | Tool | Version | Notes |
@@ -73,9 +105,10 @@ Run the client GameTests yourself before a pull request that touches the client,
 
 - `main` is the release branch. Never push to it, and do not open pull requests against it (only the release pull
   request from `develop` goes there, see [Releases](#releases)).
-- Branch from `develop` (for example `feature/robot-attack` or `fix/relay-port`) and open the pull request against `develop`. GitHub's default branch is `main`, so pick `develop` as the base when you open it.
+- Branch from `develop` (for example `feature/robot-attack` or `fix/relay-port`) and open the pull request against `develop`. `develop` is the default branch, so it is the base unless you change it.
 - One topic per pull request. Link the issue it closes.
-- CI must be green.
+- CI must be green. A first pull request from a fork may have to wait until a maintainer lets CI run.
+- A maintainer reviews and merges. By opening a pull request you offer the change under the [MIT licence](LICENSE).
 
 ### Commit messages
 
@@ -96,7 +129,8 @@ Areas in use: `Core`, `Editor`, `Minecraft mod`, `NeoForge loader`, `Build`, `CI
 1. `build` job: `scripts/check-text.sh`, the pxt target build (twice, then `staticpkg`), `./gradlew :core:build :common:26.3:build :fabric:26.3:build` (JUnit, server GameTests, import guards, jar names), `:core:relayCompatTest` and `:fabric:26.3:editorTest`.
 2. `neoforge` job: `./gradlew :neoforge:26.3:build` (with the NeoForge smoke GameTests).
 3. `mc-1-21-1` job: `./gradlew :fabric:1.21.1:build` and `:neoforge:1.21.1:build`.
-4. `client-gametest` job, on `main` and manual runs only: `./gradlew :fabric:26.3:runClientGameTest` under Xvfb.
+4. `mc-more` job: the same build for the other Minecraft versions, one job per loader and version.
+5. `client-gametest` job, on `main` and manual runs only: `./gradlew :fabric:26.3:runClientGameTest` under Xvfb.
 
 ### A GameTest run that hangs
 
