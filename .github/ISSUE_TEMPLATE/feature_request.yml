@@ -1,0 +1,32 @@
+name: Idea
+description: A new block, command or other improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can write in English or Norwegian. Please search the open issues first; if your idea is there, add a comment or a thumbs up.
+        Everything you write here is public. Leave out real names and email addresses. If you are a child, ask an adult to help you.
+  - type: textarea
+    id: job
+    attributes:
+      label: What do you want to do?
+      description: "Try this form: When I ..., I want to ..., so I can ..."
+      placeholder: When my robot is far away, I want to call it back, so I can start the next job.
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Why is it useful or fun for players?
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example
+      description: A program, a block or a command as you would like it to look.
+  - type: textarea
+    id: today
+    attributes:
+      label: How do you do it today, if you can?
