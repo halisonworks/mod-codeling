@@ -7,9 +7,9 @@
   "authors": ["Tor Einar Enne"],
   "license": "MIT",
   "contact": {
-    "homepage": "https://github.com/Eirahub/MinecraftCodeling",
-    "sources": "https://github.com/Eirahub/MinecraftCodeling",
-    "issues": "https://github.com/Eirahub/MinecraftCodeling/issues"
+    "homepage": "https://github.com/halisonworks/mod-codeling",
+    "sources": "https://github.com/halisonworks/mod-codeling",
+    "issues": "https://github.com/halisonworks/mod-codeling/issues"
   },
   "environment": "*",
   "entrypoints": {
