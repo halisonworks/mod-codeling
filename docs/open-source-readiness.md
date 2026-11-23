@@ -345,14 +345,14 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 - **Current state.** `THIRD-PARTY-NOTICES.md` has the trademark statement, pxt-core's MIT text, pxt-sample (full
   text in `target/LICENSE-pxt-sample.txt`) and a Fabric note. It says itself that the libraries pxt bundles into the
   static editor (Blockly, Apache-2.0; Semantic UI, MIT; Monaco, MIT; and others) have no complete list yet
-  (issue #61). docs/architecture.md section 4 says Blockly's LICENSE and NOTICE must ship with the jar. The `nb`
+  (issue #199). docs/architecture.md section 4 says Blockly's LICENSE and NOTICE must ship with the jar. The `nb`
   editor strings have an unverified licence (item 17). NeoForge (LGPL-2.1, linked, not bundled) is not mentioned;
   that is fine legally but worth a line for symmetry with Fabric.
 - **Why it matters.** The jars redistribute `target/built/packaged` under `codeling-editor/`. Apache-2.0 requires
   its licence and any NOTICE text to travel with redistributed copies.
 - **Action.** Generate the list from `target/node_modules` and the files that end up in `built/packaged` (for
   example with `license-checker` or pxt's own third-party file if it ships one), add the licence texts to
-  `THIRD-PARTY-NOTICES.md`, and copy that file and `LICENSE` into the jar (`META-INF/`). Close issue #61. Settle the
+  `THIRD-PARTY-NOTICES.md`, and copy that file and `LICENSE` into the jar (`META-INF/`). Close issue #199. Settle the
   `nb` strings.
 
 ## Ordered action list
@@ -361,7 +361,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 2. Add rulesets for `main` and `develop` with the CI jobs as required checks; consider `develop` as default branch.
 3. Fill in the repo description, topics and social preview.
 4. Add links and an icon to `fabric.mod.json` and `neoforge.mods.toml`.
-5. Complete `THIRD-PARTY-NOTICES.md` for the bundled editor (issue #61), ship it in the jar, and settle the licence
+5. Complete `THIRD-PARTY-NOTICES.md` for the bundled editor (issue #199), ship it in the jar, and settle the licence
    of the `nb` pxt strings.
 6. Add screenshots and a GIF to the README.
 7. Add `CHANGELOG.md`, write down the versioning rule, and create a tag-driven `release.yml`.

@@ -51,12 +51,15 @@ below, each under its own licence. The list was made on 2026-11-11 for pxt-core 
 - the licence headers in the files under `target/built/packaged` (the files `gradle/loader.gradle.kts` excludes from
   the jar are left out),
 - the browserify module names that `main.js` and `pxtasseteditor.js` require,
-- the `package.json` and `LICENSE` files of those modules in `target/node_modules` after `npm ci`.
+- the `package.json` and licence files of those modules, installed from npm as described below.
 
-pxt-core ships `main.js` and the other `pxt*.js` files prebuilt. Where a module is in `target/node_modules`, the
-version below is the one npm installed next to pxt-core; the copy inside the prebuilt file can differ slightly.
-Entries marked "to verify" have a licence taken from the file header or the npm registry, but their version or
-copyright line is not checked against the bundled copy.
+pxt-core ships `main.js` and the other `pxt*.js` files prebuilt, without a lock file, so the copies inside them cannot
+be read from `target/node_modules`. Checked on 2026-11-23 (issue #199): the versions pxt-core 13.3.1 asks for in its
+`package.json` (React, PouchDB, dash.js and so on) were installed as npm resolved them on the day pxt-core 13.3.1 was
+published (2026-11-05), browserify listed the modules those packages pull in, and each name was looked up in the
+bundles. The bundled copies were not compared byte for byte. Where a package asks for a version range, the version is
+the one npm gave on that day. The copyright lines are from the licence files in the installed packages unless a row
+says otherwise.
 
 ### Files copied as they are
 
@@ -64,31 +67,36 @@ copyright line is not checked against the bundled copy.
 |---|---|---|---|---|
 | `blockly/`, `blockly.css`, Blockly code in `main.js` | Blockly | 13.1.1 | Apache-2.0 | Copyright Google LLC |
 | `vs/` | Monaco editor | 0.24.0 | MIT | Copyright (c) 2016 - present Microsoft Corporation |
-| `typescript.js` | TypeScript | 2.6 (`versionMajorMinor` in the file; patch version to verify) | Apache-2.0 | Copyright (c) Microsoft Corporation |
-| `semantic.css`, `rtlsemantic.css`, `semantic.js` | Semantic UI | to verify (pxt-core depends on semantic-ui-less 2.4.1) | MIT | Semantic Org (to verify; the upstream LICENSE has no copyright line) |
+| `typescript.js` | TypeScript | 2.6.1 (`ts.version` in the file) | Apache-2.0 | Copyright (c) Microsoft Corporation |
+| `semantic.css`, `rtlsemantic.css`, `semantic.js` | Semantic UI | 2.4.1 (pxt-core pins semantic-ui-less 2.4.1; the files carry no version) | MIT | Semantic Org (the upstream LICENSE.md at 2.4.1 has no copyright line) |
 | `semantic.css`, `fonts/`, `icons.css` | Font Awesome Free | 5.15.4 | Icons CC-BY-4.0, fonts OFL-1.1, code MIT | Fonticons, Inc. (https://fontawesome.com) |
-| `semantic.css` | normalize.css | 7.0.0 | MIT | Nicolas Gallagher and Jonathan Neal (to verify) |
+| `semantic.css` | normalize.css | 7.0.0 | MIT | Copyright © Nicolas Gallagher and Jonathan Neal |
 | `jquery.js` | jQuery | 3.5.0 | MIT | Copyright JS Foundation and other contributors |
 | `highlight.js/` | highlight.js | 11.11.1 | BSD-3-Clause | Copyright (c) 2006-2025 Josh Goebel and other contributors |
 | `marked/` (licence file included) | marked | 17.0.6 | MIT | Copyright (c) 2018+, MarkedJS; Copyright (c) 2011-2018, Christopher Jeffrey |
-| `qrcode/` (licence file included) | QR Code Generator | to verify | MIT | Copyright (c) 2009 Kazuhiko Arase |
-| `smoothie/` | Smoothie Charts | to verify | MIT | Copyright (c) 2010-2013, Joe Walnes; 2013-2018, Drew Noakes |
+| `qrcode/` (licence file included) | QR Code Generator | 1.4.3 (same code as `qrcode.js` in npm qrcode-generator 1.4.3) | MIT | Copyright (c) 2009 Kazuhiko Arase |
+| `smoothie/` | Smoothie Charts | 1.36.1 (pinned by pxt-core; the file carries no version) | MIT | Copyright (c) 2010-2013, Joe Walnes; 2013-2018, Drew Noakes |
 | `gifjs/` | gif.js | 0.2.0 | MIT | Copyright (c) 2013-2018 Johan Nordberg |
-| `pdf-lib/` | pdf-lib | to verify | MIT | Copyright (c) 2019 Andrew Dillon |
+| `pdf-lib/` | pdf-lib | 1.17.1 (from pxt's ThirdPartyNotice at v13.3.1; the file is not identical to the npm build) | MIT | Copyright (c) 2019 Andrew Dillon |
 | `zip.js/` | zip.js | 2.4.20 (pxt-core dependency) | BSD-3-Clause | Copyright (c) 2022 Gildas Lormeau |
 | `pxtapp.js`, `pxtembed.js`, `pxtworker.js`, `pxtrcdeps.js` | DOMPurify | 3.4.17 | Apache-2.0 or MPL-2.0 (Codeling uses it under Apache-2.0) | Copyright Cure53 and other contributors |
 | `pxtapp.js`, `pxtembed.js`, `pxtworker.js` | LZMA-JS | 2.3.2 (pxt-core dependency) | MIT | Copyright (c) 2016 Nathan Rugg |
-| `pxtapp.js`, `pxtembed.js`, `pxtworker.js`, `pxtrcdeps.js` | regenerator-runtime | to verify | MIT | Copyright (c) 2014-present, Facebook, Inc. |
+| `pxtapp.js`, `pxtembed.js`, `pxtworker.js`, `pxtrcdeps.js` | regenerator-runtime, as a Babel helper | cannot be confirmed (the helper carries no version) | MIT | Copyright (c) 2014-present, Facebook, Inc. (file header) |
 | `main.js`, `pxtworker.js` | Fuse.js | 3.2.0 | Apache-2.0 | Copyright (c) 2012-2017 Kirollos Risk |
 | `docs/`, `docfiles/`, `images/`, `music-editor/`, `sounds/`, the `pxt*.js` files, `main.js` | pxt-core | 13.3.1 | MIT | Copyright (c) Microsoft Corporation (full text above) |
 
-### Modules bundled into `main.js` and `pxtasseteditor.js`, found in `target/node_modules`
+### Modules bundled into `main.js` and `pxtasseteditor.js`
+
+Where several versions are listed, browserify bundles a copy of each.
 
 | Package | Version | Licence | Copyright |
 |---|---|---|---|
+| @babel/runtime | 7.29.13 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @blockly/field-grid-dropdown | 13.1.0 | Apache-2.0 | Copyright Google LLC (file headers in main.js) |
 | @blockly/plugin-workspace-search | 13.1.0 | Apache-2.0 | Copyright Google LLC (file headers in main.js) |
 | @microsoft/immersive-reader-sdk | 1.1.0 | MIT | Copyright (c) Microsoft Corporation |
+| abstract-leveldown | 2.7.2 and 6.2.3 | MIT | Copyright (c) 2013-2017 Rod Vagg; Copyright © 2013-present Rod Vagg and Contributors. |
+| argsarray | 0.0.1 | WTFPL | Calvin Metcalf (package author; the licence file has no copyright line) |
 | assert | 1.5.1 | MIT | Copyright Joyent, Inc. and other Node contributors. |
 | available-typed-arrays | 1.0.7 | MIT | Copyright (c) 2020 Inspect JS |
 | base64-js | 1.5.1 | MIT | Copyright (c) 2014 Jameson Little |
@@ -98,22 +106,28 @@ copyright line is not checked against the bundled copy.
 | call-bind | 1.0.9 | MIT | Copyright (c) 2020 Jordan Harband |
 | call-bind-apply-helpers | 1.0.2 | MIT | Copyright (c) 2024 Jordan Harband |
 | call-bound | 1.0.4 | MIT | Copyright (c) 2024 Jordan Harband |
+| classnames | 2.5.1 | MIT | Copyright (c) 2018 Jed Watson |
 | core-util-is | 1.0.3 | MIT | Copyright Node.js contributors. |
+| crypto-js | 4.2.0 | MIT | Copyright (c) 2009-2013 Jeff Mott; Copyright (c) 2013-2016 Evan Vosberg |
 | dashjs | 4.7.4 | BSD-3-Clause | Copyright (c) 2015, Dash Industry Forum |
+| deferred-leveldown | 5.3.0 | MIT | Copyright © 2013-present Rod Vagg and Contributors. |
 | define-data-property | 1.1.4 | MIT | Copyright (c) 2023 Jordan Harband |
-| dom-serializer | 3.1.1 | MIT | Copyright © 2022 The Cheerio contributors |
-| domelementtype | 3.0.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
-| domhandler | 6.0.1 | BSD-2-Clause | Copyright (c) Felix Böhm |
-| domutils | 4.0.2 | BSD-2-Clause | Copyright (c) Felix Böhm |
+| dom-serializer | 0.2.2 | MIT | Copyright (c) 2014 The cheeriojs contributors |
+| domelementtype | 1.3.1 and 2.3.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
+| domhandler | 2.4.2 | BSD-2-Clause | Copyright (c) Felix Böhm |
+| domutils | 1.7.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
+| double-ended-queue | 2.1.0-0 | MIT | Copyright (c) 2013 Petka Antonov |
 | dunder-proto | 1.0.1 | MIT | Copyright (c) 2024 ECMAScript Shims |
-| entities | 9.0.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
-| errno | 0.1.8 | MIT | Rod Vagg (to verify: no LICENSE file in the package) |
+| entities | 1.1.2 and 2.2.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
+| errno | 0.1.8 | MIT | Copyright (c) 2012-2015 Rod Vagg (README.md; no LICENSE file in the package) |
 | es-define-property | 1.0.1 | MIT | Copyright (c) 2024 Jordan Harband |
 | es-errors | 1.3.0 | MIT | Copyright (c) 2024 Jordan Harband |
 | es-object-atoms | 1.1.2 | MIT | Copyright (c) 2024 Jordan Harband |
 | events | 3.3.0 | MIT | Copyright Joyent, Inc. and other Node contributors. |
+| exenv | 1.2.2 | BSD-3-Clause | Copyright (c) 2013-2015, Facebook, Inc. |
 | for-each | 0.3.5 | MIT | Copyright (c) 2012 Raynos. |
 | function-bind | 1.1.2 | MIT | Copyright (c) 2013 Raynos. |
+| functional-red-black-tree | 1.0.1 | MIT | Copyright (c) 2013 Mikola Lysenko |
 | generator-function | 2.0.1 | MIT | Copyright (c) 2015 Tiancheng “Timothy” Gu |
 | get-intrinsic | 1.3.0 | MIT | Copyright (c) 2020 Jordan Harband |
 | get-proto | 1.0.1 | MIT | Copyright (c) 2025 Jordan Harband |
@@ -122,62 +136,83 @@ copyright line is not checked against the bundled copy.
 | has-symbols | 1.1.0 | MIT | Copyright (c) 2016 Jordan Harband |
 | has-tostringtag | 1.0.2 | MIT | Copyright (c) 2021 Inspect JS |
 | hasown | 2.0.4 | MIT | Copyright (c) Jordan Harband and contributors |
-| htmlparser2 | 12.0.0 | MIT | Copyright 2010, 2011, Chris Winberry <chris@winberry.net>. |
+| hoist-non-react-statics | 3.3.2 | BSD-3-Clause | Copyright (c) 2015, Yahoo! Inc. |
+| htmlparser2 | 3.10.1 | MIT | Copyright 2010, 2011, Chris Winberry <chris@winberry.net>. |
 | ieee754 | 1.2.1 | BSD-3-Clause | Copyright 2008 Fair Oaks Labs, Inc. |
-| immediate | 3.0.6 | MIT | Copyright (c) 2012 Barnesandnoble.com, llc, Donavon West, Domenic Denicola, Brian Cavalier |
-| inherits | 2.0.4 | ISC | Copyright (c) Isaac Z. Schlueter |
+| immediate | 3.3.0 | MIT | Copyright (c) 2012 Barnesandnoble.com, llc, Donavon West, Domenic Denicola, Brian Cavalier |
+| inherits | 2.0.3 and 2.0.4 | ISC | Copyright (c) Isaac Z. Schlueter |
 | is-arguments | 1.2.0 | MIT | Copyright (c) 2014 Jordan Harband |
+| is-buffer | 1.1.6 | MIT | Copyright (c) Feross Aboukhadijeh |
 | is-callable | 1.2.7 | MIT | Copyright (c) 2015 Jordan Harband |
 | is-generator-function | 1.1.2 | MIT | Copyright (c) 2014 Jordan Harband |
 | is-regex | 1.2.1 | MIT | Copyright (c) 2014 Jordan Harband |
 | is-typed-array | 1.1.15 | MIT | Copyright (c) 2015 Jordan Harband |
-| isarray | 1.0.0 | MIT | Julian Gruber (package author; no LICENSE file in the package) |
+| isarray | 0.0.1 and 1.0.0 | MIT | Julian Gruber (package author; no LICENSE file in the package) |
+| level-codec | 9.0.2 | MIT | Copyright © 2012-present Contributors. |
+| level-errors | 2.0.1 | MIT | Copyright © 2012-present Contributors. |
+| level-iterator-stream | 4.0.2 | MIT | Copyright © 2012-present Contributors. |
+| level-supports | 1.0.1 | MIT | Copyright © 2019-present Contributors. |
+| levelup | 4.4.0 | MIT | Copyright © 2012-present Contributors. |
+| ltgt | 2.2.1 | MIT | Copyright (c) 2014 Dominic Tarr |
 | marked | 17.0.6 | MIT | Copyright (c) 2018+, MarkedJS (https://github.com/markedjs/) |
 | math-intrinsics | 1.1.0 | MIT | Copyright (c) 2024 ECMAScript Shims |
+| memdown | 1.4.1 | MIT | Copyright 2013, Rod Vagg (the "Original Author") |
 | object-assign | 4.1.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | object-keys | 1.1.1 | MIT | Copyright (C) 2013 Jordan Harband |
 | object.assign | 4.1.7 | MIT | Copyright (c) 2014 Jordan Harband |
 | possible-typed-array-names | 1.1.0 | MIT | Copyright (c) 2024 Jordan Harband |
+| pouchdb | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-adapter-leveldb-core | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-adapter-memory | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-adapter-utils | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-binary-utils | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-collections | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-errors | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-json | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-md5 | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-merge | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| pouchdb-utils | 7.3.1 | Apache-2.0 | no copyright line in the package |
 | process | 0.11.10 | MIT | Copyright (c) 2013 Roman Shtylman <shtylman@gmail.com> |
 | process-nextick-args | 2.0.1 | MIT | Copyright (c) 2015 Calvin Metcalf |
+| prop-types | 15.8.1 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
 | prr | 1.0.1 | MIT | Copyright (c) 2014 Rod Vagg |
-| readable-stream | 2.3.8 | MIT | Copyright Node.js contributors. |
-| safe-buffer | 5.2.1 | MIT | Copyright (c) Feross Aboukhadijeh |
+| react | 17.0.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
+| react-dom | 17.0.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
+| react-is | 16.13.1 and 17.0.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
+| react-lifecycles-compat | 3.0.4 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
+| react-modal | 3.15.1 | MIT | Copyright (c) 2017 Ryan Florence |
+| react-redux | 7.2.9 | MIT | Copyright (c) 2015-present Dan Abramov |
+| react-tooltip | 3.9.0 | MIT | Copyright (c) 2015 Wang Zixiao |
+| readable-stream | 1.1.14, 2.3.8 and 3.6.2 | MIT | Copyright Joyent, Inc. and other Node contributors.; Copyright Node.js contributors. |
+| redux | 4.2.0 | MIT | Copyright (c) 2015-present Dan Abramov |
+| regexp-quote | 0.0.0 | MIT | Copyright (c) 2012-2014 Daniel Brockman (MIT-LICENSE in github.com/dbrock/node-regexp-quote; npm lists no licence) |
+| safe-buffer | 5.1.2 and 5.2.1 | MIT | Copyright (c) Feross Aboukhadijeh |
 | safe-regex-test | 1.1.0 | MIT | Copyright (c) 2022 Jordan Harband |
+| sanitize-html-react | 1.13.0 | MIT | Copyright (c) 2013, 2014, 2015 P'unk Avenue LLC |
+| scheduler | 0.20.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
 | set-function-length | 1.2.2 | MIT | Copyright (c) Jordan Harband and contributors |
-| string_decoder | 1.3.0 | MIT | Copyright Node.js contributors. |
-| through2 | 2.0.5 | MIT | Copyright (c) Rod Vagg (the "Original Author") and additional contributors |
-| unpipe | 1.0.0 | MIT | Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
-| util | 0.12.5 | MIT | Copyright Joyent, Inc. and other Node contributors. |
+| spark-md5 | 3.0.2 | WTFPL or MIT (Codeling uses it under MIT) | Copyright (C) 2015 André Cruz <amdfcruz@gmail.com> |
+| stream-browserify (`stream`) | 3.0.0 | MIT | Copyright (c) James Halliday |
+| string_decoder | 0.10.31, 1.1.1 and 1.3.0 | MIT | Copyright Joyent, Inc. and other Node contributors.; Copyright Node.js contributors. |
+| sublevel-pouchdb | 7.3.1 | Apache-2.0 | no copyright line in the package |
+| through2 | 3.0.2 | MIT | Copyright (c) Rod Vagg (the "Original Author") and additional contributors |
+| timers-browserify (`timers`) | 1.4.2 | MIT | Copyright © 2012 J. Ryan Stinnett <jryans@gmail.com>; Copyright Joyent, Inc. and other Node contributors. |
+| util | 0.10.4 and 0.12.5 | MIT | Copyright Joyent, Inc. and other Node contributors. |
 | util-deprecate | 1.0.2 | MIT | Copyright (c) 2014 Nathan Rajlich <nathan@tootallnate.net> |
+| uuid | 8.3.2 | MIT | Copyright (c) 2010-2020 Robert Kieffer and other contributors |
+| vuvuzela | 1.0.3 | Apache-2.0 | no copyright line in the package |
+| warning | 4.0.3 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
 | which-typed-array | 1.1.24 | MIT | Copyright (c) 2015 Jordan Harband |
 | xtend | 4.0.2 | MIT | Copyright (c) 2012-2014 Raynos. |
-
-### Modules bundled into `main.js` and `pxtasseteditor.js`, not in `target/node_modules` (to verify)
-
-Microsoft's pxt build bundles these. The licence is the one the npm registry lists for the package today; the
-bundled version and its copyright line are not checked yet.
-
-| Package | Licence (npm registry) |
-|---|---|
-| react, react-dom (17.0.2), react-is (16.13.1 and 17.0.2), scheduler (0.20.2) | MIT (versions from the file headers) |
-| react-modal, react-redux, react-tooltip, react-lifecycles-compat, redux, prop-types, classnames, warning | MIT |
-| hoist-non-react-statics, exenv | BSD-3-Clause |
-| @babel/runtime, uuid, crypto-js, utf8, sanitize-html-react, double-ended-queue | MIT |
-| spark-md5 | WTFPL or MIT (Codeling uses it under MIT) |
-| argsarray | WTFPL |
-| pouchdb, pouchdb-adapter-leveldb-core, pouchdb-adapter-memory, pouchdb-adapter-utils, pouchdb-binary-utils, pouchdb-collections, pouchdb-errors, pouchdb-json, pouchdb-md5, pouchdb-merge, pouchdb-utils, sublevel-pouchdb, vuvuzela | Apache-2.0 |
-| memdown, levelup, deferred-leveldown, abstract-leveldown, level-codec, level-errors, level-iterator-stream, level-supports, ltgt, functional-red-black-tree | MIT |
-| stream-browserify (`stream`), timers-browserify (`timers`) | MIT |
-| regexp-quote | none listed on npm (to verify) |
 
 ### Notes
 
 - Blockly ships no NOTICE file: neither the root of github.com/RaspberryPiFoundation/blockly nor `packages/blockly`
   has one (checked 2026-11-11), and the npm package has no LICENSE or NOTICE file. Its licence is the Apache License
   2.0 below. The other Apache-2.0 packages in `target/node_modules` (the `@blockly` plugins, DOMPurify) ship no NOTICE
-  file either. The TypeScript npm package carries a `ThirdPartyNoticeText.txt` for the material in its `lib.d.ts`
-  files; whether the TypeScript 2.6 copy in `typescript.js` needs it is to verify.
+  file either. The PouchDB packages and vuvuzela ship none either.
+- TypeScript's `ThirdPartyNoticeText.txt` is not shipped. The one in TypeScript 2.6.1 lists only DefinitelyTyped, whose
+  material is in the `lib.d.ts` files. The packaged editor has `typescript.js` and no `lib*.d.ts` file.
 - Font Awesome's attribution stays in the header of `semantic.css` and `rtlsemantic.css`.
 - The Norwegian pxt UI strings (`target/locales/nb/strings.json` and `webstrings.json`) are a snapshot from
   makecode.com whose licence for reuse is not verified yet; see `target/locales/README.md`.
