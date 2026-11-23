@@ -18,7 +18,7 @@
     with -Release. A target without a jar still gets its instances, with a warning, so a later run can fill them.
 
 .EXAMPLE
-    cd C:\MultiMC; & C:\path\to\MinecraftCodeling\scripts\setup-multimc.ps1
+    cd C:\MultiMC; & C:\path\to\mod-codeling\scripts\setup-multimc.ps1
 .EXAMPLE
     .\setup-multimc.ps1 -MultiMC C:\MultiMC -Release v0.0.1 -Only "*1.21.1*"
 #>
@@ -43,7 +43,7 @@ $ProgressPreference = "SilentlyContinue"   # Invoke-WebRequest is very slow with
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
-$GitHubRepo = "Eirahub/MinecraftCodeling"
+$GitHubRepo = "halisonworks/mod-codeling"
 
 # One row per Stonecutter target (settings.gradle.kts): the jar's Minecraft version, then every Minecraft version
 # that jar supports (its fabric.mod.json / neoforge.mods.toml range). Keep in step with settings.gradle.kts and
