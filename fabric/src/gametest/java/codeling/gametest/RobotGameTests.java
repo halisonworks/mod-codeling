@@ -401,9 +401,32 @@ public class RobotGameTests {
     /** Absolute positions a claim mod protects: it refuses the FakePlayer's click there, as claim mods do. */
     private static final Set<BlockPos> CLAIMED = ConcurrentHashMap.newKeySet();
 
+    /** Owners whose robots' clicks another mod looks at, and what that mod saw in UseBlockCallback (issue #246). */
+    private static final Set<UUID> WATCHED = ConcurrentHashMap.newKeySet();
+    private static final Set<Use> USES = ConcurrentHashMap.newKeySet();
+
+    private record Use(UUID owner, String name, BlockPos pos) {
+    }
+
     static {
         UseBlockCallback.EVENT.register((player, level, hand, hit) ->
                 player instanceof FakePlayer && CLAIMED.contains(hit.getBlockPos()) ? InteractionResult.FAIL : InteractionResult.PASS);
+        UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (player instanceof FakePlayer && WATCHED.contains(player.getUUID())) {
+                USES.add(new Use(player.getUUID(), player.getGameProfile().name(), hit.getBlockPos().immutable()));
+            }
+            return InteractionResult.PASS;
+        });
+    }
+
+    /** The clicks another mod sees when the robot uses a door, places a block and looks in a chest. */
+    private static Set<Use> uses(GameTestHelper helper, UUID owner, String name) {
+        return Set.of(new Use(owner, name, helper.absolutePos(START.south())), new Use(owner, name, helper.absolutePos(START.above())),
+                new Use(owner, name, helper.absolutePos(START.east())));
+    }
+
+    private static Set<Use> seen(UUID owner) {
+        return USES.stream().filter(use -> use.owner().equals(owner)).collect(java.util.stream.Collectors.toSet());
     }
 
     private static Container container(GameTestHelper helper, BlockPos pos) {
@@ -586,6 +609,33 @@ public class RobotGameTests {
         player.snapTo(Vec3.atCenterOf(helper.absolutePos(START).above(100)));
         player.setGameMode(mode);
         return player;
+    }
+
+    // Issue #246, a contract with other mods (docs/architecture.md, section 3): the robot uses a block as a FakePlayer
+    // with the owner's UUID and the name Codeling[<owner name>], and UseBlockCallback fires with it.
+    @GameTest(maxTicks = 100)
+    public void fakePlayerContractOnlineOwner(GameTestHelper helper) {
+        ServerPlayer player = ownerIn(helper, GameType.SURVIVAL);
+        UUID owner = player.getUUID();
+        WATCHED.add(owner);
+        List<Result> results = protectionOps(helper, owner);
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(results.size(), 4, "results");
+            helper.assertValueEqual(seen(owner), uses(helper, owner, "Codeling[" + player.getGameProfile().name() + "]"), "clicks");
+            helper.getLevel().getServer().getPlayerList().remove(player);
+        });
+    }
+
+    // Issue #246: an owner who is not in the game has no name to show, so it is the first 8 characters of the UUID.
+    @GameTest(maxTicks = 100)
+    public void fakePlayerContractOfflineOwner(GameTestHelper helper) {
+        UUID owner = UUID.randomUUID();
+        WATCHED.add(owner);
+        List<Result> results = protectionOps(helper, owner);
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(results.size(), 4, "results");
+            helper.assertValueEqual(seen(owner), uses(helper, owner, "Codeling[" + owner.toString().substring(0, 8) + "]"), "clicks");
+        });
     }
 
     // Issue #53: the robot of an adventure owner opens doors and containers but places and breaks nothing.
