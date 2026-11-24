@@ -1798,10 +1798,16 @@ public class RobotGameTests {
         List<Result> results = new ArrayList<>();
         send(results, helper, owner, "agent.radar", 1, 4);
         send(results, helper, owner, "agent.radar", 1, 8);
-        send(results, helper, owner, "agent.radar", 2, RobotCommand.MAX_RADAR_RADIUS);
+        // Issue #322: not the largest radius, which reaches the players of the tests beside this one.
+        send(results, helper, owner, "agent.radar", 2, 8);
         send(results, helper, owner, "agent.radar", 0, 8);
         send(results, helper, owner, "agent.countNearby", 2, 8);
         Result.Code tooFar = null;
+        try {
+            RobotCommand.parse("agent.radar", List.of(1, RobotCommand.MAX_RADAR_RADIUS));
+        } catch (RobotException e) {
+            helper.fail("radius 16 rejected: " + e.result());
+        }
         try {
             RobotCommand.parse("agent.radar", List.of(1, RobotCommand.MAX_RADAR_RADIUS + 1));
         } catch (RobotException e) {
