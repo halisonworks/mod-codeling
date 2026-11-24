@@ -221,7 +221,7 @@ Slots are the robot's 27 inventory places, numbered 1 to 27.
 | agent redstone power (direction) | `agent.redstonePower(SixDirection.Forward)` | Redstone power, 0 to 15. |
 | on agent redstone powered | `agent.onRedstonePowered(function () { })` | Runs its code each time the block your robot stands in gets a redstone signal, for example when you flip a lever next to it. See "React to blocks, redstone and the day" below. |
 | agent position | `agent.getPosition()` | Where the robot is. |
-| agent orientation | `agent.getOrientation()` | Which way it looks, in degrees. |
+| agent orientation | `agent.getOrientation()` | Which way it looks, in degrees: south 0, west 90, north -180, east -90. |
 | agent find nearest (block) within (radius) | `agent.findNearest(Block.OakLog, 16)` | The nearest block of that kind, or nothing. |
 | agent find nearest (category) within (radius) | `agent.findNearestCategory(BlockCategory.Logs, 16)` | Same, for logs, leaves, ores, planks, wool or flowers. |
 

@@ -331,7 +331,7 @@ declare namespace agent {
     function getPosition(): Position;
 
     /**
-     * Which way the robot faces, in degrees: south 0, west 90, north 180, east -90.
+     * Which way the robot faces, in degrees: south 0, west 90, north -180, east -90.
      */
     //% blockId=agent_get_orientation block="agent orientation"
     //% group="Inspecting" weight=77
