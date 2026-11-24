@@ -10,19 +10,27 @@ Codeling er ikke laget av Microsoft, Mojang eller MakeCode-teamet. Se [Ansvarsfr
 
 ## Dette trenger du
 
-- Minecraft Java Edition, versjon 26.3 eller 1.21.1, på en datamaskin (Windows, macOS eller Linux).
-- En modlaster: Fabric Loader 0.20.1 eller nyere med Fabric API for Minecraft-versjonen din, eller NeoForge (26.3.0.102 eller nyere for 26.3, 21.1.265 eller nyere for 1.21.1).
+- Minecraft Java Edition, versjon 1.21.1 til 1.21.11 eller 26.1 til 26.3, på en datamaskin (Windows, macOS eller Linux).
+- En modlaster: Fabric Loader 0.20.1 eller nyere med Fabric API for Minecraft-versjonen din, eller den nyeste NeoForge for Minecraft-versjonen din (26.3.0.102 eller nyere for 26.3, 21.1.265 eller nyere for 1.21.1).
 - Codeling-filen for modlasteren og Minecraft-versjonen din (en `.jar`-fil). Navnet sier hvilken det er:
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
   | 26.3 | `codeling-fabric-26.3-...jar` | `codeling-neoforge-26.3-...jar` |
+  | 26.2 | `codeling-fabric-26.2-...jar` | `codeling-neoforge-26.2-...jar` |
+  | 26.1 til 26.1.2 | `codeling-fabric-26.1.2-...jar` | `codeling-neoforge-26.1.2-...jar` |
+  | 1.21.11 | `codeling-fabric-1.21.11-...jar` | `codeling-neoforge-1.21.11-...jar` |
+  | 1.21.9 til 1.21.10 | `codeling-fabric-1.21.10-...jar` | `codeling-neoforge-1.21.10-...jar` |
+  | 1.21.6 til 1.21.8 | `codeling-fabric-1.21.8-...jar` | `codeling-neoforge-1.21.8-...jar` |
+  | 1.21.5 | `codeling-fabric-1.21.5-...jar` | `codeling-neoforge-1.21.5-...jar` |
+  | 1.21.4 | `codeling-fabric-1.21.4-...jar` | `codeling-neoforge-1.21.4-...jar` |
+  | 1.21.2 til 1.21.3 | `codeling-fabric-1.21.3-...jar` | `codeling-neoforge-1.21.3-...jar` |
   | 1.21.1 | `codeling-fabric-1.21.1-...jar` | `codeling-neoforge-1.21.1-...jar` |
 - En nettleser (Chrome, Edge eller Firefox).
 
-En forelder kan gjøre installasjonen. Den tar omtrent ti minutter. Stegene under sier 26.3; på 1.21.1 velger du 1.21.1 i installasjonsprogrammene og bruker 1.21.1-filene.
+En forelder kan gjøre installasjonen. Den tar omtrent ti minutter. Stegene under sier 26.3; på en annen versjon velger du den i installasjonsprogrammene og bruker filene for den.
 
-På Minecraft 1.21.1 viser redigereren også blokker og gjenstander som kom senere (for eksempel blek eik). Et program som bruker en av dem, får feilen "minecraft:... is not in this Minecraft version". Alt annet virker likt.
+På eldre Minecraft-versjoner viser redigereren også blokker og gjenstander som kom senere (for eksempel blek eik). Et program som bruker en av dem, får feilen "minecraft:... is not in this Minecraft version". Alt annet virker likt.
 
 ## Installere
 
