@@ -14,6 +14,10 @@ concurrency:
 permissions:
   contents: read
 
+# Maven Central sometimes answers 429 (issue #317): six tries, waiting 2, 4, 8, 16 and 32 seconds. Gradle's default is three tries.
+env:
+  GRADLE_OPTS: "-Dorg.gradle.internal.repository.max.tentatives=6 -Dorg.gradle.internal.repository.initial.backoff=2000"
+
 # Job limits (issue #252): a hung GameTest server once held a job for 35 minutes, and GitHub's default limit is 6 hours.
 # A hung server stops its Gradle task after 10 minutes (gradle/loader.gradle.kts). Each limit is the normal time of the
 # last green runs on develop, plus up to 5 minutes of setup with a cold cache (Minecraft download, Loom remap), plus that
@@ -54,6 +58,11 @@ jobs:
 
       # Stays on v5: v6 bundles a proprietary caching component under Gradle's Terms of Use; upgrade only after the owner accepts them.
       - uses: gradle/actions/setup-gradle@v5
+        with:
+          # Issue #317: these two fill the cache (over 4 GB per job) and are made again in the build.
+          gradle-home-cache-excludes: |
+            caches/fabric-loom
+            caches/neoformruntime
 
       # :neoforge has its own job below.
       - name: Build core, common and fabric (includes the editor in the jar), JUnit tests and server GameTests (check runs :fabric:runGameTest)
@@ -120,6 +129,10 @@ jobs:
           java-version: 25
 
       - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-excludes: |
+            caches/fabric-loom
+            caches/neoformruntime
 
       - name: Build the NeoForge jar and run the NeoForge GameTests
         run: ./gradlew :neoforge:26.3:build
@@ -165,6 +178,10 @@ jobs:
           java-version: 25
 
       - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-excludes: |
+            caches/fabric-loom
+            caches/neoformruntime
 
       - name: Build the 1.21.1 jar and run its GameTests
         run: ./gradlew :${{ matrix.loader }}:1.21.1:build
@@ -210,6 +227,10 @@ jobs:
           java-version: 25
 
       - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-excludes: |
+            caches/fabric-loom
+            caches/neoformruntime
 
       - name: Build the ${{ matrix.mc }} jar and run its GameTests
         run: ./gradlew :${{ matrix.loader }}:${{ matrix.mc }}:build
@@ -250,6 +271,10 @@ jobs:
           java-version: 25
 
       - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-home-cache-excludes: |
+            caches/fabric-loom
+            caches/neoformruntime
 
       # The end-to-end client GameTest (#135) runs e2e/editor-run.mjs in headless Chromium through playwright-core.
       - uses: actions/setup-node@v7
