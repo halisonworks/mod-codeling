@@ -538,6 +538,51 @@ move to, go to robot, position, place, destroy, collect all and say. Put "robot 
 The other robot calls (for example `miner.findNearest(Block.CoalOre, 16)`) are in JavaScript and Python. The agent
 blocks stay as they are, for your default robot.
 
+### A function for each robot
+
+Give each robot its own job with one function per robot. The first line of the function picks the robot, and the rest
+uses that variable:
+
+```
+function mine(length: number) {
+    let miner = robots.get("Miner")
+    for (let i = 0; i < length; i++) {
+        miner.destroy(SixDirection.Forward)
+        miner.move(SixDirection.Forward, 1)
+    }
+}
+function build(length: number) {
+    let builder = robots.get("Builder")
+    for (let i = 0; i < length; i++) {
+        builder.move(SixDirection.Forward, 1)
+        builder.place(SixDirection.Back)
+    }
+}
+player.onChat("mine", function (num1, num2, num3) {
+    mine(num1)
+})
+player.onChat("build", function (num1, num2, num3) {
+    build(num1)
+})
+player.onChat("both", function (num1, num2, num3) {
+    control.runInParallel(function () {
+        mine(num1)
+    })
+    build(num1)
+})
+```
+
+1. Let the world have three robots (`/gamerule codeling:max_robots 3`, your default robot counts as one). Then
+   `/robot spawn Miner` and `/robot spawn Builder`.
+2. Put blocks in Builder: right-click it, or `/robot give stone 64 1 Builder` in creative mode. It builds with the
+   slot it has picked (`/robot slot 1 Builder`).
+3. Paste the program in JavaScript, go back to Blocks and press Run.
+4. Type `mine 5`, `build 5` or `both 5` in the game's chat. Miner digs 5 blocks forward, and Builder walks 5 blocks
+   and puts a block behind it for each. With `both` they work at the same time.
+
+To make it with blocks, see [Make your own function](#make-your-own-function). Put "robot (name)" in a variable first in
+the function, and use that variable in the blocks from Robots.
+
 ### Go to another robot
 
 "go to robot" sends one of your robots to another one, the first step of any job they share:

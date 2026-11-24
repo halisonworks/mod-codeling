@@ -547,6 +547,51 @@ gå til robot, posisjon, plasser, ødelegg, samle alt og si. Legg "robot (navn)"
 robotkallene (for eksempel `miner.findNearest(Block.CoalOre, 16)`) finnes i JavaScript og Python. Robotblokkene for
 `agent` er som før og gjelder standardroboten din.
 
+### En funksjon for hver robot
+
+Gi hver robot sin egen jobb med én funksjon per robot. Den første linjen i funksjonen velger roboten, og resten bruker
+den variabelen:
+
+```
+function mine(length: number) {
+    let miner = robots.get("Miner")
+    for (let i = 0; i < length; i++) {
+        miner.destroy(SixDirection.Forward)
+        miner.move(SixDirection.Forward, 1)
+    }
+}
+function build(length: number) {
+    let builder = robots.get("Builder")
+    for (let i = 0; i < length; i++) {
+        builder.move(SixDirection.Forward, 1)
+        builder.place(SixDirection.Back)
+    }
+}
+player.onChat("mine", function (num1, num2, num3) {
+    mine(num1)
+})
+player.onChat("build", function (num1, num2, num3) {
+    build(num1)
+})
+player.onChat("both", function (num1, num2, num3) {
+    control.runInParallel(function () {
+        mine(num1)
+    })
+    build(num1)
+})
+```
+
+1. La verdenen ha tre roboter (`/gamerule codeling:max_robots 3`, standardroboten din teller som én). Så
+   `/robot spawn Miner` og `/robot spawn Builder`.
+2. Legg blokker i Builder: høyreklikk på den, eller `/robot give stone 64 1 Builder` i kreativ modus. Den bygger med
+   plassen den har valgt (`/robot slot 1 Builder`).
+3. Lim inn programmet i JavaScript, gå tilbake til Blokker og trykk på Kjør.
+4. Skriv `mine 5`, `build 5` eller `both 5` i chatten i spillet. Miner graver 5 blokker framover, og Builder går
+   5 blokker og setter en blokk bak seg for hver. Med `both` jobber de samtidig.
+
+Vil du lage det med blokker, se [Lag din egen funksjon](#lag-din-egen-funksjon). Legg "robot (navn)" i en variabel først i
+funksjonen, og bruk den variabelen i blokkene fra Roboter.
+
 ### Gå til en annen robot
 
 "gå til robot" sender en av robotene dine til en annen, det første steget i alt robotene gjør sammen:
