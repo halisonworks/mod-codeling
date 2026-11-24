@@ -136,6 +136,10 @@ Areas in use: `Core`, `Editor`, `Minecraft mod`, `NeoForge loader`, `Build`, `CI
 
 A server GameTest task (`runGameTest` on Fabric, `runGameTestServer` on NeoForge) stops after 10 minutes and fails with "The server GameTests hung", and every CI job that runs GameTests has a `timeout-minutes` of its own. When one of them cuts a job off, rerun the job. Mock players on Minecraft 1.21.6 to 1.21.8 used to hang this way (issue #252); if it happens again, take a thread dump of the game JVM while it hangs and add it to #252: `jps -l` lists the Java processes (the game is the one that is not `GradleDaemon`), then `jstack <pid> > hang.txt`.
 
+### A job that fails with 429
+
+Maven Central sometimes answers "Too Many Requests" (429). CI tries each download six times, over about a minute (`GRADLE_OPTS` in the workflows, issue #317). If a job still fails with 429, rerun the failed job.
+
 ## Versioning
 
 Three version numbers change independently of each other:
