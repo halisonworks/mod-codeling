@@ -1,6 +1,6 @@
 # Claude Code handover: Codeling / Halison Code for Minecraft
 
-Date: 24 November 2026. Repository: `halisonworks/mod-codeling`. Planning PR: [#411](https://github.com/halisonworks/mod-codeling/pull/411), branch `docs/milestone-roadmap`, base `develop`. This is a maintainer handover, not permission to merge, publish, rename or change security policy.
+Date: 24 November 2026. Repository: `halisonworks/mod-codeling`. Planning PR: [#411](https://github.com/halisonworks/mod-codeling/pull/411), merged to `develop` on 25 November 2026. This is a maintainer handover, not permission to merge, publish, rename or change security policy.
 
 ## 1. Mission and immediate priorities
 
@@ -10,12 +10,12 @@ Start by reading [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## 2. Baseline and planning state
 
-- 0.0.5 was published as a pre-release on 24 November 2026: tag `v0.0.5` on `main` at `da47097`, 20 JARs and SHA256SUMS. Its changes are in the 0.0.5 section of the changelog. The development version moves to 0.0.6 with #412. Verify actual tags/releases; do not equate a development version with a published artefact.
+- 0.0.5 was published as a pre-release on 24 November 2026: tag `v0.0.5` on `main` at `da47097`, 20 JARs and SHA256SUMS. Its changes are in the 0.0.5 section of the changelog. The development version is 0.0.6 (#412). Verify actual tags/releases; do not equate a development version with a published artefact.
 - Roadmap creation base: develop commit `868555e8383eb2cab9991a32fae789a521b39453`. The roadmap allocation commit was `fffc9d99cca334653ebf8e5f96411292addc5e36`. Fetch current heads; these are evidence references, not checkout targets for new work.
 - Final planning snapshot: 192 open issues, 150 closed; 112 core, 67 optional with proposed targets, 13 deferred. All 192 allocated exactly once in ROADMAP. Explicit dependency graph after #23 correction: 55 unique active edges, no later-version blockers or core-to-optional blockers. Previous 56-edge graph had no detected cycles; removing the #23 edge cannot introduce one. Canonical hierarchy check found no violations. Historical lines beginning Parent or Blocked by must not be parsed as active relations. Prose and conditional dependencies still need engineering review.
-- Planning changed issues and documentation only. No product code, new runtime tests, release build, publication, trademark clearance, native milestone creation or native sub-issue setup was performed in this planning work.
+- Planning changed issues and documentation only. No product code, new runtime tests, release build, publication, trademark clearance, native milestone creation or native sub-issue setup was performed in the planning work of #411 itself. Milestones and sub-issues were set afterwards, see section 6.
 - Old catch-all #63 is closed as a planning consolidation, not as implemented work. Duplicate plans #330-335 and #337-341 were closed in favour of canonical #343/#344 and their children. #336/#342 remain active. Do not recreate those plans.
-- PR #411 is draft and unmerged. Review its diff, reconcile any newer develop changes, run documentation checks and request maintainer approval before merging. Do not force-push or alter another session's branch.
+- PR #411 is merged and its branch is deleted. Change the plan in new PRs from `develop`. Do not force-push or alter another session's branch.
 
 ## 3. Product decisions and boundaries
 
@@ -69,7 +69,14 @@ Editor/relay compatibility and client tests need built editor; Playwright setup 
 
 ## 6. Planning metadata migration with gh
 
-Native GitHub milestone and sub-issue writes were unavailable in the planning connector. ROADMAP is the proposed allocation authority pending approval. Use authenticated gh in the local Claude Code environment if authorised; first check repository and permissions. Do not guess milestone numbers. Inspect existing native metadata and open issues, preview the exact mutations, obtain approval for the proposed allocation before bulk changes. Preserve closed issue history and existing release records. Do not delete old milestones. A deferred issue may use an explicitly named unscheduled milestone or no milestone, according to maintainer preference.
+The owner approved a preview, and the migration was done on 25 November 2026 with `gh`. Read back from GitHub afterwards:
+
+- 11 milestones were created: 0.1.0 to 1.0.0 as in ROADMAP, and `Deferred (unscheduled)`. All 192 open issues have the milestone of their ROADMAP target.
+- The seven old milestones are kept and still open. They hold only closed issues, and no closed issue was changed.
+- All 176 open issues with a Parent line have that parent as native sub-issue parent: 72 new, 22 moved, 82 already right. The first Parent line is the canonical one. The 16 epics have no parent.
+- Native blockers were not changed. Of the 53 explicit active edges found in the issue text in this check (the planning review counted 55, and the difference is not explained), 21 are not native blockers. 8 native blockers are not in the text. Review these before changing them.
+
+Keep ROADMAP and the native metadata aligned when issues change. Commands to read the state:
 
 ```sh
 gh auth status
@@ -78,7 +85,7 @@ gh api --paginate 'repos/halisonworks/mod-codeling/milestones?state=all&per_page
 gh issue list -R halisonworks/mod-codeling --state open --limit 500 --json number,title,body,labels,milestone
 ```
 
-Create missing version milestones using the supported GitHub REST API only after preview/approval. Assign active issues using actual milestone numbers (or gh issue edit with exact title). For native sub-issues, consult current GitHub API docs, map canonical Parent lines to actual issue IDs, inspect current relationships before changes, and preserve existing matching relationships. Do not mistake historical review sections for current Parent lines. Maintain one parent per active non-epic; do not use parenthood as a blanket blocking edge. Verify all operations by re-reading live state; record exceptions, counts and remaining conflicts. Keep ROADMAP and issue metadata aligned. Native dependency support, if available, should mirror only actual hard dependencies, not related or conditional links.
+For later changes: inspect the current state, preview the exact mutations and get approval before bulk changes. Use actual milestone numbers. Map canonical Parent lines to actual issue IDs, and do not mistake historical review sections for current Parent lines. Keep one parent per active non-epic; do not use parenthood as a blanket blocking edge. Verify by re-reading live state, and record exceptions. Native dependencies should mirror only actual hard dependencies, not related or conditional links.
 
 ## 7. Maintainer workflow and issue quality
 
@@ -98,9 +105,9 @@ When handing back a tranche, state completed issues and PRs, exact commit and te
 
 ## 9. Suggested first Claude Code session
 
-1. Read the documents and inspect current repository state, issue #57 and the draft PR #411.
+1. Read the documents and inspect current repository state, issue #57 and the merged planning PR #411.
 2. Produce a concise delta report since the planning snapshot, including any issue or release changes.
-3. Review roadmap allocation and explicit/conditional dependency conflicts; propose native metadata migration preview. Do not make release or naming decisions.
+3. Review roadmap allocation and explicit/conditional dependency conflicts against the native metadata, which is already migrated (section 6). Do not make release or naming decisions.
 4. With maintainer agreement, choose one P0/P1 0.1.0 issue not already being worked on, preferably #3/#6 evidence or #53/#55 if relay is already accepted. Create a focused branch, verify before changing code, record tests and open a reviewable PR.
 5. Continue through the 0.1.0 release gate. Escalate missing manual evidence or policy approval rather than silently lowering acceptance criteria.
 
