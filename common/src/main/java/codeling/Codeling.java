@@ -73,6 +73,9 @@ public final class Codeling {
      */
     public static final Supplier<GameRule<Integer>> MAX_ROBOTS = PLATFORM.intRule(
             Identifier.fromNamespaceAndPath(MOD_ID, "max_robots"), GameRuleCategory.MISC, 1, 1, 16);
+    /** False: the game of the player who runs the world does not pause when its window loses focus (issue #297). */
+    public static final Supplier<GameRule<Boolean>> PAUSE_ON_LOST_FOCUS = PLATFORM.booleanRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "pause_on_lost_focus"), GameRuleCategory.MISC, true);
     //?} else {
     /*// Before 1.21.11 game rules are GameRules keys named by a plain string; Codeling keeps the 26.x names
     // (/gamerule codeling:free_items true). The enum rule's value type is the loader's (Fabric's EnumRule, Codeling's
@@ -83,6 +86,8 @@ public final class Codeling {
             Identifier.fromNamespaceAndPath(MOD_ID, "robot_camera"), GameRules.Category.MISC, RobotCamera.Mode.owner);
     public static final Supplier<GameRules.Key<GameRules.IntegerValue>> MAX_ROBOTS = PLATFORM.intRule(
             Identifier.fromNamespaceAndPath(MOD_ID, "max_robots"), GameRules.Category.MISC, 1, 1, 16);
+    public static final Supplier<GameRules.Key<GameRules.BooleanValue>> PAUSE_ON_LOST_FOCUS = PLATFORM.booleanRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "pause_on_lost_focus"), GameRules.Category.MISC, true);
     *///?}
 
     /** The free_items game rule (issue #189: one read for every Minecraft version). */
@@ -93,6 +98,17 @@ public final class Codeling {
         /*return server.overworld().getGameRules().get(FREE_ITEMS.get());
         *///?} else {
         /*return server.getGameRules().getBoolean(FREE_ITEMS.get());
+        *///?}
+    }
+
+    /** The pause_on_lost_focus game rule (issue #297). */
+    public static boolean pauseOnLostFocus(MinecraftServer server) {
+        //? if >=26.1 {
+        return server.getGameRules().get(PAUSE_ON_LOST_FOCUS.get());
+        //?} else if >=1.21.11 {
+        /*return server.overworld().getGameRules().get(PAUSE_ON_LOST_FOCUS.get());
+        *///?} else {
+        /*return server.getGameRules().getBoolean(PAUSE_ON_LOST_FOCUS.get());
         *///?}
     }
 
