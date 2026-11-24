@@ -51,7 +51,6 @@
   "commands.codeling.place": "%s placed a block (%s)",
   "commands.codeling.place.failed": "%s could not place a block (%s): its selected slot has no block, the place is not free, or it is protected",
   "commands.codeling.remove": "%s is removed. Its items are in your inventory or at your feet",
-  "commands.codeling.remove.default": "Your default robot cannot be removed",
   "commands.codeling.rename": "%s is now called %s",
   "commands.codeling.rename.no_name": "Write the new name too: %s",
   "commands.codeling.report": "Wrote %s in the server's folder. Read through it before you send it",

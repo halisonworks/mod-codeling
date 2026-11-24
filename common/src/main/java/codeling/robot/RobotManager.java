@@ -261,7 +261,7 @@ public final class RobotManager {
         robot.snapTo(pos, facing.toYRot(), 0);
         RobotLinks links = RobotLinks.get(level.getServer());
         showDefaultName(links, robot);
-        RobotLinks.Appearance previousAppearance = links.appearance(links.robot(key));
+        RobotLinks.Appearance previousAppearance = links.previousAppearance(key);
         if (old == null) {
             robot.setSkin(previousAppearance.skin());
             robot.setPrimaryColor(previousAppearance.color());
@@ -428,19 +428,25 @@ public final class RobotManager {
     }
 
     /**
-     * /robot remove (issue #140): one of the owner's named robots goes, and every item it holds moves to the player,
+     * /robot remove (issue #140): one of the owner's robots goes, and every item it holds moves to the player,
      * or drops at the player's feet when the inventory is full (the way a closed crafting grid gives items back), so
-     * nothing is lost. Only a loaded robot: an unloaded one holds the only copy of its items. Answers why not, or null.
+     * nothing is lost. Only a loaded robot: an unloaded one holds the only copy of its items. Removing the default robot
+     * (issue #324) also ends the owner's program; its name and look wait for the next one. Answers why not, or null.
      */
     public static Component remove(ServerPlayer player, String name) {
         RobotLinks.Key key = new RobotLinks.Key(player.getUUID(), name);
         RobotLinks links = RobotLinks.get(player.level().getServer());
         if (links.robot(key) == null) return Messages.absent(player.level().getServer(), key.owner(), name);
-        if (name.isEmpty()) return Messages.of("commands.codeling.remove.default");
         RobotEntity robot = LOADED.get(key);
         if (robot == null) return Messages.absent(player.level().getServer(), key.owner(), name);
-        RobotQueue queue = QUEUES.remove(key);
-        if (queue != null) queue.clear(Result.Code.STOPPED, "robot " + name + " was removed");
+        if (name.isEmpty()) {
+            links.setAppearance(key.owner(), robot.skin(), robot.primaryColor());
+            for (RobotQueue queue : queues(key.owner())) queue.clear(Result.Code.STOPPED, "the default robot was removed with /robot remove");
+            stop(key.owner(), "/robot remove");
+        } else {
+            RobotQueue queue = QUEUES.remove(key);
+            if (queue != null) queue.clear(Result.Code.STOPPED, "robot " + name + " was removed");
+        }
         for (int i = 0; i < robot.inventory().getContainerSize(); i++) {
             ItemStack stack = robot.inventory().removeItemNoUpdate(i);
             if (!stack.isEmpty()) McCompat.giveBack(player, stack);
