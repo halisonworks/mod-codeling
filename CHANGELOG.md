@@ -25,6 +25,8 @@ Every user-visible change to Codeling is listed here. The format follows
   plain words without internal codes, a missing robot is always explained the same way, and `/robot give`,
   `/robot skin`, `/robot animation` and `/robot color` suggest what you can write. `/robot status` without a robot and a
   refused `/codeling signal` name now count as failed commands.
+- `agent.getOrientation()` and `robot.getOrientation()` answer -180 when the robot faces north, as MakeCode's reference
+  says (issue #22). They answered 180, so change a program that compares with 180.
 - The project moved to `github.com/halisonworks/mod-codeling`. The links in the mod list (homepage, sources, issues) and
   the downloads in `scripts/setup-multimc.ps1` use the new address.
 

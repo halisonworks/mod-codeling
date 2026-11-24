@@ -160,7 +160,7 @@ public class RobotGameTests {
         });
     }
 
-    // Issues #21 and #22: world block position, and MakeCode yaw (south 0, west 90, north 180, east -90).
+    // Issues #21 and #22: world block position, and MakeCode yaw (south 0, west 90, north -180, east -90).
     @GameTest(maxTicks = 100)
     public void positionAndOrientation(GameTestHelper helper) {
         UUID owner = spawn(helper);
@@ -176,7 +176,7 @@ public class RobotGameTests {
         List<Result> moved = send(helper, owner, "agent.getPosition");
         helper.succeedWhen(() -> {
             helper.assertValueEqual(position, List.of(Result.ok(List.of(start.getX(), start.getY(), start.getZ()))), "position");
-            helper.assertValueEqual(yaw, List.of(List.of(Result.ok(0)), List.of(Result.ok(90)), List.of(Result.ok(180)), List.of(Result.ok(-90))),
+            helper.assertValueEqual(yaw, List.of(List.of(Result.ok(0)), List.of(Result.ok(90)), List.of(Result.ok(-180)), List.of(Result.ok(-90))),
                     "south, west, north, east");
             // facing east, forward is +x
             helper.assertValueEqual(moved, List.of(Result.ok(List.of(start.getX() + 2, start.getY(), start.getZ()))), "position after move");
