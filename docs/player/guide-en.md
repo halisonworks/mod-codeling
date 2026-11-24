@@ -486,7 +486,8 @@ it up, for example `/gamerule codeling:max_robots 4`. Turning it down again neve
 - `/robot list` shows your robots and where they are. `/robot remove Miner` removes one: everything it carries goes
   into your inventory, and what does not fit drops at your feet. The robot must be loaded (close to you).
 - The chat commands for one robot take the name at the end: `/robot move forward 3 Miner`, `/robot come Miner`,
-  `/robot inventory Miner`, `/robot camera Miner`. Without a name they are for your default robot.
+  `/robot inventory Miner`, `/robot camera Miner`. Without a name they are for your default robot. `agent` is its name
+  in the commands, and so is the name you give it: `/robot skin mint agent`. Press Tab to see your robots' names.
 - `/robot stop` stops all your robots and your program. `/robot stop Miner` stops only what Miner is doing.
 
 In a program, `robots.get("Miner")` is the robot called Miner. It can do everything `agent` can:
@@ -538,8 +539,8 @@ stop the program with an error that you can catch (see "Errors, and checking you
 ### Name tags
 
 A robot with a name shows it over its head. Rename it with `/robot rename Miner Digger`, or with a name tag item
-from an anvil (right-click the robot with it). Only the owner and ops can rename a robot. `/robot rename Bob` (one
-name) gives your default robot a tag; it is still `agent` in programs.
+from an anvil (right-click the robot with it). Only the owner and ops can rename a robot. `/robot rename agent Bob`
+gives your default robot a name. The commands then take both `agent` and `Bob`; in programs it is still `agent`.
 
 Look at a robot up close and you also see whose robot it is. `/robot nametag off` hides the names of all your robots,
 `/robot nametag on` shows them again; add a name to change only one robot. While a robot talks (`agent.say`), the
@@ -561,7 +562,7 @@ your default robot.
 | `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `codeling:max_robots`. |
 | `/robot list` | Your robots and where they are. |
 | `/robot remove <name>` | Removes a robot with a name. Its items go to you. |
-| `/robot rename <name> <new name>` | Renames a robot. `/robot rename <new name>` gives your default robot a name tag. |
+| `/robot rename <name> <new name>` | Renames a robot. `agent` is your default robot, and `/robot rename <new name>` renames it too. |
 | `/robot nametag <on\|off> [name]` | Shows or hides the name over your robots (without a name: all of them). |
 | `/robot stop [name]` | Without a name: stops all your robots and your program. With a name: stops what that robot is doing. |
 | `/robot status [name]` | Where the robot is and which way it looks. |
@@ -596,7 +597,7 @@ While you look through the robot, your own body stays where it is and does not m
 
 ## Robot appearance
 
-The robot is one block tall and has three original skins. Use `/robot skin workshop`, `/robot skin industrial` or `/robot skin mint`. Add a robot name after the skin to change a named robot, for example `/robot skin mint Miner`. Names and skins survive saving and moving between dimensions.
+The robot is one block tall and has three original skins. Use `/robot skin workshop`, `/robot skin industrial` or `/robot skin mint`. Add a robot name after the skin to change that robot, for example `/robot skin mint Miner` or `/robot skin mint agent` (your default robot). Names and skins survive saving and moving between dimensions.
 
 Walking and left/right turns animate automatically. Use `/robot animation look_left`, `look_right`, `look_up`, `look_down` or `wave` for a short gesture; add a robot name at the end when needed. `idle` cancels a gesture. The lamp is a visual detail; directional illumination is separate work.
 

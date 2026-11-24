@@ -300,6 +300,7 @@ public class MultiRobotGameTests {
         run(player, "robot rename Bob");
         helper.assertTrue(RobotManager.robot(player.getUUID()) == agent, "the default robot stays the default");
         helper.assertValueEqual(agent.getCustomName().getString(), "Bob", "the default robot's tag");
+        helper.assertTrue(run(player, "robot rename Builder").toString().contains("/robot rename Builder <name>"), "the new name is missing");
         // A name tag item, used by the owner.
         ItemStack tag = new ItemStack(Items.NAME_TAG);
         tag.set(DataComponents.CUSTOM_NAME, Component.literal("Tagged"));
@@ -315,6 +316,94 @@ public class MultiRobotGameTests {
         RobotManager.robot(key(player, "Digger")).discard();
         leave(helper, player);
         helper.succeed();
+    }
+
+    // Issue #293: agent, and the name the default robot was given, mean the default robot in every command.
+    @GameTest(maxTicks = 100, environment = MORE)
+    public void theDefaultRobotHasANameInCommands(GameTestHelper helper) {
+        ServerPlayer player = player(helper);
+        helper.assertTrue(suggested(player, "robot skin mint ").isEmpty(), "no robot, nothing to suggest");
+        RobotEntity agent = spawn(helper, player, "", START);
+        RobotEntity miner = spawn(helper, player, "Miner", START.south(2));
+        helper.assertTrue(run(player, "robot list").toString().contains("default robot (agent)"), "the list without a name");
+        run(player, "robot skin mint agent");
+        helper.assertValueEqual(agent.skin(), "mint", "skin by agent");
+        run(player, "robot rename agent Bob");
+        helper.assertValueEqual(agent.getCustomName().getString(), "Bob", "renamed by agent");
+        helper.assertTrue(run(player, "robot list").toString().contains("Bob (agent)"), "the list with a name");
+        helper.assertValueEqual(run(player, "robot skin industrial Bob"), List.of("Robot Bob now has the skin industrial"), "skin by its name");
+        helper.assertValueEqual(agent.skin(), "industrial", "skin by its name");
+        run(player, "robot color 3366FF Bob");
+        helper.assertValueEqual(agent.primaryColor(), 0x3366FF, "colour by its name");
+        helper.assertValueEqual(miner.skin(), "workshop", "Miner keeps its own skin");
+        for (String text : List.of("robot rename ", "robot skin mint ", "robot color reset ", "robot come ", "robot status ", "robot stop ",
+                "robot nametag on ", "robot move forward 1 ", "robot spawn ", "robot inventory ")) {
+            helper.assertTrue(suggested(player, text).containsAll(List.of("agent", "Bob", "Miner")), text + "suggests " + suggested(player, text));
+        }
+        // Names are unique, the default robot's name too.
+        helper.assertTrue(run(player, "robot rename Miner bob").toString().contains("already have a robot called Bob"), "rename to the default's name");
+        helper.assertTrue(run(player, "robot spawn bob").toString().contains("already have a robot called Bob"), "spawn with the default's name");
+        helper.assertTrue(run(player, "robot rename Miner Agent").toString().contains("is a word the /robot commands use"), "agent is taken");
+        helper.assertTrue(run(player, "robot rename agent Miner").toString().contains("already have a robot called Miner"), "rename to Miner's name");
+        for (String word : List.of("Miner", "agent", "Bob")) {
+            helper.assertValueEqual(run(player, "robot rename " + word), List.of("Write the new name too: /robot rename " + word + " <name>"), "no new name");
+        }
+        helper.assertTrue(run(player, "robot rename Bob bob").toString().contains("is now called bob"), "another case of its own name");
+        run(player, "robot rename bob Bob");
+        // Spawn moves it, remove refuses it.
+        run(player, "robot spawn Bob");
+        helper.assertTrue(RobotManager.robot(player.getUUID()) == agent && RobotManager.robot(key(player, "Bob")) == null, "spawn Bob moves the default robot");
+        for (String word : List.of("agent", "Bob")) {
+            helper.assertValueEqual(run(player, "robot remove " + word), List.of("Your default robot cannot be removed"), "remove");
+        }
+        // The tag and the queue of the default robot alone.
+        run(player, "robot nametag off agent");
+        helper.assertTrue(!agent.isCustomNameVisible() && miner.isCustomNameVisible(), "only the default robot's tag is hidden");
+        run(player, "robot nametag on Bob");
+        helper.assertTrue(agent.isCustomNameVisible(), "shown again");
+        run(player, "robot move forward 6 Bob");
+        run(player, "robot move forward 6 Miner");
+        run(player, "robot stop agent");
+        helper.assertValueEqual(RobotManager.queue(key(player, "")).size(), 0, "the default robot's queue");
+        helper.assertTrue(RobotManager.queue(key(player, "Miner")).size() > 0, "Miner goes on");
+        // The name is kept when the robot is spawned again while it is not loaded, and a rename works then too.
+        agent.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+        helper.assertTrue(run(player, "robot status Bob").toString().contains("Robot Bob is not loaded"), "not loaded");
+        run(player, "robot rename Bob Rob");
+        run(player, "robot spawn");
+        RobotEntity again = RobotManager.robot(player.getUUID());
+        helper.assertTrue(again != agent && again.getCustomName() != null && again.getCustomName().getString().equals("Rob"), "the name after a spawn");
+        leave(helper, player);
+        helper.succeed();
+    }
+
+    // Issue #293: a world saved before the name was in robots.dat has it only as the robot's tag.
+    @GameTest(maxTicks = 100, environment = MORE)
+    public void aTagFromAnOlderWorldBecomesTheDefaultRobotsName(GameTestHelper helper) {
+        ServerPlayer player = player(helper);
+        RobotEntity agent = spawn(helper, player, "", START);
+        spawn(helper, player, "Miner", START.south(2));
+        for (String tag : List.of("Miner", "My robot", "Bob")) {
+            agent.setCustomName(Component.literal(tag));
+            CompoundTag saved = GameTestCompat.save(agent, helper.getLevel().registryAccess());
+            agent.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+            agent = new RobotEntity(Codeling.ROBOT.get(), helper.getLevel());
+            GameTestCompat.load(agent, saved, helper.getLevel().registryAccess());
+            helper.getLevel().addFreshEntity(agent);
+            helper.assertValueEqual(agent.getCustomName().getString(), tag, "the tag stays");
+            helper.assertTrue(suggested(player, "robot come ").contains("Bob") == tag.equals("Bob"), "only Bob becomes its name, not " + tag);
+        }
+        helper.assertTrue(run(player, "robot status Miner").toString().contains("Robot Miner is at"), "a named robot goes first");
+        helper.assertTrue(run(player, "robot status Bob").toString().contains("Robot Bob is at"), "the default robot by its old tag");
+        leave(helper, player);
+        helper.succeed();
+    }
+
+    /** What Tab offers after {@code text}. */
+    private static List<String> suggested(ServerPlayer player, String text) {
+        var commands = player.level().getServer().getCommands().getDispatcher();
+        return commands.getCompletionSuggestions(commands.parse(text, player.createCommandSourceStack())).join().getList().stream()
+                .map(s -> s.getText()).toList();
     }
 
     // /robot stop with a name stops that robot only; without a name all of the player's robots.

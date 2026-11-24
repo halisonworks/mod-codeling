@@ -42,14 +42,15 @@ import net.minecraft.world.phys.Vec3;
  * {@code /robot} server commands. The robot actions use the same validator and queue as the
  * network commands of step 2; until the relay is wired they are the manual test hook.
  * Issue #140: every command for one robot takes an optional robot name at the end; without it the command is for the
- * player's default robot, as before. Only the player's own robots are ever named, so no one controls another's robot.
+ * player's default robot, as before. Issue #293: agent, and the name the player gave it, mean the default robot too.
+ * Only the player's own robots are ever named, so no one controls another's robot.
  */
 public final class RobotCommands {
     private static final String[] DIRECTIONS = {"forward", "back", "left", "right", "up", "down"}; // SixDirection order
     private static final String ROBOT = "robot";
     private static final SuggestionProvider<CommandSourceStack> MY_ROBOTS = (c, builder) -> c.getSource().getPlayer() == null
             ? builder.buildFuture()
-            : SharedSuggestionProvider.suggest(RobotLinks.get(c.getSource().getServer()).names(c.getSource().getPlayer().getUUID()), builder);
+            : SharedSuggestionProvider.suggest(RobotLinks.get(c.getSource().getServer()).commandNames(c.getSource().getPlayer().getUUID()), builder);
 
     /** What /robot give takes: our block names and the item ids, without those this Minecraft version lacks. */
     private static final SuggestionProvider<CommandSourceStack> ITEMS = (c, builder) -> SharedSuggestionProvider.suggest(giveNames(), builder);
@@ -152,10 +153,10 @@ public final class RobotCommands {
                 .then(named(Commands.literal("status"), RobotCommands::status))
                 .then(Commands.literal("list").executes(RobotCommands::list))
                 .then(Commands.literal("remove").then(robotName().executes(RobotCommands::remove)))
-                // rename <name>: the default robot's tag; rename <robot> <name>: a named robot's name.
-                .then(Commands.literal("rename").then(robotName().executes(c -> rename(c, "", StringArgumentType.getString(c, ROBOT)))
+                // rename <name>: the default robot's name; rename <robot> <name>: that robot's name.
+                .then(Commands.literal("rename").then(robotName().executes(RobotCommands::renameDefault)
                         .then(Commands.argument("name", StringArgumentType.word())
-                                .executes(c -> rename(c, StringArgumentType.getString(c, ROBOT), StringArgumentType.getString(c, "name"))))))
+                                .executes(c -> rename(c, name(c), StringArgumentType.getString(c, "name"))))))
                 .then(Commands.literal("nametag")
                         .then(named(Commands.literal("on"), c -> nametag(c, true)))
                         .then(named(Commands.literal("off"), c -> nametag(c, false))))
@@ -207,8 +208,14 @@ public final class RobotCommands {
         return node.executes(command).then(robotName().executes(command));
     }
 
-    /** The robot name the command was given, or "" for the default robot. */
+    /** The robot the command is for: its name, or "" for the default robot (no name, agent, or the name it was given). */
     private static String name(CommandContext<CommandSourceStack> c) {
+        ServerPlayer player = c.getSource().getPlayer();
+        return player == null ? typed(c) : RobotLinks.get(c.getSource().getServer()).resolve(player.getUUID(), typed(c));
+    }
+
+    /** The robot name the command was given as it was written, or "" when there is none. */
+    private static String typed(CommandContext<CommandSourceStack> c) {
         try {
             return StringArgumentType.getString(c, ROBOT);
         } catch (IllegalArgumentException e) {
@@ -221,7 +228,8 @@ public final class RobotCommands {
     }
 
     private static Component robot(CommandContext<CommandSourceStack> c) {
-        return Messages.robot(name(c));
+        ServerPlayer player = c.getSource().getPlayer();
+        return player == null ? Messages.robot(name(c)) : Messages.robot(c.getSource().getServer(), player.getUUID(), name(c));
     }
 
     /** Answers why there is no loaded robot for this command. */
@@ -328,15 +336,14 @@ public final class RobotCommands {
     // Without a name every robot of the player stops (and the editor's run ends); with a name only that robot's queue.
     private static int stop(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         UUID owner = c.getSource().getPlayerOrException().getUUID();
-        String name = name(c);
-        if (name.isEmpty()) {
+        if (typed(c).isEmpty()) {
             for (RobotQueue queue : RobotManager.queues(owner)) queue.clear(Result.Code.STOPPED, "stopped with /robot stop"); // the editor shows why
             RobotManager.stop(owner, "/robot stop");
         } else {
             if (RobotLinks.get(c.getSource().getServer()).robot(key(c)) == null) return absent(c);
-            RobotManager.queue(key(c)).clear(Result.Code.STOPPED, "stopped with /robot stop " + name);
+            RobotManager.queue(key(c)).clear(Result.Code.STOPPED, "stopped with " + (name(c).isEmpty() ? "/robot stop agent" : "/robot stop " + name(c)));
         }
-        Messages.success(c.getSource(), Messages.of("commands.codeling.stop", robot(c)));
+        Messages.success(c.getSource(), Messages.of("commands.codeling.stop", typed(c).isEmpty() ? Messages.robot("") : robot(c)));
         return 1;
     }
 
@@ -364,7 +371,8 @@ public final class RobotCommands {
         lines.add(Messages.of("commands.codeling.list", names.size(), Codeling.maxRobots(c.getSource().getServer())));
         for (String name : names) {
             RobotEntity robot = RobotManager.robot(new RobotLinks.Key(owner, name));
-            Object shown = name.isEmpty() ? Messages.of("commands.codeling.list.default") : name;
+            Object shown = !name.isEmpty() ? name : links.defaultName(owner).isEmpty() ? Messages.of("commands.codeling.list.default")
+                    : Messages.of("commands.codeling.list.default.named", links.defaultName(owner));
             lines.add(robot == null ? Messages.of("commands.codeling.list.unloaded", shown)
                     : Messages.of("commands.codeling.list.at", shown, robot.blockPosition().toShortString(), McCompat.dimension(robot.level()).toString()));
         }
@@ -381,16 +389,28 @@ public final class RobotCommands {
 
     private static int rename(CommandContext<CommandSourceStack> c, String from, String to) throws CommandSyntaxException {
         UUID owner = c.getSource().getPlayerOrException().getUUID();
+        Component before = Messages.robot(c.getSource().getServer(), owner, from);
         Component refusal = RobotManager.rename(c.getSource().getServer(), new RobotLinks.Key(owner, from), to);
         if (refusal != null) return Messages.failure(c.getSource(), refusal);
-        Messages.success(c.getSource(), Messages.of("commands.codeling.rename", Messages.robot(from), to));
+        Messages.success(c.getSource(), Messages.of("commands.codeling.rename", before, to));
         return 1;
+    }
+
+    // Issue #293: one word that is one of the player's robots is a rename without the new name, not a name for the default robot.
+    private static int renameDefault(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        UUID owner = c.getSource().getPlayerOrException().getUUID();
+        String word = typed(c);
+        RobotLinks links = RobotLinks.get(c.getSource().getServer());
+        if (links.robot(new RobotLinks.Key(owner, links.resolve(owner, word))) != null) {
+            return Messages.failure(c.getSource(), Messages.of("commands.codeling.rename.no_name", "/robot rename " + word + " <name>"));
+        }
+        return rename(c, "", word);
     }
 
     // Issue #151: shows or hides the name over the robot; without a name for all of the player's loaded robots.
     private static int nametag(CommandContext<CommandSourceStack> c, boolean on) throws CommandSyntaxException {
         UUID owner = c.getSource().getPlayerOrException().getUUID();
-        List<RobotEntity> robots = name(c).isEmpty() ? RobotManager.robots(owner)
+        List<RobotEntity> robots = typed(c).isEmpty() ? RobotManager.robots(owner)
                 : RobotManager.robot(key(c)) == null ? List.of() : List.of(RobotManager.robot(key(c)));
         if (robots.isEmpty()) return absent(c);
         robots.forEach(r -> r.setCustomNameVisible(on));

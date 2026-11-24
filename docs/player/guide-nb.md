@@ -493,7 +493,8 @@ ikke flere.
 - `/robot list` viser robotene dine og hvor de er. `/robot remove Miner` fjerner en: alt den bærer, havner i
   inventaret ditt, og det som ikke får plass, faller ned ved føttene dine. Roboten må være lastet inn (nær deg).
 - Chattekommandoene for én robot tar navnet til slutt: `/robot move forward 3 Miner`, `/robot come Miner`,
-  `/robot inventory Miner`, `/robot camera Miner`. Uten navn gjelder de standardroboten din.
+  `/robot inventory Miner`, `/robot camera Miner`. Uten navn gjelder de standardroboten din. I kommandoene heter den
+  `agent`, og også det du kaller den: `/robot skin mint agent`. Trykk Tab for å se navnene på robotene dine.
 - `/robot stop` stopper alle robotene og programmet ditt. `/robot stop Miner` stopper bare det Miner holder på med.
 
 I et program er `robots.get("Miner")` roboten som heter Miner. Den kan alt `agent` kan:
@@ -547,7 +548,8 @@ programmet med en feil som du kan fange (se "Feil, og å sjekke sitt eget progra
 
 En robot med navn viser det over hodet. Gi den nytt navn med `/robot rename Miner Digger`, eller med et navneskilt
 fra en ambolt (høyreklikk på roboten med det). Bare eieren og operatører kan gi en robot nytt navn.
-`/robot rename Bob` (ett navn) gir standardroboten din et navneskilt; i programmer heter den fortsatt `agent`.
+`/robot rename agent Bob` gir standardroboten din et navn. Da tar kommandoene både `agent` og `Bob`. I programmer heter
+den fortsatt `agent`.
 
 Ser du på en robot på nært hold, ser du også hvem som eier den. `/robot nametag off` skjuler navnene på alle robotene
 dine, `/robot nametag on` viser dem igjen; legg til et navn for å endre bare én robot. Mens en robot snakker
@@ -569,7 +571,7 @@ standardroboten din.
 | `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `codeling:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |
 | `/robot remove <navn>` | Fjerner en robot med navn. Tingene den har, får du. |
-| `/robot rename <navn> <nytt navn>` | Gir en robot nytt navn. `/robot rename <nytt navn>` gir standardroboten din et navneskilt. |
+| `/robot rename <navn> <nytt navn>` | Gir en robot nytt navn. `agent` er standardroboten din, og `/robot rename <nytt navn>` gir også den nytt navn. |
 | `/robot nametag <on\|off> [navn]` | Viser eller skjuler navnet over robotene dine (uten navn: alle). |
 | `/robot stop [navn]` | Uten navn: stopper alle robotene og programmet ditt. Med navn: stopper det den roboten holder på med. |
 | `/robot status [navn]` | Hvor roboten er og hvilken vei den ser. |
@@ -605,7 +607,7 @@ Mens du ser gjennom roboten, står kroppen din stille der den er. Øverst til ve
 
 ## Robotens utseende
 
-Roboten er én blokk høy og har tre egne skins. Bruk `/robot skin workshop`, `/robot skin industrial` eller `/robot skin mint`. Legg til et robotnavn etter skinet for å endre en robot med navn, for eksempel `/robot skin mint Miner`. Navn og skins består når du lagrer og når roboten bytter dimensjon.
+Roboten er én blokk høy og har tre egne skins. Bruk `/robot skin workshop`, `/robot skin industrial` eller `/robot skin mint`. Legg til et robotnavn etter skinet for å endre den roboten, for eksempel `/robot skin mint Miner` eller `/robot skin mint agent` (standardroboten din). Navn og skins består når du lagrer og når roboten bytter dimensjon.
 
 Gåing og svinger til venstre og høyre animeres av seg selv. Bruk `/robot animation look_left`, `look_right`, `look_up`, `look_down` eller `wave` for en kort bevegelse. Legg til et robotnavn til slutt når det trengs. `idle` avbryter en bevegelse. Lampen er bare en visuell detalj. Lys i en bestemt retning er eget arbeid.
 
