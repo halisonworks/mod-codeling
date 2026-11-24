@@ -20,6 +20,9 @@ public final class RobotQueue {
     /** A queued command with the executor's progress on it. */
     public static final class Entry {
         public final RobotCommand command;
+        /** Log only: the command's id in its run, or -1 for a /robot command; and that it has started. */
+        public final long id;
+        public boolean started;
         private final Consumer<Result> done;
         public int step;
         public int wait;
@@ -44,7 +47,8 @@ public final class RobotQueue {
         public BlockPos from;
         public String note;
 
-        Entry(RobotCommand command, Consumer<Result> done) {
+        Entry(long id, RobotCommand command, Consumer<Result> done) {
+            this.id = id;
             this.command = command;
             this.done = done;
         }
@@ -113,9 +117,13 @@ public final class RobotQueue {
     }
 
     public void submit(long run, RobotCommand command, Consumer<Result> done) throws RobotException {
+        submit(run, -1, command, done);
+    }
+
+    void submit(long run, long id, RobotCommand command, Consumer<Result> done) throws RobotException {
         if (run != this.run.id) throw new RobotException(Result.Code.STOPPED, "run " + run + " is no longer active");
         if (entries.size() >= MAX_LENGTH) throw new RobotException(Result.Code.RATE_LIMITED, "queue is full (" + MAX_LENGTH + ")");
-        entries.add(new Entry(command, done));
+        entries.add(new Entry(id, command, done));
     }
 
     public Entry head() {

@@ -63,7 +63,7 @@ public final class PlayerEvents {
         RobotEntity robot = RobotManager.robot(owner);
         l.powered = subscription.redstone() && robot != null && RobotManager.redstonePower(robot.level(), robot.blockPosition()) > 0;
         LISTENING.put(owner, l);
-        Codeling.LOG.info("events: {}'s program (run {}) listens for {} chat command(s){}, {} broken block(s){}{}, {} signal(s).", name, run,
+        Codeling.LOG.detail("events: {}'s program (run {}) listens for {} chat command(s){}, {} broken block(s){}{}, {} signal(s).", name, run,
                 subscription.chat().size(), subscription.died() ? ", their death" : "", subscription.broken().size(),
                 subscription.redstone() ? ", redstone at the robot" : "", subscription.dayStart() ? ", the day start" : "", subscription.signals().size());
     }
@@ -132,7 +132,7 @@ public final class PlayerEvents {
 
     private static boolean queue(Listening l, String event) {
         if (l.waiting.size() >= RobotQueue.MAX_LENGTH) {
-            Codeling.LOG.info("events: {}'s program has {} events waiting, so one was dropped.", l.name, RobotQueue.MAX_LENGTH);
+            Codeling.LOG.warn("events: {}'s program has {} events waiting, so one was dropped.", l.name, RobotQueue.MAX_LENGTH);
             return false;
         }
         l.waiting.add(event);

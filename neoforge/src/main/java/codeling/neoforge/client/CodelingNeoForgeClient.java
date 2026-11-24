@@ -7,7 +7,6 @@ import codeling.client.RobotRenderer;
 import codeling.client.RobotScreen;
 import codeling.net.RelayPayloads;
 import net.minecraft.client.Minecraft;
-import net.minecraft.commands.Commands;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -79,6 +78,6 @@ public final class CodelingNeoForgeClient {
         game.addListener((ClientTickEvent.Post event) -> CodelingClient.tick(Minecraft.getInstance()));
         game.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> CodelingClient.disconnected());
         game.addListener((RegisterClientCommandsEvent event) ->
-                event.getDispatcher().register(Commands.literal("codeling").executes(context -> CodelingClient.openEditor())));
+                event.getDispatcher().register(CodelingClient.command()));
     }
 }

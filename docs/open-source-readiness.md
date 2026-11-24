@@ -73,7 +73,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 - **Current state.** Done (issue #270): issue forms for bug and idea, a `config.yml` with links to the guides and to
   private reporting, and a pull request template. Discussions are off, so questions go to the guides.
 - **Why it matters.** A bug report for this mod is only useful with the Minecraft version, loader and version, mod
-  version, the editor's log line and the game log (`codeling/relay` logger). Templates ask for that up front.
+  version, the editor's log line and the report (`/codeling report`, issue #279). Templates ask for that up front.
 - **Action.** Issue forms (YAML) for bug report (versions, loader, singleplayer or server, steps, log), feature or
   block request, and a `config.yml` that points questions to Discussions or the guide. A PR template with: base branch
   is `develop`, linked issue, tests run (from the table in `CONTRIBUTING.md`), `check-text.sh` passed, docs and `nb`

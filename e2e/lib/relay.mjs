@@ -13,17 +13,18 @@ export async function startRelay(port) {
     const java = process.env.CODELING_JAVA;
     const classpath = process.env.CODELING_RELAY_CLASSPATH;
     if (!java || !classpath) throw new Error("CODELING_JAVA or CODELING_RELAY_CLASSPATH missing: run ./gradlew :fabric:editorTest");
-    const child = spawn(java, ["-cp", classpath, "codeling.relay.StandaloneRelay", String(port), "--print-url", "--print-launcher"],
+    const child = spawn(java, ["-cp", classpath, "codeling.relay.StandaloneRelay", String(port), "--print-url", "--print-launcher", "--log"],
         { stdio: ["ignore", "pipe", "pipe"] });
-    // The relay logs every message it relays (never the token); keep the tail for a failure report only.
+    // With --log the relay logs each message it relays (never the token or a text); keep the tail for a failure report only.
     const tail = [];
     // How many cmd messages the relay got from the browser, so a check can tell that a program sent none (issue #27).
     let cmds = 0;
-    createInterface({ input: child.stderr }).on("line", line => {
+    const logged = line => {
         tail.push(line);
         if (tail.length > 40) tail.shift();
-        if (/browser -> .*"t":"cmd"/.test(line)) cmds++;
-    });
+        if (/browser -> run -?\d+ command \d+ /.test(line)) cmds++;
+    };
+    createInterface({ input: child.stderr }).on("line", logged);
     let url;
     const launcher = await new Promise((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error(`relay did not start on port ${port} within 60 s`)), 60000);
@@ -32,6 +33,7 @@ export async function startRelay(port) {
             url ??= line.match(URL_PATTERN)?.[0];
             const path = line.match(/^EDITOR_LAUNCHER (.+)$/)?.[1];
             if (url && path) { clearTimeout(timer); resolve(path); }
+            if (!URL_PATTERN.test(line)) logged(line); // the log comes here too, never the line with the token
         });
     });
     // kill() skips the relay's shutdown hook on Windows, so the launcher directory is removed here too.

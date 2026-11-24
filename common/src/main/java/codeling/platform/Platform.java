@@ -1,6 +1,7 @@
 package codeling.platform;
 
 import com.mojang.authlib.GameProfile;
+import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -45,6 +46,9 @@ public interface Platform {
     /^* Vanilla has no enum game rules; the value serializes as the constant name, as on 26.x. ^/
     <E extends Enum<E>> Supplier<? extends GameRules.Key<?>> enumRule(Identifier id, GameRules.Category category, E defaultValue);
     *///?}
+
+    /** The versions of Codeling, Minecraft and the loader, by name, for the log and the report (issue #279). */
+    Map<String, String> versions();
 
     /** A server player that is not connected, for robot actions that go through the normal player path. */
     ServerPlayer fakePlayer(ServerLevel level, GameProfile profile);

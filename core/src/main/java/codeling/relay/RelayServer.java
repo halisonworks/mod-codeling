@@ -1,5 +1,6 @@
 package codeling.relay;
 
+import codeling.log.Log;
 import codeling.net.ChatCommands;
 import codeling.net.Protocol;
 import codeling.net.SignalHub;
@@ -83,14 +84,7 @@ public final class RelayServer implements AutoCloseable {
     private static final byte[] EMPTY = new byte[0];
     // Headers that must come once: a second Host or Origin could pass the check with one and mean the other.
     private static final Set<String> SINGLE_HEADERS = Set.of("host", "origin", "content-length", "sec-websocket-key");
-    // Every relay message in both directions, so a run can be followed in the game log. Never the token.
-    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("codeling/relay");
-
-    // One log line per message; heartbeats are skipped (one every few seconds) and long messages are cut.
-    static void logMessage(String direction, String json) {
-        if (json.contains("\"heartbeat\"")) return;
-        LOG.info("{} {}", direction, json.length() > 300 ? json.substring(0, 300) + "..." : json);
-    }
+    private static final Log LOG = Log.of("codeling/relay");
 
     /** The way to the game server. Without one (standalone) the relay answers with stub acks. */
     public interface Link {
@@ -176,11 +170,6 @@ public final class RelayServer implements AutoCloseable {
 
     public int port() {
         return port;
-    }
-
-    /** Safe to log: a short prefix only. */
-    public String tokenHint() {
-        return token.substring(0, 4) + "...";
     }
 
     /** Binds the port (an IOException when it is busy) and starts accepting. */
@@ -518,7 +507,7 @@ public final class RelayServer implements AutoCloseable {
     /** The WebSocket opening handshake (RFC 6455 section 4.2), then the relay session on this thread. */
     private void upgrade(Socket socket, InputStream in, OutputStream out, Request req, Future<?> deadline) throws IOException {
         if (!origin.equals(req.header("origin", null))) {
-            LOG.warn("WebSocket refused: bad Origin {}", req.header("origin", null));
+            LOG.warn("editor session refused: it comes from another address than the editor's");
             text(out, req, 403, "bad origin");
             return;
         }
@@ -615,7 +604,7 @@ public final class RelayServer implements AutoCloseable {
                 hello.cancel(false);
                 writer.shutdown();
                 active.compareAndSet(this, null);
-                LOG.info("editor session closed (run {})", run);
+                if (authed) LOG.info("editor disconnected (run {})", run);
                 // A closed tab stops its run now instead of after the heartbeat timeout. The server ignores an old run id.
                 if (link != null && run >= 0) link.send(Protocol.control("stop", run, null));
             }
@@ -692,7 +681,8 @@ public final class RelayServer implements AutoCloseable {
             }
             String type = msg.get("t") instanceof JsonPrimitive t && t.isString() ? t.getAsString() : "";
             Long id = Protocol.id(msg);
-            logMessage("browser ->", type.equals("hello") ? "{\"t\":\"hello\"} (token not logged)" : text);
+            // Heartbeats are left out: one every few seconds.
+            if (LOG.detailed() && !text.contains("\"heartbeat\"")) LOG.detail("browser -> {}", Protocol.describe(msg));
             if (!(msg.get("v") instanceof JsonPrimitive v) || !v.isNumber() || v.getAsDouble() != PROTOCOL) {
                 String error = Protocol.error(authed ? id : null, Result.Code.VERSION, "protocol version " + PROTOCOL + " expected, reload the editor");
                 if (authed) {
@@ -712,6 +702,7 @@ public final class RelayServer implements AutoCloseable {
                         old.write(Protocol.control("stop", old.run, "Another editor session took over the robot."));
                         old.queue(NO_FRAME, EMPTY, true);
                     }
+                    LOG.info(old == null ? "editor connected" : "editor connected, the one before it is closed");
                     write(welcome().toString());
                     return true;
                 }
@@ -732,8 +723,10 @@ public final class RelayServer implements AutoCloseable {
                 return true;
             }
             String problem = link.send(text);
-            if (problem != null) LOG.warn("not forwarded to the game: {}", problem);
-            if (problem != null) write(Protocol.error(id, Result.Code.UNLOADED, problem));
+            if (problem != null) {
+                LOG.warn("not passed on to the game: {}", problem);
+                write(Protocol.error(id, Result.Code.UNLOADED, problem));
+            }
             return true;
         }
 
@@ -842,7 +835,7 @@ public final class RelayServer implements AutoCloseable {
         }
 
         void write(String json) {
-            logMessage("-> browser", json);
+            if (LOG.detailed()) LOG.detail("-> browser run {} {}", run, Protocol.describe(json));
             queue(TEXT, json.getBytes(StandardCharsets.UTF_8), false);
         }
 
