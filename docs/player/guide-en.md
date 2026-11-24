@@ -707,7 +707,7 @@ These keep the game fast for everyone.
 
 ## Multiplayer
 
-- The server needs Codeling for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who wants to code needs the same loader and Codeling too.
+- The server needs Codeling for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Codeling too.
 - Use the same Codeling version on the server and on every client. Mixing versions is not supported and has not been tested.
 - Only you can program your robot. Nobody else can send it commands. This goes for robots with a name too: a name
   only ever picks one of your own robots.

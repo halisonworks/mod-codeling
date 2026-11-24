@@ -3,6 +3,7 @@ package codeling.gametest;
 import codeling.Codeling;
 import codeling.net.RelayPayloads;
 import codeling.net.ServerRelay;
+import codeling.neoforge.CodelingNeoForge;
 import codeling.platform.Platform;
 import codeling.robot.Result;
 import codeling.robot.RobotCamera;
@@ -12,6 +13,7 @@ import codeling.robot.RobotManager;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +41,7 @@ import net.minecraft.gametest.framework.JUnitLikeTestReporter;
 import net.minecraft.gametest.framework.TestFunction;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 *///?}
+import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -49,7 +52,10 @@ import net.minecraft.resources.Identifier;
 //? if >=1.21.5
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -64,6 +70,7 @@ import net.minecraft.world.level.gamerules.GameRules;
 /*import net.minecraft.world.level.GameRules;*/
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.FakePlayer;
@@ -71,6 +78,8 @@ import net.neoforged.neoforge.event.ServerChatEvent;
 //? if >=1.21.5
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.network.connection.ConnectionType;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 //? if >=1.21.5
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -96,6 +105,7 @@ public final class NeoForgeSmokeGameTests {
         TESTS.put("robot_places_block", NeoForgeSmokeGameTests::robotPlacesBlock);
         TESTS.put("game_rules_registered", NeoForgeSmokeGameTests::gameRulesRegistered);
         TESTS.put("payload_types_registered", NeoForgeSmokeGameTests::payloadTypesRegistered);
+        TESTS.put("client_without_neoforge_is_refused", NeoForgeSmokeGameTests::clientWithoutNeoForgeIsRefused);
         TESTS.put("fake_player_respects_claims", NeoForgeSmokeGameTests::fakePlayerRespectsClaims);
         TESTS.put("fake_player_contract", NeoForgeSmokeGameTests::fakePlayerContract);
         TESTS.put("adventure_owner_cannot_build", NeoForgeSmokeGameTests::adventureOwnerCannotBuild);
@@ -261,6 +271,20 @@ public final class NeoForgeSmokeGameTests {
         // A FakePlayer has no client, so the common code never sends it a payload.
         ServerPlayer fake = Platform.INSTANCE.fakePlayer(helper.getLevel(), new GameProfile(UUID.randomUUID(), "Codeling[smoke]"));
         helper.assertFalse(Platform.INSTANCE.canSend(fake, RelayPayloads.ToClient.TYPE), "canSend to a FakePlayer");
+        helper.succeed();
+    }
+
+    // Issue #371: a client without NeoForge is refused when it connects; a NeoForge client (registry sync checks it) is not.
+    private static void clientWithoutNeoForgeIsRefused(GameTestHelper helper) {
+        for (ConnectionType type : ConnectionType.values()) {
+            var cookie = new CommonListenerCookie(new GameProfile(UUID.randomUUID(), "Codeling_join"), 0, ClientInformation.createDefault(), false, type);
+            Connection connection = new Connection(PacketFlow.SERVERBOUND);
+            new EmbeddedChannel(connection); // NeoForge's own listeners look the client's channels up on it
+            var listener = new ServerConfigurationPacketListenerImpl(helper.getLevel().getServer(), connection, cookie);
+            var tasks = ModLoader.postEventWithReturn(new RegisterConfigurationTasksEvent(listener)).getConfigurationTasks();
+            boolean refused = tasks.stream().anyMatch(task -> task.type().equals(CodelingNeoForge.REFUSE_UNMODDED));
+            helper.assertTrue(refused == type.isOther(), type + " refused: " + refused);
+        }
         helper.succeed();
     }
 
