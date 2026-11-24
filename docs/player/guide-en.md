@@ -10,19 +10,27 @@ Codeling is not made by Microsoft, Mojang or the MakeCode team. See [Disclaimer]
 
 ## What you need
 
-- Minecraft Java Edition, version 26.3 or 1.21.1, on a computer (Windows, macOS or Linux).
-- A mod loader: Fabric Loader 0.20.1 or newer with Fabric API for your Minecraft version, or NeoForge (26.3.0.102 or newer for 26.3, 21.1.265 or newer for 1.21.1).
+- Minecraft Java Edition, version 1.21.1 to 1.21.11 or 26.1 to 26.3, on a computer (Windows, macOS or Linux).
+- A mod loader: Fabric Loader 0.20.1 or newer with Fabric API for your Minecraft version, or the newest NeoForge for your Minecraft version (26.3.0.102 or newer for 26.3, 21.1.265 or newer for 1.21.1).
 - The Codeling mod file for your loader and Minecraft version (a `.jar` file). The name says which one it is:
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
   | 26.3 | `codeling-fabric-26.3-...jar` | `codeling-neoforge-26.3-...jar` |
+  | 26.2 | `codeling-fabric-26.2-...jar` | `codeling-neoforge-26.2-...jar` |
+  | 26.1 to 26.1.2 | `codeling-fabric-26.1.2-...jar` | `codeling-neoforge-26.1.2-...jar` |
+  | 1.21.11 | `codeling-fabric-1.21.11-...jar` | `codeling-neoforge-1.21.11-...jar` |
+  | 1.21.9 to 1.21.10 | `codeling-fabric-1.21.10-...jar` | `codeling-neoforge-1.21.10-...jar` |
+  | 1.21.6 to 1.21.8 | `codeling-fabric-1.21.8-...jar` | `codeling-neoforge-1.21.8-...jar` |
+  | 1.21.5 | `codeling-fabric-1.21.5-...jar` | `codeling-neoforge-1.21.5-...jar` |
+  | 1.21.4 | `codeling-fabric-1.21.4-...jar` | `codeling-neoforge-1.21.4-...jar` |
+  | 1.21.2 to 1.21.3 | `codeling-fabric-1.21.3-...jar` | `codeling-neoforge-1.21.3-...jar` |
   | 1.21.1 | `codeling-fabric-1.21.1-...jar` | `codeling-neoforge-1.21.1-...jar` |
 - A web browser (Chrome, Edge or Firefox).
 
-A parent can do the install. It takes about ten minutes. The steps below say 26.3; on 1.21.1 pick 1.21.1 in the installers and use the 1.21.1 files.
+A parent can do the install. It takes about ten minutes. The steps below say 26.3; on another version, pick that version in the installers and use the files for it.
 
-On Minecraft 1.21.1 the editor still lists blocks and items that came later (pale oak, for example). A program that uses one gets the error "minecraft:... is not in this Minecraft version". Everything else works the same.
+On older Minecraft versions the editor still lists blocks and items that came later (pale oak, for example). A program that uses one gets the error "minecraft:... is not in this Minecraft version". Everything else works the same.
 
 ## Install
 
