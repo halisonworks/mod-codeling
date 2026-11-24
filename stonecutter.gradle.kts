@@ -70,6 +70,7 @@ stonecutter parameters {
     // GameTest (issue #252, see GameTestAsserts in both gametest folders).
     replacements.string(current.parsed >= "1.21.6" && current.parsed < "1.21.9") {
         replace("helper.makeMockServerPlayerInLevel()", "GameTestAsserts.makeMockServerPlayerInLevel(helper)")
+        replace("helper.getLevel().getServer().getPlayerList().placeNewPlayer(", "GameTestAsserts.placeNewPlayer(helper, ")
     }
     // Renames that came with 26.3.
     replacements.string(current.parsed < "26.3") { replace("PushReaction.IGNORE_ENTITY", "PushReaction.IGNORE") }
