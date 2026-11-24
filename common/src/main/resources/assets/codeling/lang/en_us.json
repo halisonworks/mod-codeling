@@ -98,6 +98,7 @@
   "message.codeling.report": "Wrote %s in the game's folder. Read through it before you send it, or %s",
   "message.codeling.report.copy": "[copy the report]",
   "message.codeling.robot.named": "Robot %s",
+  "message.codeling.robot.no_default": "You have no default robot. Use %s to get one",
   "message.codeling.robot.none": "You have no robot. Use %s to get one",
   "message.codeling.robot.unknown": "You have no robot called %s. Use /robot list to see yours",
   "message.codeling.robot.unloaded": "%s is not loaded. Go near it, or use %s to bring it to you"
