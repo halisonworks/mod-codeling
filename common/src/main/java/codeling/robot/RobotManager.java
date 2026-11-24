@@ -150,11 +150,26 @@ public final class RobotManager {
             return;
         }
         robot.setKey(key);
+        showDefaultName(RobotLinks.get(level.getServer()), robot);
         ServerPlayer player = level.getServer().getPlayerList().getPlayer(owner);
         if (player != null) robot.setOwnerName(player.getGameProfile().name());
         robot.rememberAppearance();
         LOADED.put(key, robot);
         Codeling.LOG.detail("spawn: {} was loaded into the world at {} in {}.", label(level.getServer(), key), fmt(robot.position()), dim(level));
+    }
+
+    // Issue #293: the default robot's name is in robots.dat. A robot from a world saved before that has it only as its
+    // tag, which is kept as the name when it is one and no other robot of the owner has it (else it stays only a tag).
+    private static void showDefaultName(RobotLinks links, RobotEntity robot) {
+        RobotLinks.Key key = robot.key();
+        if (!key.name().isEmpty()) return;
+        String name = links.defaultName(key.owner());
+        if (!name.isEmpty()) {
+            robot.showName(name);
+        } else if (robot.getCustomName() != null) {
+            String tag = robot.getCustomName().getString();
+            if (nameProblem(tag) == null && links.sameName(key.owner(), tag) == null) links.setDefaultName(key.owner(), tag);
+        }
     }
 
     // "Player303's robot "Miner"" or "Player303's default robot".
@@ -241,6 +256,7 @@ public final class RobotManager {
         if (player != null) robot.setOwnerName(player.getGameProfile().name());
         robot.snapTo(pos, facing.toYRot(), 0);
         RobotLinks links = RobotLinks.get(level.getServer());
+        showDefaultName(links, robot);
         RobotLinks.Appearance previousAppearance = links.appearance(links.robot(key));
         if (old == null) {
             robot.setSkin(previousAppearance.skin());
@@ -288,8 +304,10 @@ public final class RobotManager {
                 : Messages.of("commands.codeling.spawn.limit", max, max - 1, "codeling:max_robots", "/robot remove");
     }
 
-    // The same rules as RobotCommand.nameProblem, in the player's language.
+    // The same rules as RobotCommand.nameProblem, in the player's language. A new name may not be agent either (issue
+    // #293); that is not in RobotCommand, which also checks commands for robots an older world already has.
     private static Component nameProblem(String name) {
+        if (name.equalsIgnoreCase(RobotLinks.AGENT)) return Messages.of("message.codeling.name.reserved", name);
         if (RobotCommand.nameProblem(name) == null) return null;
         return RobotCommand.reservedName(name) ? Messages.of("message.codeling.name.reserved", name) : Messages.of("message.codeling.name.invalid", RobotCommand.MAX_NAME);
     }
@@ -357,7 +375,8 @@ public final class RobotManager {
     /**
      * Renames one of the owner's robots (issue #151), from /robot rename or a name tag. A named robot changes its
      * name everywhere (robots.get, the commands, the tag) and its queued commands stop; the default robot stays the
-     * default robot (agent in programs) and only shows the new name. Answers why not, or null. Names are unique per owner.
+     * default robot (agent in programs) and only its name for the player and the commands is new. Answers why not, or
+     * null. Names are unique per owner.
      */
     public static Component rename(MinecraftServer server, RobotLinks.Key key, String name) {
         RobotLinks links = RobotLinks.get(server);
@@ -365,13 +384,15 @@ public final class RobotManager {
         if (id == null) return Messages.absent(server, key.owner(), key.name());
         Component problem = nameProblem(name);
         if (problem != null) return problem;
-        String same = links.sameName(key.owner(), name);
-        if (same != null && !same.equals(key.name())) return Messages.of("message.codeling.name.taken", same);
+        String same = links.sameName(key.owner(), name, key);
+        if (same != null) return Messages.of("message.codeling.name.taken", same);
         RobotEntity robot = LOADED.get(key);
         if (key.name().isEmpty()) {
-            if (robot == null) return Messages.absent(server, key.owner(), key.name());
-            robot.setCustomName(Component.literal(name));
-            robot.setCustomNameVisible(true);
+            links.setDefaultName(key.owner(), name);
+            if (robot != null) {
+                robot.showName(name);
+                robot.setCustomNameVisible(true);
+            }
             return null;
         }
         RobotLinks.Key renamed = new RobotLinks.Key(key.owner(), name);
@@ -410,7 +431,8 @@ public final class RobotManager {
     public static Component remove(ServerPlayer player, String name) {
         RobotLinks.Key key = new RobotLinks.Key(player.getUUID(), name);
         RobotLinks links = RobotLinks.get(player.level().getServer());
-        if (name.isEmpty() || links.robot(key) == null) return Messages.absent(player.level().getServer(), key.owner(), name);
+        if (links.robot(key) == null) return Messages.absent(player.level().getServer(), key.owner(), name);
+        if (name.isEmpty()) return Messages.of("commands.codeling.remove.default");
         RobotEntity robot = LOADED.get(key);
         if (robot == null) return Messages.absent(player.level().getServer(), key.owner(), name);
         RobotQueue queue = QUEUES.remove(key);

@@ -30,6 +30,10 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ### Fixed
 
+- Your default robot has a name in the `/robot` commands (issue #293): `agent`, and the name you give it with
+  `/robot rename agent Bob` or a name tag. Tab suggests both. Before, only robots with a name could be picked by name.
+  The name is kept when the robot is spawned again while it is not loaded, and no other robot of yours can take it. New
+  robots cannot be called `agent`. `/robot rename Miner` without a new name says what is missing.
 - `/codeling signal` works from the chat of an operator who plays on Fabric with Codeling (issue #279). It answered
   "Incorrect argument for command".
 - The robot log in the editor keeps its newest 1000 lines (issue #283). Before, it kept every line, and the browser
