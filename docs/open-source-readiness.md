@@ -208,7 +208,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 
 ### 12. Troubleshooting and FAQ (Should, S)
 
-- **Current state.** docs/player/guide-en.md and guide-nb.md have a troubleshooting table (expired link, not in a
+- **Current state.** Done (issue #271): the rows and the FAQ below are in both guides. Before, docs/player/guide-en.md and guide-nb.md had a troubleshooting table (expired link, not in a
   world, server without Codeling, pause menu, robot not loaded, max robots, port 25580 busy, old blocks after an
   update, program stopped). Not covered (checked with `git grep` for `F3`, `firewall`, `antivirus` in `docs/player`):
   - F3+P (pause on lost focus) for the case where no editor session is linked yet. README "From the browser to the
