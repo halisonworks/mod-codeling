@@ -296,7 +296,7 @@ Roboten blir stående og ser bare. En posisjon eller et hjørne du gir, må vær
 | robot ledige plasser | `agent.freeSlots()` | Hvor mange av de 27 plassene som er tomme. |
 | robot er inventaret fullt | `agent.isInventoryFull()` | Sann hvis ingen plass er tom. En stabel som ikke er full, kan fortsatt ta flere av samme ting. |
 | robot gi (ting) antall (antall) i plass (plass) | `agent.setItem(Item.Stone, 64, 1)` | Gir roboten ting. Bare i kreativ modus eller med spilleregelen `codeling:free_items`. |
-| robot samle alt | `agent.collectAll()` | Plukker opp ting rett ved siden av seg. |
+| robot samle alt | `agent.collectAll()` | Plukker opp ting rett ved siden av seg. En ting som nettopp ble sluppet, kan plukkes opp etter et øyeblikk (et halvt sekund for det roboten selv slapp), og aldri en som er holdt av til en annen spiller. |
 | robot slipp (retning) fra plass (plass) antall (antall) | `agent.drop(SixDirection.Back, 1, 10)` | Slipper noen ting. |
 | robot slipp alt (retning) | `agent.dropAll(SixDirection.Back)` | Slipper alt. |
 | robot overfør antall (antall) fra plass (fra) til plass (til) | `agent.transfer(10, 1, 2)` | Flytter ting mellom sine egne plasser. |

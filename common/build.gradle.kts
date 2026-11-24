@@ -40,6 +40,7 @@ val mixinExtras = "io.github.llamalad7:mixinextras-common:0.5.3"
 dependencies {
     api(project(":core"))
     "clientImplementation"(project(":core"))
+    compileOnly(mixin)
     "clientCompileOnly"(mixin)
     "clientCompileOnly"(mixinExtras)
 }

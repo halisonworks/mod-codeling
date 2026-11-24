@@ -17,6 +17,7 @@
     "client": ["codeling.fabric.client.CodelingFabricClient"]
   },
   "mixins": [
+    "codeling-common.mixins.json",
     { "config": "codeling.mixins.json", "environment": "client" }
   ],
   "depends": {

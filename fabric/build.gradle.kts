@@ -93,7 +93,9 @@ tasks.named<ProcessResources>("processResources") {
         "java_version" to javaRelease,
     )
     inputs.properties(props)
+    inputs.properties(mixinProps)
     filesMatching("fabric.mod.json") { expand(props) }
+    filesMatching("codeling-common.mixins.json") { expand(mixinProps) }
 }
 
 // The GameTest environments in src/gametest are written in the game rule format of 1.21.11 and later ("rules": {id:

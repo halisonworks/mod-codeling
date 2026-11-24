@@ -253,7 +253,7 @@ Names and casing follow MakeCode so programs from minecraft.makecode.com paste i
 | `agent.inspect(kind: AgentInspection, direction): number` | V-HOC, V-TYP | `Block` returns an encoded block id (see Block ids below); `Data` returns the data value. |
 | `agent.setItem(blockOrItem, count, slot)` | V-HOC, V-EX | **Creative-style give.** Allowed when the owner is online and in creative, or when the gamerule `codeling:free_items` is true (default false). In survival the robot gathers its own resources. Items share the number space with blocks. |
 | `agent.setSlot(slot)`, `agent.getItemCount(slot)` | V-HOC | Slots 1 to 27. |
-| `agent.collectAll()`, `agent.collect(block)` | V-HOC / V-TYP | `collectAll`: items within 1 block. |
+| `agent.collectAll()`, `agent.collect(block)` | V-HOC / V-TYP | `collectAll`: items within 1 block, by vanilla's pickup rule (issue #53): not while the pickup delay runs, and not an item kept for another player. `destroy` takes its own drops at once. |
 | `agent.getItemSpace(slot)`, `agent.getItemDetail(slot)`, `agent.transfer(quantity, sourceSlot, destinationSlot)`, `agent.drop(direction, slot, quantity)`, `agent.dropAll(direction)` | V-TYP | v1 if cheap, otherwise v1.1. `transfer` takes quantity first. |
 
 Enums (values verified, V-TYP; we declare our own copies):
