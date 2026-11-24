@@ -12,6 +12,8 @@ permissions:
 
 # Every Minecraft version Codeling builds for (settings.gradle.kts); one Fabric and one NeoForge jar each.
 env:
+  # Maven Central sometimes answers 429 (issue #317): six tries, waiting 2, 4, 8, 16 and 32 seconds. Gradle's default is three tries.
+  GRADLE_OPTS: "-Dorg.gradle.internal.repository.max.tentatives=6 -Dorg.gradle.internal.repository.initial.backoff=2000"
   MC_VERSIONS: "26.3 26.2 26.1.2 1.21.11 1.21.10 1.21.8 1.21.5 1.21.4 1.21.3 1.21.1"
 
 jobs:
@@ -76,6 +78,11 @@ jobs:
 
       # Stays on v5: v6 bundles a proprietary caching component under Gradle's Terms of Use; upgrade only after the owner accepts them.
       - uses: gradle/actions/setup-gradle@v5
+        with:
+          # Issue #317: these two fill the cache (over 4 GB per job) and are made again in the build.
+          gradle-home-cache-excludes: |
+            caches/fabric-loom
+            caches/neoformruntime
 
       # build also runs the JUnit tests and the server GameTests of each jar (through check).
       # --no-parallel: the performance GameTest measures tick time, so the GameTest servers must not run at the same time.
