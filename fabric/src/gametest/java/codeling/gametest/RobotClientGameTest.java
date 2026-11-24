@@ -176,6 +176,14 @@ public class RobotClientGameTest implements FabricClientGameTest {
             context.waitTicks(20);
             assertEquals(target, server.computeOnServer(s -> robot(owner).blockPosition()), "robot after a command of a stopped run");
 
+            // Issue #297: the game rule decides at once whether the game may pause, and leaves the player's option alone.
+            boolean option = context.computeOnClient(mc -> mc.options.pauseOnLostFocus);
+            for (boolean value : new boolean[] {false, true}) {
+                server.runOnServer(s -> s.getGameRules().set(Codeling.PAUSE_ON_LOST_FOCUS.get(), value, s));
+                assertEquals(value, context.computeOnClient(mc -> codeling.client.CodelingClient.mayPauseOnLostFocus()), "may pause with the rule " + value);
+                assertEquals(option, context.computeOnClient(mc -> mc.options.pauseOnLostFocus), "the player's own option");
+            }
+
             // Inventory screen: items and the selected slot set with /robot, then one stack moved with the mouse.
             // The test world is survival, where /robot give needs the free_items rule.
             server.runOnServer(s -> s.getGameRules().set(Codeling.FREE_ITEMS.get(), true, s));

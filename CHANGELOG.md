@@ -6,6 +6,12 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Game rule `codeling:pause_on_lost_focus` (issue #297): `false` keeps the game from pausing when its window loses focus, in
+  this world. For the player who runs the world (singleplayer, or opened to LAN). `true`, the default, changes nothing. The
+  player's own F3+P option is never changed.
+
 ## [0.0.4] - 2026-11-24
 
 The fourth pre-release, for testing.
