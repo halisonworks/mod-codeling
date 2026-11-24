@@ -1,7 +1,8 @@
 # Text for the download pages
 
-Draft for issue #277. Nothing here is published. The owner approves the text and the pictures first. Modrinth and
-CurseForge get the same text, English first and then Norwegian. Change it here before changing a page.
+Text for issue #277. Nothing here is published. The owner approved the text for now on 2026-11-24, and approves the
+final text and the pictures before publishing. Modrinth and CurseForge get the same text, English first and then
+Norwegian. Change it here before changing a page.
 
 This text was drafted with generative AI. See "Rules of the sites".
 
@@ -125,5 +126,5 @@ Read on 2026-11-24. Read them again before publishing.
 - [ ] Trademark search (#58), icon and pictures (#198), the Norwegian pxt texts (#59).
 - [ ] The claims above are tried in the test session (#55), the two about servers first.
 - [ ] An account the owner controls, with one more person who can edit, and no personal email on the page.
-- [ ] The owner approves the text and the pictures.
+- [ ] The owner approves the final text and the pictures.
 - [ ] README and both guides link to the pages.
