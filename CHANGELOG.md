@@ -16,6 +16,8 @@ Every user-visible change to Codeling is listed here. The format follows
 
 - The Norwegian editor has new texts for its own buttons, menus and standard blocks (issue #59), written for Codeling. The
   earlier ones came from makecode.com without a known licence and are removed. Rarely used texts are now in English.
+- `/robot remove agent` removes your default robot (issue #324). Its items go to you and your program stops. The next
+  `/robot spawn` gives it back its name, skin and color. Before, it could not be removed.
 - Robots pick up only what their owner could (issue #53): not an item that is kept for another player, and not one that was
   thrown or dropped a moment ago. `agent.drop` followed at once by `agent.collectAll` leaves the item, so wait half a second
   first. Breaking a block still takes its drops at once.

@@ -521,6 +521,8 @@ it up, for example `/gamerule codeling:max_robots 4`. Turning it down again neve
 - Each robot has its own inventory, slot, home, gravity and assist, and is saved with the world.
 - `/robot list` shows your robots and where they are. `/robot remove Miner` removes one: everything it carries goes
   into your inventory, and what does not fit drops at your feet. The robot must be loaded (close to you).
+  `/robot remove agent` removes your default robot and stops your program. The next `/robot spawn` brings it back with
+  the same name, skin and color.
 - The chat commands for one robot take the name at the end: `/robot move forward 3 Miner`, `/robot come Miner`,
   `/robot inventory Miner`, `/robot camera Miner`. Without a name they are for your default robot. `agent` is its name
   in the commands, and so is the name you give it: `/robot skin mint agent`. Press Tab to see your robots' names.
@@ -642,7 +644,7 @@ your default robot.
 | `/codeling server log on [minutes]`, `/codeling server log off` and `/codeling server report` | The same for the server. Ops only, and the server console. |
 | `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `codeling:max_robots`. |
 | `/robot list` | Your robots and where they are. |
-| `/robot remove <name>` | Removes a robot with a name. Its items go to you. |
+| `/robot remove <name>` | Removes a robot. Its items go to you. `agent` is your default robot; removing it also stops your program. |
 | `/robot rename <name> <new name>` | Renames a robot. `agent` is your default robot, and `/robot rename <new name>` renames it too. |
 | `/robot nametag <on\|off> [name]` | Shows or hides the name over your robots (without a name: all of them). |
 | `/robot stop [name]` | Without a name: stops all your robots and your program. With a name: stops what that robot is doing. |

@@ -88,6 +88,29 @@ class RobotLinksTest {
         assertEquals("agent", loaded.resolve(owner, "agent"), "a named robot goes first");
     }
 
+    // Issue #324: a removed default robot's name and look are there for the next one, until another robot takes the name.
+    @Test
+    void aRemovedDefaultRobotsNameAndLookSurviveSaveAndLoad() {
+        UUID owner = UUID.randomUUID();
+        RobotLinks.Key agent = new RobotLinks.Key(owner, "");
+        RobotLinks links = decode(new JsonObject());
+        links.set(agent, UUID.randomUUID());
+        links.setDefaultName(owner, "Bob");
+        links.setAppearance(owner, "mint", 0x3366FF);
+        links.remove(agent);
+        RobotLinks loaded = decode(RobotLinks.CODEC.encodeStart(JsonOps.INSTANCE, links).getOrThrow());
+        assertNull(loaded.robot(owner));
+        assertEquals("Bob", loaded.defaultName(owner));
+        assertEquals(new RobotLinks.Appearance("mint", 0x3366FF), loaded.previousAppearance(agent));
+        assertEquals(new RobotLinks.Appearance("workshop", -1), loaded.previousAppearance(new RobotLinks.Key(owner, "Miner")), "not for a named robot");
+        assertTrue(loaded.commandNames(owner).isEmpty(), "nothing to suggest");
+        assertNull(loaded.sameName(owner, "Bob"), "the name is free");
+        loaded.set(new RobotLinks.Key(owner, "Miner"), UUID.randomUUID());
+        assertEquals("Bob", loaded.defaultName(owner), "another name changes nothing");
+        loaded.set(new RobotLinks.Key(owner, "bob"), UUID.randomUUID());
+        assertEquals("", loaded.defaultName(owner), "taken");
+    }
+
     @Test
     void readsTheOldBareMap() {
         UUID owner = UUID.randomUUID(), robot = UUID.randomUUID();
