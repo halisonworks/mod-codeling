@@ -8,6 +8,8 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ### Changed
 
+- Less work and less memory use per frame when robots are in view (issue #284): the robot's animations are read from the
+  model file once instead of for every frame. They look the same.
 - Messages in the game look and read like Minecraft's own (issue #278): white for done, red for refused, the game's
   errors for wrong arguments, and above the hotbar when you click a robot that is not yours. The `/robot` commands answer in
   plain words without internal codes, a missing robot is always explained the same way, and `/robot give`,

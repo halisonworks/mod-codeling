@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +31,20 @@ final class RobotModel {
     private record Bone(String name, String parent, float[] pivot, ModelPart part) {
     }
 
+    /** The transform of every bone by name, for one moment of one clip. */
+    record Pose(Map<String, RobotAnimation.Transform> transforms, boolean skipRoot) {
+    }
+
     private final Map<String, Bone> bones = new LinkedHashMap<>();
-    private final JsonObject animations;
+    private final Map<String, RobotAnimation> animations = new HashMap<>();
 
     RobotModel() {
         try (InputStream input = RobotModel.class.getResourceAsStream("/assets/codeling/models/entity/robot.json")) {
             if (input == null) throw new IllegalStateException("Missing robot model");
             JsonObject model = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
-            animations = model.getAsJsonObject("animations");
+            for (var clip : model.getAsJsonObject("animations").entrySet()) {
+                animations.put(clip.getKey(), new RobotAnimation(clip.getValue().getAsJsonObject()));
+            }
             for (JsonElement element : model.getAsJsonArray("bones")) {
                 JsonObject bone = element.getAsJsonObject();
                 List<ModelPart.Cube> faces = new ArrayList<>();
@@ -57,23 +64,29 @@ final class RobotModel {
     }
 
     float length(String animation) {
-        return animations.getAsJsonObject(animation).get("length").getAsFloat();
+        return animations.get(animation).length();
     }
 
-    void draw(PoseStack poses, String animation, float seconds, float amount, boolean skipRoot, DrawPart draw) {
-        JsonObject clip = animations.getAsJsonObject(animation);
+    Pose pose(String animation, float seconds, float amount, boolean skipRoot) {
+        RobotAnimation clip = animations.get(animation);
+        Map<String, RobotAnimation.Transform> transforms = new HashMap<>();
+        for (String bone : bones.keySet()) transforms.put(bone, clip.sample(bone, seconds).scale(amount));
+        return new Pose(transforms, skipRoot);
+    }
+
+    void draw(PoseStack poses, Pose pose, DrawPart draw) {
         for (Bone bone : bones.values()) {
             poses.pushPose();
-            applyParents(poses, bone, bones, clip, seconds, amount, skipRoot);
+            applyParents(poses, bone, pose);
             draw.draw(bone.part(), poses);
             poses.popPose();
         }
     }
 
-    private static void applyParents(PoseStack poses, Bone bone, Map<String, Bone> lookup, JsonObject clip, float seconds, float amount, boolean skipRoot) {
-        if (bone.parent() != null) applyParents(poses, lookup.get(bone.parent()), lookup, clip, seconds, amount, skipRoot);
-        if (skipRoot && bone.name().equals("root")) return;
-        RobotAnimation.Transform transform = RobotAnimation.sample(clip, bone.name(), seconds).scale(amount);
+    private void applyParents(PoseStack poses, Bone bone, Pose pose) {
+        if (bone.parent() != null) applyParents(poses, bones.get(bone.parent()), pose);
+        if (pose.skipRoot() && bone.name().equals("root")) return;
+        RobotAnimation.Transform transform = pose.transforms().get(bone.name());
         float[] p = bone.pivot();
         poses.translate((p[0] + transform.x()) / 16, (p[1] + transform.y()) / 16, (p[2] + transform.z()) / 16);
         float radians = (float) (Math.PI / 180);
