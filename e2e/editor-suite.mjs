@@ -841,8 +841,9 @@ async function gallerySection(browser, url) {
         `docs/_locales/nb/examples.md cards ${JSON.stringify(nbCards.map(c => c.url))}, tested examples ${JSON.stringify(pages)}`);
     const origin = new URL(url).origin;
     const foreign = [];
-    const home = async (lang, shot) => {
-        const context = await browser.newContext({ locale: "en-US", viewport: { width: 1280, height: 800 } });
+    const home = async (lang, shot, locale = "en-US", cookie) => {
+        const context = await browser.newContext({ locale, viewport: { width: 1280, height: 800 } });
+        if (cookie) await context.addCookies([{ name: "PXT_LANG", value: cookie, url: origin }]);
         context.on("request", r => { if (!/^(data|blob):/.test(r.url()) && new URL(r.url()).origin !== origin) foreign.push(r.url()); });
         const page = await context.newPage();
         page.setDefaultTimeout(60000);
@@ -877,6 +878,19 @@ async function gallerySection(browser, url) {
     check(JSON.stringify(nb.titles) === JSON.stringify(nbCards.map(c => c.name)), "gallery nb",
         `cards with ?lang=nb ${JSON.stringify(nb.titles)}, expected ${JSON.stringify(nbCards.map(c => c.name))}`);
     await nb.context.close();
+
+    step("language from the browser (issue #315)");
+    for (const [locale, lang, cookie, norwegian] of [["nb-NO", null, null, true], ["nb", null, null, true], ["nn-NO", null, null, true],
+        ["no", null, null, true], ["en-US", null, "nb-NO", true], ["nb-NO", "en", null, false], ["nb-NO", null, "en", false],
+        ["de-DE", null, null, false]]) {
+        const shown = await home(lang, "language.png", locale, cookie);
+        const expected = (norwegian ? nbCards : cards).map(c => c.name);
+        const button = await shown.page.locator(".newprojectcard").first().innerText();
+        const what = `browser ${locale}, ?lang=${lang}, cookie ${cookie}`;
+        check(JSON.stringify(shown.titles) === JSON.stringify(expected), "language", `${what}: cards ${JSON.stringify(shown.titles)}`);
+        check(button.includes(norwegian ? "Nytt prosjekt" : "New Project"), "language", `${what}: the new project card says "${button}"`);
+        await shown.context.close();
+    }
     check(foreign.length === 0, "gallery", `requests to other hosts: ${[...new Set(foreign)].join(", ")}`);
 }
 
