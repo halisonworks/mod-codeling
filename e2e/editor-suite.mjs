@@ -398,7 +398,7 @@ async function eventsSection(page, relay) {
     // The keyword's handler and the "*" handler run side by side; runChatCommand waits for both.
     check(JSON.stringify([...said.slice(0, 2)].sort().concat(said.slice(2))) === JSON.stringify(["any 4", "build 4 5", "any 7", "done"]),
         "run chat command", `robot log ${JSON.stringify(log)}`);
-    check(relay.cmds() === cmds, "run chat command", `the relay got ${relay.cmds() - cmds} cmd messages`);
+    check(cmds > 0 && relay.cmds() === cmds, "run chat command", `the relay got ${relay.cmds() - cmds} cmd messages`);
 }
 
 // Issues #218 and #221: the standalone relay refuses say "refuse <CODE>" with that code. A refused command throws into

@@ -154,13 +154,13 @@ public final class RobotManager {
         if (player != null) robot.setOwnerName(player.getGameProfile().name());
         robot.rememberAppearance();
         LOADED.put(key, robot);
-        Codeling.LOG.info("spawn: {} was loaded into the world at {} in {}.", label(level.getServer(), key), fmt(robot.position()), dim(level));
+        Codeling.LOG.detail("spawn: {} was loaded into the world at {} in {}.", label(level.getServer(), key), fmt(robot.position()), dim(level));
     }
 
     // "Player303's robot "Miner"" or "Player303's default robot".
     static String label(MinecraftServer server, RobotLinks.Key key) {
         ServerPlayer p = server.getPlayerList().getPlayer(key.owner());
-        return (p != null ? p.getGameProfile().name() : key.owner().toString()) + "'s "
+        return (p != null ? codeling.log.Log.person(p.getGameProfile().name()) : key.owner().toString()) + "'s "
                 + (key.name().isEmpty() ? "default robot" : "robot \"" + key.name() + "\"");
     }
 
@@ -230,8 +230,7 @@ public final class RobotManager {
         if (robot != null && robot.level() == level) {
             String before = fmt(robot.position());
             robot.snapTo(pos, facing.toYRot(), 0);
-            Codeling.LOG.info("spawn: Moved {} from {} to {}, facing {}, in {}. It now stands at {}.{}", label(level.getServer(), key), before, fmt(pos),
-                    facing.getName(), dim(level), fmt(robot.position()), robot.position().distanceTo(pos) > 0.5 ? " This is NOT where it was asked to go." : "");
+            spawned(level, key, robot, "Moved from " + before, pos, facing);
             return robot;
         }
         RobotEntity old = robot;
@@ -262,9 +261,13 @@ public final class RobotManager {
         links.set(key, robot.getUUID());
         robot.rememberAppearance();
         level.addFreshEntity(robot);
-        Codeling.LOG.info("spawn: Created {} at {}, facing {}, in {}. It now stands at {}.{}", label(level.getServer(), key), fmt(pos), facing.getName(),
-                dim(level), fmt(robot.position()), robot.position().distanceTo(pos) > 0.5 ? " This is NOT where it was asked to go." : "");
+        spawned(level, key, robot, "Created", pos, facing);
         return robot;
+    }
+
+    private static void spawned(ServerLevel level, RobotLinks.Key key, RobotEntity robot, String how, Vec3 pos, Direction facing) {
+        Codeling.LOG.detail("spawn: {}: {} to {}, facing {}, in {}.", label(level.getServer(), key), how, fmt(pos), facing.getName(), dim(level));
+        if (robot.position().distanceTo(pos) > 0.5) Codeling.LOG.warn("spawn: {} stands at {}, not at {} where it was put.", label(level.getServer(), key), fmt(robot.position()), fmt(pos));
     }
 
     /**
@@ -309,11 +312,16 @@ public final class RobotManager {
 
     /** Queues a validated command for one of the owner's robots; {@code done} gets the result on a later tick. */
     public static void submit(RobotLinks.Key key, long run, RobotCommand command, Consumer<Result> done) throws RobotException {
+        submit(key, run, -1, command, done);
+    }
+
+    /** As {@link #submit(RobotLinks.Key, long, RobotCommand, Consumer)}; {@code id} is the command's number in the run, for the log. */
+    public static void submit(RobotLinks.Key key, long run, long id, RobotCommand command, Consumer<Result> done) throws RobotException {
         if (!LOADED.containsKey(key)) {
             throw new RobotException(Result.Code.UNLOADED, key.name().isEmpty() ? "robot is not loaded (or not spawned: /robot spawn)"
                     : "robot " + key.name() + " is not loaded (or not spawned: /robot spawn " + key.name() + ", see /robot list)");
         }
-        queue(key).submit(run, command, done);
+        queue(key).submit(run, id, command, done);
     }
 
     /** New editor run for all of the owner's robots: their queues are dropped and the shared run id is new. */
@@ -444,6 +452,16 @@ public final class RobotManager {
     private record RunInfo(String name, long nanos) {
     }
 
+    /** For the report: robots in the loaded world. */
+    public static int loadedCount() {
+        return LOADED.size();
+    }
+
+    /** For the report: programs started from an editor and not ended. */
+    public static int runCount() {
+        return RUN_INFO.size();
+    }
+
     private static final Map<UUID, RunInfo> RUN_INFO = new HashMap<>();
     private static long lastTickNanos;
 
@@ -476,7 +494,7 @@ public final class RobotManager {
         for (RobotEntity robot : LOADED.values()) {
             RobotQueue queue = QUEUES.get(robot.key());
             RobotQueue.Entry entry = queue == null ? null : queue.head();
-            if (entry != null) Codeling.LOG.info("pause: Minecraft was paused (or stalled) for {} s; {} was waiting to run {}. It goes on now.",
+            if (entry != null) Codeling.LOG.detail("pause: Minecraft was paused (or stalled) for {} s; {} was waiting to run {}. It goes on now.",
                     String.format(java.util.Locale.ROOT, "%.1f", seconds), label(robot), entry.command.op().name());
         }
     }
@@ -517,6 +535,10 @@ public final class RobotManager {
     // One action step: one block of a move, or a whole other action.
     private static void step(RobotEntity robot, RobotQueue queue, RobotQueue.Entry entry) {
         RobotCommand command = entry.command;
+        if (!entry.started) {
+            entry.started = true;
+            if (Codeling.LOG.detailed()) Codeling.LOG.detail("robot: {} starts {} {}", label(robot), command.op(), entry.id < 0 ? "(a /robot command)" : "(run " + queue.run() + " command " + entry.id + ")");
+        }
         // shortcut: a stop mid-fall leaves the robot in the air until its next sideways move; fine while falls are short.
         if (entry.falling) {
             if (fall(robot)) return;
@@ -589,13 +611,13 @@ public final class RobotManager {
 
     private static void pathStart(RobotEntity robot, RobotQueue.Entry entry, String to) {
         entry.from = robot.blockPosition();
-        Codeling.LOG.info("path: {} starts {} at {} (standing on {}){}.", label(robot), entry.command.op().name(), at(entry.from),
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("path: {} starts {} at {} (standing on {}){}.", label(robot), entry.command.op().name(), at(entry.from),
                 name(robot.level().getBlockState(entry.from.below()).getBlock()), to);
     }
 
     private static void pathEnd(RobotEntity robot, RobotQueue.Entry entry, String why) {
         BlockPos now = robot.blockPosition();
-        Codeling.LOG.info("path: {} {} ended after {} steps at {}, {} blocks from where it started: {}.", label(robot), entry.command.op().name(), entry.step,
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("path: {} {} ended after {} steps at {}, {} blocks from where it started: {}.", label(robot), entry.command.op().name(), entry.step,
                 at(now), entry.from == null ? 0 : entry.from.distManhattan(now), why);
     }
 
@@ -835,7 +857,7 @@ public final class RobotManager {
         Block block = c.g() == 0 ? Blocks.AIR : McCompat.block(Identifier.parse(BlockIds.toModern(c.g())));
         Block floor = c.op() == RobotCommand.Op.MAZE ? McCompat.block(Identifier.parse(BlockIds.toModern(c.h()))) : block;
         boolean free = freeItems(robot);
-        if (fresh) Codeling.LOG.info("build: {} starts {} with {}; {}.", label(robot), c.op().name().toLowerCase(java.util.Locale.ROOT), name(block),
+        if (fresh && Codeling.LOG.detailed()) Codeling.LOG.detail("build: {} starts {} with {}; {}.", label(robot), c.op().name().toLowerCase(java.util.Locale.ROOT), name(block),
                 !free ? "it builds from the robot's inventory (not creative, and game rule codeling:free_items is off)"
                         : Codeling.freeItems(robot.level().getServer()) ? "it builds free of charge because game rule codeling:free_items is on"
                         : "it builds free of charge because the owner is in creative mode");
@@ -885,7 +907,7 @@ public final class RobotManager {
     }
 
     private static void buildEnd(RobotEntity robot, RobotQueue queue, RobotQueue.Entry entry, String why, Result result) {
-        Codeling.LOG.info("build: {} finished {}: changed {} of {} blocks looked at.{}{}", label(robot), entry.command.op().name().toLowerCase(java.util.Locale.ROOT),
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("build: {} finished {}: changed {} of {} blocks looked at.{}{}", label(robot), entry.command.op().name().toLowerCase(java.util.Locale.ROOT),
                 entry.step, entry.looked, why == null ? "" : " It stopped early: " + why + ".",
                 entry.refused == 0 ? "" : " " + entry.refused + " blocks were refused (a claim or protection, or nothing to place against).");
         queue.finish(result);
@@ -981,7 +1003,7 @@ public final class RobotManager {
         BlockPos target = other.blockPosition();
         if (entry.path == null && Arrays.stream(Direction.values()).map(target::relative)
                 .noneMatch(p -> level.isLoaded(p) && (!blocked(level, p) || opens(level, p)))) {
-            Codeling.LOG.info("path: {} cannot go to {}: no free block next to it at {}.", label(robot), label(other), at(target));
+            Codeling.LOG.detail("path: {} cannot go to {}: no free block next to it at {}.", label(robot), label(other), at(target));
             queue.finish(Result.ok(false, "there is no free block next to " + name));
             return;
         }
@@ -999,7 +1021,6 @@ public final class RobotManager {
         Direction dir = RobotPath.direction(at, path.get(entry.step + 1));
         if (dir.getAxis().isHorizontal()) robot.setYRot(dir.toYRot());
         BlockPos next = at.relative(dir);
-        Codeling.LOG.debug("path: {} step {} to {}", label(robot), entry.step + 1, at(next));
         // Issue #109: a closed door on the path; a claim that refuses the click leaves it shut and the move blocked.
         if (opens(robot.level(), next)) interact(robot, next, dir.getOpposite());
         moveOne(robot, queue, entry, dir, false, blocked);
@@ -1223,7 +1244,7 @@ public final class RobotManager {
         return switch (command.op()) {
             case PLACE -> {
                 boolean placed = place(robot, target, dir.getOpposite());
-                Codeling.LOG.info("build: {} {} {} with agent.place{}.", label(robot), placed ? "placed a block at" : "could NOT place a block at", at(target),
+                if (Codeling.LOG.detailed()) Codeling.LOG.detail("build: {} {} {} with agent.place{}.", label(robot), placed ? "placed a block at" : "could NOT place a block at", at(target),
                         placed ? "" : !(robot.inventory().getItem(robot.selectedSlot() - 1).getItem() instanceof BlockItem) ? ": the selected slot holds no block"
                                 : !state.canBeReplaced() ? ": the target is " + name(state.getBlock()) + ", not empty" : ": a claim or protection refused it");
                 yield Result.ok(placed);

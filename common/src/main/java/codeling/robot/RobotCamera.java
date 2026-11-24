@@ -34,7 +34,7 @@ public final class RobotCamera {
     }
 
     public static void playerLeft(ServerPlayer player) {
-        if (VIEWING.remove(player.getUUID()) != null) Codeling.LOG.info("camera: {} stopped looking through a robot: the player left the game.", player.getGameProfile().name());
+        if (VIEWING.remove(player.getUUID()) != null) Codeling.LOG.detail("camera: {} stopped looking through a robot: the player left the game.", player.getGameProfile().name());
     }
 
     public static void serverStopped() {
@@ -69,10 +69,10 @@ public final class RobotCamera {
     public static Component start(ServerPlayer player, RobotEntity robot, boolean follow) {
         Component refusal = refusal(player, robot);
         if (refusal != null) {
-            Codeling.LOG.info("camera: {} could not start the camera: {}", player.getGameProfile().name(), refusal.getString());
+            Codeling.LOG.detail("camera: {} could not start the camera: {}", player.getGameProfile().name(), refusal.getString());
             return refusal;
         }
-        Codeling.LOG.info("camera: {} is now looking {} {}.", player.getGameProfile().name(), follow ? "from behind" : "through the eyes of", RobotManager.label(robot));
+        Codeling.LOG.detail("camera: {} is now looking {} {}.", player.getGameProfile().name(), follow ? "from behind" : "through the eyes of", RobotManager.label(robot));
         VIEWING.put(player.getUUID(), new View(robot, follow));
         send(player, robot.getId(), follow);
         return null;
@@ -100,7 +100,7 @@ public final class RobotCamera {
     /** As {@link #stop(ServerPlayer)}; {@code why} goes to the log. */
     public static boolean stop(ServerPlayer player, String why) {
         if (VIEWING.remove(player.getUUID()) == null) return false;
-        Codeling.LOG.info("camera: {} stopped looking through a robot: {}.", player.getGameProfile().name(), why);
+        Codeling.LOG.detail("camera: {} stopped looking through a robot: {}.", player.getGameProfile().name(), why);
         send(player, NONE, false);
         return true;
     }
@@ -124,7 +124,7 @@ public final class RobotCamera {
             if (player == null) return true;
             Component refusal = refusal(player, e.getValue().robot());
             if (refusal == null) return false;
-            Codeling.LOG.info("camera: {} stopped looking through a robot: {}", player.getGameProfile().name(), refusal.getString());
+            Codeling.LOG.detail("camera: {} stopped looking through a robot: {}", player.getGameProfile().name(), refusal.getString());
             send(player, NONE, false);
             return true;
         });

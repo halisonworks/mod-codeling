@@ -15,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
 *///?}
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
@@ -189,6 +190,15 @@ public final class NeoForgePlatform implements Platform {
         }
     }
     *///?}
+
+    @Override
+    public Map<String, String> versions() {
+        Map<String, String> versions = new LinkedHashMap<>();
+        Map.of("codeling", "Codeling", "minecraft", "Minecraft", "neoforge", "NeoForge").entrySet().stream().sorted(Map.Entry.comparingByValue())
+                .forEach(e -> ModList.get().getModContainerById(e.getKey())
+                        .ifPresent(mod -> versions.put(e.getValue(), mod.getModInfo().getVersion().toString())));
+        return versions;
+    }
 
     @Override
     public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {

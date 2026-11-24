@@ -3,6 +3,8 @@ package codeling.robot;
 import codeling.McCompat;
 import codeling.Codeling;
 import codeling.Messages;
+import codeling.Report;
+import codeling.log.Log;
 import codeling.api.Signals;
 import codeling.net.PlayerEvents;
 import codeling.net.RelayPayloads;
@@ -19,6 +21,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +33,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -97,7 +101,15 @@ public final class RobotCommands {
                 .then(Commands.argument("text", StringArgumentType.greedyString()).executes(RobotCommands::chat)))
                 .then(Commands.literal("signal").requires(McCompat::isGamemaster).then(Commands.argument("players", EntityArgument.players())
                         .then(Commands.argument("name", StringArgumentType.string()).executes(c -> signal(c, 0))
-                                .then(Commands.argument("number", DoubleArgumentType.doubleArg()).executes(c -> signal(c, DoubleArgumentType.getDouble(c, "number"))))))));
+                                .then(Commands.argument("number", DoubleArgumentType.doubleArg()).executes(c -> signal(c, DoubleArgumentType.getDouble(c, "number")))))))
+                // Issue #279: the server's own log; /codeling log and /codeling report are the client's commands.
+                .then(Commands.literal("server").requires(McCompat::isGamemaster)
+                        .then(Commands.literal("log")
+                                .then(Commands.literal("on").executes(c -> serverLog(c, Log.DEFAULT_MINUTES))
+                                        .then(Commands.argument("minutes", IntegerArgumentType.integer(1, Log.MAX_MINUTES))
+                                                .executes(c -> serverLog(c, IntegerArgumentType.getInteger(c, "minutes")))))
+                                .then(Commands.literal("off").executes(c -> serverLog(c, 0))))
+                        .then(Commands.literal("report").executes(RobotCommands::serverReport))));
         // The slot comes before the robot name, so "give stone 5 3" is slot 3 (robot names start with a letter).
         Command<CommandSourceStack> giveToSlot = c -> give(c, IntegerArgumentType.getInteger(c, "slot"));
         dispatcher.register(Commands.literal("robot")
@@ -248,13 +260,37 @@ public final class RobotCommands {
         return 1;
     }
 
+    private static int serverLog(CommandContext<CommandSourceStack> c, int minutes) {
+        if (minutes == 0) {
+            Log.extendedOff("/codeling server log off");
+            Messages.operatorSuccess(c.getSource(), Messages.of("commands.codeling.log.off"));
+        } else {
+            Log.extendedOn(minutes);
+            Messages.operatorSuccess(c.getSource(), Messages.of("commands.codeling.log.on", minutes, "/codeling server report"));
+        }
+        return 1;
+    }
+
+    private static int serverReport(CommandContext<CommandSourceStack> c) {
+        MinecraftServer server = c.getSource().getServer();
+        server.getPlayerList().getPlayers().forEach(p -> Log.person(p.getGameProfile().name()));
+        try {
+            Report.write(server.getServerDirectory(), server, server.isDedicatedServer() ? "a dedicated server" : "the server in a game");
+        } catch (IOException e) {
+            codeling.Codeling.LOG.error("Could not write the report", e);
+            return Messages.failure(c.getSource(), Messages.of("commands.codeling.report.failed", Report.FILE));
+        }
+        Messages.success(c.getSource(), Messages.of("commands.codeling.report", Report.FILE));
+        return 1;
+    }
+
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         ServerPlayer player = c.getSource().getPlayerOrException();
         String name = name(c);
         Component refusal = RobotManager.spawnRefusal(c.getSource().getServer(), player.getUUID(), name);
         if (refusal != null) return Messages.failure(c.getSource(), refusal);
-        codeling.Codeling.LOG.info("spawn: {} typed /robot spawn{} while standing at x={} y={} z={} (block {}) in {}, looking {}.", player.getGameProfile().name(),
-                name.isEmpty() ? "" : " " + name, String.format(java.util.Locale.ROOT, "%.2f", player.getX()), String.format(java.util.Locale.ROOT, "%.2f", player.getY()),
+        codeling.Codeling.LOG.detail("spawn: {} typed /robot spawn{} while standing at x={} y={} z={} (block {}) in {}, looking {}.", player.getGameProfile().name(),
+                name.isEmpty() ? "" : " for robot \"" + name + "\"", String.format(java.util.Locale.ROOT, "%.2f", player.getX()), String.format(java.util.Locale.ROOT, "%.2f", player.getY()),
                 String.format(java.util.Locale.ROOT, "%.2f", player.getZ()), player.blockPosition().toShortString().replace(",", ""), McCompat.dimension(McCompat.level(player)).getPath(),
                 player.getDirection().getName());
         RobotManager.spawn(McCompat.level(player), key(c), Vec3.atBottomCenterOf(player.blockPosition()), player.getDirection());

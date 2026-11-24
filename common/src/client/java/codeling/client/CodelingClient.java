@@ -2,11 +2,16 @@ package codeling.client;
 
 import codeling.Codeling;
 import codeling.Messages;
+import codeling.Report;
+import codeling.log.Log;
 import codeling.net.Protocol;
 import codeling.net.RelayPayloads;
 import codeling.relay.EditorLauncher;
 import codeling.relay.RelayServer;
 import codeling.platform.ClientPlatform;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -41,7 +46,7 @@ public final class CodelingClient {
         EditorLauncher.deleteAll(EditorLauncher.DIR); // left by a crash
         try {
             relay = new RelayServer(port, new GameLink(client)).start();
-            Codeling.LOG.info("Codeling editor on http://127.0.0.1:{}/ (token {})", port, relay.tokenHint());
+            Codeling.LOG.info("Codeling editor on http://127.0.0.1:{}/", port);
         } catch (Exception e) {
             // shortcut: log only; show an in-game error when the port is busy (not done in step 2).
             Codeling.LOG.error("Codeling could not start the editor server on port {}", port, e);
@@ -55,6 +60,7 @@ public final class CodelingClient {
 
     /** A {@code codeling:to_client} payload goes to the browser session. Runs on the render thread; deliver is thread-safe. */
     public static void receive(String json) {
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("client: from the server: {}", Protocol.describe(json));
         if (relay != null) relay.deliver(json);
     }
 
@@ -69,6 +75,7 @@ public final class CodelingClient {
      * the waiting commands then run.
      */
     public static void tick(Minecraft client) {
+        Log.tick();
         boolean paused = keepRunning() && client.isPaused();
         if (paused == toldPaused) return;
         toldPaused = paused;
@@ -82,6 +89,45 @@ public final class CodelingClient {
     }
 
     // shortcut: /codeling client command instead of a key binding; add a key when the HUD comes.
+    /** The {@code /codeling} client commands, for either loader's own command source. */
+    public static <S> LiteralArgumentBuilder<S> command() {
+        return LiteralArgumentBuilder.<S>literal("codeling").executes(c -> openEditor())
+                .then(LiteralArgumentBuilder.<S>literal("log")
+                        .then(LiteralArgumentBuilder.<S>literal("on").executes(c -> extendedLog(Log.DEFAULT_MINUTES))
+                                .then(RequiredArgumentBuilder.<S, Integer>argument("minutes", IntegerArgumentType.integer(1, Log.MAX_MINUTES))
+                                        .executes(c -> extendedLog(IntegerArgumentType.getInteger(c, "minutes")))))
+                        .then(LiteralArgumentBuilder.<S>literal("off").executes(c -> extendedLog(0))))
+                .then(LiteralArgumentBuilder.<S>literal("report").executes(c -> report()));
+    }
+
+    private static int extendedLog(int minutes) {
+        if (minutes == 0) {
+            Log.extendedOff("/codeling log off");
+            show(Messages.of("commands.codeling.log.off"));
+        } else {
+            Log.extendedOn(minutes);
+            show(Messages.of("commands.codeling.log.on", minutes, "/codeling report"));
+        }
+        return 1;
+    }
+
+    /** Writes the report (issue #279); the chat line copies its text for a bug report. */
+    private static int report() {
+        Minecraft client = Minecraft.getInstance();
+        Log.person(client.getUser().getName());
+        try {
+            String text = Report.write(client.gameDirectory.toPath(), client.getSingleplayerServer(),
+                    client.getConnection() == null ? "the game, in no world" : client.hasSingleplayerServer() ? "the game, in its own world" : "the game, on a server",
+                    relay == null ? "Editor server: not running" : "Editor server: running on port " + relay.port() + (relay.linked() ? ", a program is running" : ""));
+            show(Messages.of("message.codeling.report", Report.FILE, copy("message.codeling.report.copy", text)));
+            return 1;
+        } catch (IOException e) {
+            Codeling.LOG.error("Could not write the report", e);
+            show(Messages.of("commands.codeling.report.failed", Report.FILE));
+            return 0;
+        }
+    }
+
     /**
      * The {@code /codeling} client command: opens the editor in the browser through a one-time launcher file, so the
      * token is never in a command line (issue #191). The chat line copies the link for a browser that cannot read the
@@ -97,16 +143,21 @@ public final class CodelingClient {
         } catch (IOException e) {
             Codeling.LOG.error("Codeling could not write the editor launcher", e); // a path, never the token
         }
-        Minecraft client = Minecraft.getInstance();
-        // The click copies the link; the chat log gets only the visible text.
+        show(Messages.of("message.codeling.editor.opening", copy("message.codeling.editor.copy", relay.editorUrl())));
+        return 1;
+    }
+
+    /** A text whose click copies {@code copied}; the chat log gets only the visible text. */
+    private static Component copy(String key, String copied) {
         //? if >=1.21.5 {
-        Component copy = Messages.of("message.codeling.editor.copy")
-                .withStyle(s -> s.withClickEvent(new ClickEvent.CopyToClipboard(relay.editorUrl())).withUnderlined(true));
-        //?} else {
-        /*Component copy = Messages.of("message.codeling.editor.copy")
-                .withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, relay.editorUrl())).withUnderlined(true));
-        *///?}
-        Component message = Messages.of("message.codeling.editor.opening", copy);
+        return Messages.of(key).withStyle(s -> s.withClickEvent(new ClickEvent.CopyToClipboard(copied)).withUnderlined(true));
+        //?} else
+        /*return Messages.of(key).withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, copied)).withUnderlined(true));*/
+    }
+
+    /** A line in this player's chat. */
+    private static void show(Component message) {
+        Minecraft client = Minecraft.getInstance();
         //? if >=26.2 {
         client.gui.hud.getChat().addClientSystemMessage(message);
         //?} else if >=26.1 {
@@ -114,7 +165,6 @@ public final class CodelingClient {
         *///?} else {
         /*client.gui.getChat().addMessage(message);
         *///?}
-        return 1;
     }
 
     /** Sends browser messages to the logical server as payloads (singleplayer or a server with Codeling). */
@@ -134,7 +184,9 @@ public final class CodelingClient {
                 return "Not in a world. Open a world in Minecraft, then run the program again.";
             }
             client.execute(() -> {
-                if (client.getConnection() != null) ClientPlatform.INSTANCE.send(new RelayPayloads.ToServer(json));
+                if (client.getConnection() == null) return;
+                if (Codeling.LOG.detailed() && !json.contains("\"heartbeat\"")) Codeling.LOG.detail("client: to the server: {}", Protocol.describe(json));
+                ClientPlatform.INSTANCE.send(new RelayPayloads.ToServer(json));
             });
             return null;
         }

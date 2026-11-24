@@ -1,5 +1,6 @@
 package codeling;
 
+import codeling.log.Log;
 import codeling.net.PlayerEvents;
 import codeling.net.ServerRelay;
 import codeling.platform.Platform;
@@ -8,6 +9,8 @@ import codeling.robot.RobotCamera;
 import codeling.robot.RobotEntity;
 import codeling.robot.RobotManager;
 import codeling.robot.RobotMenu;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -29,8 +32,6 @@ import net.minecraft.world.level.gamerules.GameRuleCategory;
 //?} else {
 /*import net.minecraft.world.level.GameRules;
 *///?}
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The loader-independent half of the mod (issue #186): registered content and the hooks each loader's entrypoint
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class Codeling {
     public static final String MOD_ID = "codeling";
-    public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
+    public static final Log LOG = Log.of(MOD_ID);
     private static final Platform PLATFORM = Platform.INSTANCE;
 
     private static final ResourceKey<EntityType<?>> ROBOT_KEY =
@@ -123,13 +124,16 @@ public final class Codeling {
     /** Called first by each loader's entrypoint: loading this class registers the content above. */
     public static void init() {
         ItemIds.setInThisVersion(id -> BuiltInRegistries.ITEM.containsKey(McCompat.itemId(id)));
-        LOG.debug("Codeling content registered");
+        List<String> versions = new ArrayList<>();
+        PLATFORM.versions().forEach((name, version) -> versions.add(name + " " + version));
+        LOG.info("Starting with {}.", String.join(", ", versions));
     }
 
     // The hooks below run in the order the separate Fabric listeners ran before issue #186: robots, relay, camera.
 
     /** End of every server tick. */
     public static void serverTick(MinecraftServer server) {
+        Log.tick();
         RobotManager.tick(server);
         ServerRelay.tick(server);
         RobotCamera.tick(server);

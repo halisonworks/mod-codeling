@@ -555,6 +555,9 @@ your default robot.
 | `/codeling` | Opens the editor in your browser. |
 | `/codeling chat <text>` | Sends a chat line to your own running program's "on chat command" code, as typing it in the chat would. Works on servers whose chat plugins take chat lines first. Says so when no program of yours is listening. |
 | `/codeling signal <players> <name> [number]` | Sends a signal to the programs of the players named (for example `@a` or a player name), with the number (0 without one). Ops only, and command blocks. It says how many programs got it and names the players it did not reach. |
+| `/codeling log on [minutes]` and `/codeling log off` | Extended logging in your own game for 15 minutes (or 1 to 60). See "Report a problem". |
+| `/codeling report` | Writes what a bug report needs to `logs/codeling-report.txt` in the game's folder. |
+| `/codeling server log on [minutes]`, `/codeling server log off` and `/codeling server report` | The same for the server. Ops only, and the server console. |
 | `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `codeling:max_robots`. |
 | `/robot list` | Your robots and where they are. |
 | `/robot remove <name>` | Removes a robot with a name. Its items go to you. |
@@ -652,6 +655,19 @@ These keep the game fast for everyone.
 | `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Codeling. Close it and restart Minecraft. The game log says "Codeling could not start the editor server on port 25580". |
 | The blocks look old after an update | Press Ctrl+F5 in the browser. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, a closed tab or leaving the world stopped it. Press Run again. |
+
+## Report a problem
+
+1. Type `/codeling log on`. Codeling then writes more to the game's log for 15 minutes. It goes off by itself.
+2. Do again what went wrong.
+3. Type `/codeling report` and click "[copy the report]". The report is also in `logs/codeling-report.txt`.
+4. Read through it. Codeling leaves out player names, robot names, chat and what robots say where it knows them. Remove
+   the rest you do not want others to see.
+5. Paste it in [a bug report](https://github.com/halisonworks/mod-codeling/issues/new/choose). What you write there is public.
+   If you are a child, ask an adult to help you.
+
+On somebody else's server, the owner does the same with `/codeling server log on` and `/codeling server report`. Codeling
+never sends anything by itself.
 
 ## Disclaimer
 
