@@ -199,14 +199,15 @@ public class RobotGameTests {
     }
 
     // Issue #41: categories are block tags, so modern woods and ores without a legacy id match too.
+    // Issue #318: the leaves are persistent, or they can decay on a random tick before the search.
     @GameTest(maxTicks = 100)
     public void findNearestCategory(GameTestHelper helper) {
         UUID owner = spawn(helper);
         helper.setBlock(START.above(2), Blocks.CHERRY_LOG);
         //? if >=1.21.4 {
-        helper.setBlock(START.east(), Blocks.PALE_OAK_LEAVES);
+        helper.setBlock(START.east(), Blocks.PALE_OAK_LEAVES.defaultBlockState().setValue(BlockStateProperties.PERSISTENT, true));
         //?} else
-        /*helper.setBlock(START.east(), Blocks.CHERRY_LEAVES);*/
+        /*helper.setBlock(START.east(), Blocks.CHERRY_LEAVES.defaultBlockState().setValue(BlockStateProperties.PERSISTENT, true));*/
         helper.setBlock(START.south(3), Blocks.DEEPSLATE_DIAMOND_ORE);
         List<Result> logs = send(helper, owner, "agent.findNearestCategory", 0, 3);
         List<Result> leaves = send(helper, owner, "agent.findNearestCategory", 1, 3);
