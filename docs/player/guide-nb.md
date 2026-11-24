@@ -116,15 +116,15 @@ Et program med "gjenta for alltid" slutter aldri av seg selv: trykk på stoppkna
 En funksjon er en bit av programmet med et navn du velger selv. Den kjører ikke bare fordi du har laget den: programmet
 må også kjøre (kalle) den.
 
-1. Åpne "Avansert" og så "Funksjoner", og trykk på "Lag en funksjon...". Skriv et navn, for eksempel `buildWall`, og
-   trykk på "Fullført".
+1. Åpne "Avansert" og så "Funksjoner", og trykk på "Lag en funksjon ...". Skriv et navn, for eksempel `buildWall`, og
+   trykk på "Ferdig".
 2. Dra robotblokker inn i "funksjon buildWall".
 3. Åpne "Funksjoner" igjen og dra ut "kjør buildWall": inn i "ved start" (dra den ut av Løkker først) for å kjøre den når du
    trykker på Kjør, eller inn i "når chatkommando" (fra Spiller) for å kjøre den når du skriver i chatten i
    spillet.
 4. Trykk på Kjør-knappen.
 
-Denne funksjonen har et tall, `length` ("Legg til en parameter", "Nummer"). Trykk på Kjør én gang. Skriv så `wall 5` i
+Denne funksjonen har et tall, `length` ("Legg til en parameter", "Tall"). Trykk på Kjør én gang. Skriv så `wall 5` i
 chatten i spillet, og igjen så ofte du vil, med det tallet du vil:
 
 ```
@@ -149,15 +149,15 @@ kommando.
 - Klikk på rundingen på en blokk (eller i feltet til venstre for et linjenummer i JavaScript og Python) for å sette et
   stoppunkt. Programmet stopper der hver gang det kommer dit.
 - I Blokker kjører "Step" én blokk og stopper igjen (knappen har ikke norsk tekst). I JavaScript og Python kjører
-  "Hopp over" én linje (et funksjonskall i ett steg), og "Gå inn i" går inn i funksjonen.
-- Pilen (Fortsett kjøring) kjører videre til neste stoppunkt, eller til slutten.
+  "Ta neste steg" én linje (et funksjonskall i ett steg), og "Gå inn i" går inn i funksjonen.
+- Pilen (Fortsett) kjører videre til neste stoppunkt, eller til slutten.
 - Mens programmet står stille, er blokken eller linjen som kommer etterpå markert, og "Variabler" viser verdien til
   hver variabel.
-- Skilpaddeknappen (Langsom tilstand) kjører programmet sakte og markerer hver blokk mens den kjører, uten å stoppe.
+- Skilpaddeknappen (Sakte film) kjører programmet sakte og markerer hver blokk mens den kjører, uten å stoppe.
 
 En robotkommando blir alltid ferdig før programmet stopper. Roboten står stille mens programmet står stille, og det
-gjør også "gjenta for alltid" og "kjør samtidig". For å stoppe programmet trykker du på "Avslutt feilsøkingsmodus",
-eller skriver `/robot stop` i spillet. Når du slår på feilsøkingsmodus eller Langsom tilstand, starter programmet fra
+gjør også "gjenta for alltid" og "kjør samtidig". For å stoppe programmet trykker du på "Avslutt feilsøking",
+eller skriver `/robot stop` i spillet. Når du slår på feilsøkingsmodus eller Sakte film, starter programmet fra
 begynnelsen, så roboten gjør kommandoene sine på nytt fra der den står.
 
 ## Feil, og å sjekke sitt eget program
@@ -202,7 +202,7 @@ Feilkodene et program kan fange:
 | `UNLOADED` | Roboten eller blokken er i en del av verden som ikke er lastet, eller roboten er ikke laget. |
 | `OUT_OF_RANGE` | Et tall er for stort eller for lite, for eksempel en flytting på mer enn 64 blokker eller en plass over 27. |
 
-Disse avslutter programmet og kan ikke fanges: stoppknappen, `/robot stop`, "Avslutt feilsøkingsmodus", tapt kontakt
+Disse avslutter programmet og kan ikke fanges: stoppknappen, `/robot stop`, "Avslutt feilsøking", tapt kontakt
 med spillet, `STOPPED` (spillet stoppet roboten) og `VERSION` (editoren er eldre enn spillet; last den inn på nytt).
 
 Programmet kan også sjekke sitt eget arbeid. "sjekk ... ellers stopp med" i kategorien Logikk stopper programmet med
@@ -762,7 +762,7 @@ roboter. Se [Flerspiller](#flerspiller).
 
 **Hvor lagres programmene mine?** I nettleseren din, på datamaskinen din, og ikke i verdenen. En annen nettleser, en annen
 datamaskin eller et privat vindu har dem ikke. Sletter du nettleserens data for editoren, slettes de. Vil du ha en
-kopi, trykker du på lagre-knappen ved siden av prosjektnavnet. Da får du en `.mkcd`-fil. «Importer» på editorens
+kopi, trykker du på lagre-knappen ved siden av prosjektnavnet. Da får du en `.mkcd`-fil. «Hent inn» på editorens
 hjemskjerm åpner den igjen.
 
 **Virker det uten nett?** Ja, når Codeling er installert. Editoren følger med moden og trenger ikke internett. Bare noen
