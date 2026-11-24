@@ -246,7 +246,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
   `come`, `camera`, `camera follow`, `camera off`). Only `stop all` has a `requires` (gamemaster level); the
   `/robot` root has none. `/codeling` is a client command. The game rules are registered in
   `common/src/main/java/codeling/Codeling.java`: `codeling:free_items` (boolean, default false),
-  `codeling:robot_camera` (off, owner, ops; default owner), `codeling:max_robots` (integer 1 to 16, default 1).
+  `codeling:robot_camera` (off, owner, ops; default owner), `codeling:max_robots` (integer 1 to 16, default 1),
+  `codeling:pause_on_lost_focus` (boolean, default true).
   Gaps:
   - No table lists the permission level per command or the game rules with type, default and range in one place.
   - `common/src/main/resources/assets/codeling/lang/en_us.json` has keys for `free_items` and `robot_camera` but

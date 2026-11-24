@@ -73,6 +73,7 @@
   "entity.codeling.robot": "Robot",
   "gamerule.codeling.free_items": "Codeling robots get items free",
   "gamerule.codeling.max_robots": "How many Codeling robots each player may have (1 to 16)",
+  "gamerule.codeling.pause_on_lost_focus": "Pause the game when its window loses focus (Codeling)",
   "gamerule.codeling.robot_camera": "Who may see through Codeling robots (off, owner, ops)",
   "hud.codeling.camera": "Robot camera: %s (camera key or /robot camera off to return)",
   "key.category.codeling.codeling": "Codeling",

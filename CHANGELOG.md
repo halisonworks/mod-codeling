@@ -6,6 +6,12 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Game rule `codeling:pause_on_lost_focus` (issue #297): `false` keeps the game from pausing when its window loses focus, in
+  this world. For the player who runs the world (singleplayer, or opened to LAN). `true`, the default, changes nothing. The
+  player's own F3+P option is never changed.
+
 ### Changed
 
 - Robots pick up only what their owner could (issue #53): not an item that is kept for another player, and not one that was

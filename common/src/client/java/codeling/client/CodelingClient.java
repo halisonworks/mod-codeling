@@ -15,6 +15,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 //? if >=26.3 {
 import com.mojang.blaze3d.Blaze3D;
 //?} else if >=1.21.11 {
@@ -67,6 +68,18 @@ public final class CodelingClient {
     /** True while a program runs from the editor: losing focus to the browser must not pause the game (issue #192). */
     public static boolean keepRunning() {
         return relay != null && relay.linked();
+    }
+
+    /**
+     * Whether the "pause on lost focus" option counts: not while a program runs (issue #192), and not in a world whose
+     * game rule codeling:pause_on_lost_focus is false (issue #297). Only the player who runs the world has the rule here:
+     * a server does not send its rules, and it does not stop for this. The option itself is never changed.
+     */
+    public static boolean mayPauseOnLostFocus() {
+        if (keepRunning()) return false;
+        Minecraft client = Minecraft.getInstance();
+        MinecraftServer server = client.getSingleplayerServer();
+        return server == null || client.level == null || Codeling.pauseOnLostFocus(server);
     }
 
     /**
