@@ -679,6 +679,9 @@ Grensene holder spillet raskt for alle.
   fra chatten mens programmet ditt kjører og lytter etter det første ordet i den.
 - Et signal når bare programmet til spilleren det ble sendt til. "send signal" i et program går bare til de andre
   modene på serveren, aldri til en annen spiller, og har bare med navnet.
+- `/gamerule codeling:pause_on_lost_focus false` gjør at spillet til den som kjører verdenen (enspiller, eller åpnet for
+  LAN), ikke går på pause når vinduet mister fokus. Escape pauser fortsatt. `true`, som er standard, følger spillerens
+  eget valg med F3+P.
 - Spillregelen `codeling:robot_camera` bestemmer hvem som kan bruke robotkameraet: `owner` (standard: hver spiller gjennom sin egen robot), `ops` (bare operatører) eller `off` (ingen). For eksempel `/gamerule codeling:robot_camera off`. På NeoForge 26.3 viser skjermen Edit Game Rules regelen som et tekstfelt: skriv `off`, `owner` eller `ops` (på NeoForge 1.21.1 er den ikke med på skjermen; bruk kommandoen). Serveren sjekker dette, og kameraet slutter med en gang når regelen tar det bort.
 - Roboten knuser og bruker ting som om den var deg. Hvis serveren beskytter et område, kan heller ikke roboten endre det.
 
@@ -692,7 +695,7 @@ Feilmeldingene er på engelsk.
 | "Not in a world" | Åpne en verden først, og trykk Kjør igjen. |
 | "This server does not have Codeling installed" | Serveren mangler moden. Spør den som eier serveren, eller spill i enspiller. |
 | Roboten gjør ingenting mens du er i nettleseren, og loggen sier "Minecraft is paused" | Pausemenyen er åpen i spillet. Gå tilbake til spillet og lukk den; roboten fortsetter av seg selv. |
-| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. |
+| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. Eller slå det av for denne verdenen med `/gamerule codeling:pause_on_lost_focus false` (operatører, så juks må være på). |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Skriv `/robot spawn`, eller gå nærmere roboten. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Sjekk navnet med `/robot list`. Gå nærmere roboten, eller skriv `/robot spawn Miner`. |
 | "This world allows one robot per player" | Roboter med navn trenger spillregelen `codeling:max_robots` over 1. Spør en operatør. |

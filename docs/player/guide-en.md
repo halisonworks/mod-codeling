@@ -658,6 +658,9 @@ These keep the game fast for everyone.
   only ever picks one of your own robots.
 - `/gamerule codeling:max_robots <1-16>` sets how many robots each player may have (1, the default, is one robot
   without a name).
+- `/gamerule codeling:pause_on_lost_focus false` keeps the game of the player who runs the world (singleplayer, or opened
+  to LAN) from pausing when its window loses focus. Escape still pauses. `true`, the default, is as the player's own
+  F3+P says.
 - Only you and server ops can open your robot's inventory. Others see "This is not your robot" above the hotbar.
 - In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
@@ -678,7 +681,7 @@ These keep the game fast for everyone.
 | "Not in a world" | Open a world first, then press Run again. |
 | "This server does not have Codeling installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
 | The robot does nothing while you are in the browser, and the log says "Minecraft is paused" | The pause menu is open in the game. Go back to the game and close it; the robot goes on by itself. |
-| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. |
+| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. Or turn it off for this world with `/gamerule codeling:pause_on_lost_focus false` (ops, so cheats must be on). |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Type `/robot spawn`, or walk closer to the robot. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Check the name with `/robot list`. Walk closer to the robot, or type `/robot spawn Miner`. |
 | "This world allows one robot per player" | Robots with names need the game rule `codeling:max_robots` above 1. Ask an op. |

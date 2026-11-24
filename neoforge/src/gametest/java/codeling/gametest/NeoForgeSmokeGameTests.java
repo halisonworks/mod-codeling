@@ -210,6 +210,8 @@ public final class NeoForgeSmokeGameTests {
         helper.assertValueEqual(BuiltInRegistries.GAME_RULE.getKey(Codeling.ROBOT_CAMERA.get()), id("robot_camera"), "robot_camera id");
         helper.assertValueEqual(rules.get(Codeling.FREE_ITEMS.get()), false, "free_items default");
         helper.assertValueEqual(rules.get(Codeling.MAX_ROBOTS.get()), 1, "max_robots default");
+        helper.assertValueEqual(BuiltInRegistries.GAME_RULE.getKey(Codeling.PAUSE_ON_LOST_FOCUS.get()), id("pause_on_lost_focus"), "pause_on_lost_focus id");
+        helper.assertValueEqual(rules.get(Codeling.PAUSE_ON_LOST_FOCUS.get()), true, "pause_on_lost_focus default");
         GameRule<RobotCamera.Mode> camera = Codeling.ROBOT_CAMERA.get();
         helper.assertValueEqual(rules.get(camera), RobotCamera.Mode.owner, "robot_camera default");
         helper.assertValueEqual(camera.gameRuleType(), GameRuleType.valueOf("CODELING_ENUM"), "enum rule type from enumextensions.json");
@@ -234,6 +236,8 @@ public final class NeoForgeSmokeGameTests {
         helper.assertValueEqual(Codeling.ROBOT_CAMERA.get().getId(), "codeling:robot_camera", "robot_camera name");
         helper.assertValueEqual(Codeling.freeItems(server), false, "free_items default");
         helper.assertValueEqual(Codeling.maxRobots(server), 1, "max_robots default");
+        helper.assertValueEqual(Codeling.PAUSE_ON_LOST_FOCUS.get().getId(), "codeling:pause_on_lost_focus", "pause_on_lost_focus name");
+        helper.assertValueEqual(Codeling.pauseOnLostFocus(server), true, "pause_on_lost_focus default");
         helper.assertValueEqual(Codeling.robotCamera(server), RobotCamera.Mode.owner, "robot_camera default");
         // Saved as the constant name, as on 26.x and on Fabric.
         helper.assertValueEqual(rules.getRule(Codeling.ROBOT_CAMERA.get()).serialize(), "owner", "saved form");
