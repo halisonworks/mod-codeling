@@ -217,7 +217,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
     find it.
   - Firewall or antivirus prompts: the relay binds `127.0.0.1` only, so no inbound rule is needed; saying so stops
     players from opening ports.
-  - Multiplayer: what happens when the server has Codeling and the client does not (on Fabric it is
+  - Multiplayer: what happens when the server has Codeling and the client does not (it is
     refused, see docs/architecture.md section 12), and that the editor always runs on the player's own machine.
   - Where the saved programs live (pxt keeps them in the browser's IndexedDB per origin, docs/architecture.md
     "Auth and token flow"), and that clearing site data deletes them.
