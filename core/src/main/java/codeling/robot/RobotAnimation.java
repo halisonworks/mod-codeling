@@ -3,12 +3,11 @@ package codeling.robot;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.HashMap;
+import java.util.Map;
 
-/** Samples the same linear animation tracks used by the editable model and asset preview. */
+/** One clip with the same linear animation tracks as the editable model and asset preview, read from JSON once. */
 public final class RobotAnimation {
-    private RobotAnimation() {
-    }
-
     public record Transform(float x, float y, float z, float pitch, float yaw, float roll) {
         public static final Transform ZERO = new Transform(0, 0, 0, 0, 0, 0);
 
@@ -17,36 +16,66 @@ public final class RobotAnimation {
         }
     }
 
-    public static Transform sample(JsonObject clip, String bone, float seconds) {
-        float length = clip.get("length").getAsFloat();
-        float time = clip.get("loop").getAsBoolean() ? Math.max(0, seconds) % length : Math.min(length, Math.max(0, seconds));
-        JsonObject tracks = clip.getAsJsonObject("bones").getAsJsonObject(bone);
-        if (tracks == null) return Transform.ZERO;
-        float[] position = track(tracks.getAsJsonArray("position"), time);
-        float[] rotation = track(tracks.getAsJsonArray("rotation"), time);
-        return new Transform(position[0], position[1], position[2], rotation[0], rotation[1], rotation[2]);
+    private record Bone(Track position, Track rotation) {
     }
 
-    private static float[] track(JsonArray frames, float time) {
-        if (frames == null || frames.isEmpty()) return new float[3];
-        JsonObject before = frames.get(0).getAsJsonObject();
-        for (JsonElement element : frames) {
-            JsonObject after = element.getAsJsonObject();
-            float start = before.get("time").getAsFloat();
-            float end = after.get("time").getAsFloat();
-            if (time <= end) {
-                float amount = end == start ? 0 : Math.max(0, Math.min(1, (time - start) / (end - start)));
-                float[] result = new float[3];
-                for (int axis = 0; axis < 3; axis++) {
-                    float a = before.getAsJsonArray("value").get(axis).getAsFloat();
-                    float b = after.getAsJsonArray("value").get(axis).getAsFloat();
-                    result[axis] = a + (b - a) * amount;
-                }
-                return result;
-            }
-            before = after;
+    private final float length;
+    private final boolean loop;
+    private final Map<String, Bone> bones = new HashMap<>();
+
+    public RobotAnimation(JsonObject clip) {
+        length = clip.get("length").getAsFloat();
+        loop = clip.get("loop").getAsBoolean();
+        for (Map.Entry<String, JsonElement> entry : clip.getAsJsonObject("bones").entrySet()) {
+            JsonObject tracks = entry.getValue().getAsJsonObject();
+            bones.put(entry.getKey(), new Bone(new Track(tracks.getAsJsonArray("position")), new Track(tracks.getAsJsonArray("rotation"))));
         }
-        JsonArray value = before.getAsJsonArray("value");
-        return new float[] {value.get(0).getAsFloat(), value.get(1).getAsFloat(), value.get(2).getAsFloat()};
+    }
+
+    public float length() {
+        return length;
+    }
+
+    public Transform sample(String bone, float seconds) {
+        Bone tracks = bones.get(bone);
+        if (tracks == null) return Transform.ZERO;
+        float time = loop ? Math.max(0, seconds) % length : Math.min(length, Math.max(0, seconds));
+        Track position = tracks.position(), rotation = tracks.rotation();
+        int p = position.next(time), r = rotation.next(time);
+        return new Transform(position.value(p, time, 0), position.value(p, time, 1), position.value(p, time, 2),
+                rotation.value(r, time, 0), rotation.value(r, time, 1), rotation.value(r, time, 2));
+    }
+
+    /** The keyframes of one bone's position or rotation, in order; none is zero. */
+    private static final class Track {
+        private final float[] times;
+        private final float[][] values;
+
+        Track(JsonArray frames) {
+            int count = frames == null ? 0 : frames.size();
+            times = new float[count];
+            values = new float[count][3];
+            for (int i = 0; i < count; i++) {
+                JsonObject frame = frames.get(i).getAsJsonObject();
+                times[i] = frame.get("time").getAsFloat();
+                for (int axis = 0; axis < 3; axis++) values[i][axis] = frame.getAsJsonArray("value").get(axis).getAsFloat();
+            }
+        }
+
+        /** The first keyframe at or after the time, or the number of keyframes when there is none. */
+        int next(float time) {
+            int i = 0;
+            while (i < times.length && time > times[i]) i++;
+            return i;
+        }
+
+        float value(int next, float time, int axis) {
+            if (times.length == 0) return 0;
+            if (next == 0) return values[0][axis];
+            if (next == times.length) return values[next - 1][axis];
+            float start = times[next - 1], end = times[next];
+            float a = values[next - 1][axis], b = values[next][axis];
+            return a + (b - a) * ((time - start) / (end - start));
+        }
     }
 }

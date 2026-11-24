@@ -83,23 +83,24 @@ class RobotAssetTest {
         JsonObject clips = model().getAsJsonObject("animations");
         for (String gesture : RobotAppearance.ANIMATIONS) assertTrue(clips.has(gesture), gesture);
         for (String clip : List.of("walk", "turn_left", "turn_right")) assertTrue(clips.has(clip), clip);
-        JsonObject walk = clips.getAsJsonObject("walk");
+        RobotAnimation walk = new RobotAnimation(clips.getAsJsonObject("walk"));
         for (float t = 0; t < 1; t += 0.05F) {
-            float left = RobotAnimation.sample(walk, "left_leg", t).pitch(), right = RobotAnimation.sample(walk, "right_leg", t).pitch();
+            float left = walk.sample("left_leg", t).pitch(), right = walk.sample("right_leg", t).pitch();
             assertEquals(-left, right, 0.01, "feet alternate at " + t);
-            assertEquals(-left, RobotAnimation.sample(walk, "left_arm", t).pitch(), 0.01, "left arm against the left foot at " + t);
+            assertEquals(-left, walk.sample("left_arm", t).pitch(), 0.01, "left arm against the left foot at " + t);
         }
         for (String look : List.of("look_left", "look_right", "look_up", "look_down")) {
             assertEquals(Set.of("head"), clips.getAsJsonObject(look).getAsJsonObject("bones").keySet(), look + " moves the head only");
         }
-        assertEquals(35, RobotAnimation.sample(clips.getAsJsonObject("look_left"), "head", 0.6F).yaw(), 0.01, "look_left turns the head");
+        assertEquals(35, new RobotAnimation(clips.getAsJsonObject("look_left")).sample("head", 0.6F).yaw(), 0.01, "look_left turns the head");
         for (Map.Entry<String, JsonElement> entry : clips.entrySet()) {
             JsonObject clip = entry.getValue().getAsJsonObject();
+            RobotAnimation animation = new RobotAnimation(clip);
             float length = clip.get("length").getAsFloat();
             for (String bone : clip.getAsJsonObject("bones").keySet()) {
                 // A loop wraps at its length, so its end is sampled just before.
                 float last = clip.get("loop").getAsBoolean() ? length - 0.0001F : length;
-                RobotAnimation.Transform start = RobotAnimation.sample(clip, bone, 0), end = RobotAnimation.sample(clip, bone, last);
+                RobotAnimation.Transform start = animation.sample(bone, 0), end = animation.sample(bone, last);
                 if (entry.getKey().startsWith("turn_") && bone.equals("root")) {
                     assertEquals(entry.getKey().equals("turn_left") ? 90 : -90, end.yaw(), 0.01, entry.getKey() + " turns a quarter");
                 } else if (clip.get("loop").getAsBoolean()) {
@@ -109,6 +110,52 @@ class RobotAssetTest {
                 }
             }
         }
+    }
+
+    /** Issue #284: what is read once is what the asset says, for every bone of every clip, on and between the keyframes. */
+    @Test
+    void everyClipGivesTheKeyframesOfTheAsset() throws IOException {
+        JsonObject model = model();
+        int compared = 0;
+        for (Map.Entry<String, JsonElement> entry : model.getAsJsonObject("animations").entrySet()) {
+            JsonObject clip = entry.getValue().getAsJsonObject();
+            RobotAnimation animation = new RobotAnimation(clip);
+            assertEquals(clip.get("length").getAsFloat(), animation.length(), entry.getKey());
+            for (JsonElement element : model.getAsJsonArray("bones")) {
+                String bone = element.getAsJsonObject().get("name").getAsString();
+                JsonObject tracks = clip.getAsJsonObject("bones").getAsJsonObject(bone);
+                for (String track : List.of("position", "rotation")) {
+                    String what = entry.getKey() + " " + bone + " " + track;
+                    if (tracks == null || !tracks.has(track)) {
+                        assertArrayEquals(new float[3], values(animation.sample(bone, 0.3F), track), what + " has no keyframes");
+                        continue;
+                    }
+                    var frames = tracks.getAsJsonArray(track);
+                    for (int i = 0; i < frames.size(); i++) {
+                        JsonObject frame = frames.get(i).getAsJsonObject();
+                        float time = frame.get("time").getAsFloat();
+                        float[] value = floats(frame.get("value"));
+                        // A loop is at its start again at its length.
+                        if (!clip.get("loop").getAsBoolean() || time < animation.length()) {
+                            assertArrayEquals(value, values(animation.sample(bone, time), track), 0.001F, what + " at " + time);
+                            compared++;
+                        }
+                        if (i == 0) continue;
+                        JsonObject before = frames.get(i - 1).getAsJsonObject();
+                        float[] middle = floats(before.get("value"));
+                        for (int axis = 0; axis < 3; axis++) middle[axis] = (middle[axis] + value[axis]) / 2;
+                        float half = (before.get("time").getAsFloat() + time) / 2;
+                        assertArrayEquals(middle, values(animation.sample(bone, half), track), 0.001F, what + " at " + half);
+                        compared++;
+                    }
+                }
+            }
+        }
+        assertTrue(compared > 100, "keyframes compared: " + compared);
+    }
+
+    private static float[] values(RobotAnimation.Transform t, String track) {
+        return track.equals("position") ? new float[] {t.x(), t.y(), t.z()} : new float[] {t.pitch(), t.yaw(), t.roll()};
     }
 
     private static void assertClose(RobotAnimation.Transform expected, RobotAnimation.Transform actual, String what) {

@@ -90,12 +90,13 @@ public class RobotRenderer extends EntityRenderer<RobotEntity, RobotRenderer.Sta
     }
 
     private void drawLayers(PoseStack poses, RobotMotion.Frame frame, Identifier texture, int primaryColor, DrawLayer draw) {
-        model.draw(poses, frame.animation(), frame.seconds(), frame.amount(), frame.skipRoot(), (part, transformed) -> draw.draw(part, transformed, texture, -1));
+        // Sampled once for both layers (issue #284).
+        RobotModel.Pose pose = model.pose(frame.animation(), frame.seconds(), frame.amount(), frame.skipRoot());
+        model.draw(poses, pose, (part, transformed) -> draw.draw(part, transformed, texture, -1));
         if (primaryColor < 0) return;
         poses.pushPose();
         poses.scale(1.0005F, 1.0005F, 1.0005F);
-        model.draw(poses, frame.animation(), frame.seconds(), frame.amount(), frame.skipRoot(),
-                (part, transformed) -> draw.draw(part, transformed, PRIMARY_MASK, 0xFF000000 | primaryColor));
+        model.draw(poses, pose, (part, transformed) -> draw.draw(part, transformed, PRIMARY_MASK, 0xFF000000 | primaryColor));
         poses.popPose();
     }
 
