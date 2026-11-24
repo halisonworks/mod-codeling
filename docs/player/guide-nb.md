@@ -530,6 +530,8 @@ ikke flere.
   verdenen.
 - `/robot list` viser robotene dine og hvor de er. `/robot remove Miner` fjerner en: alt den bærer, havner i
   inventaret ditt, og det som ikke får plass, faller ned ved føttene dine. Roboten må være lastet inn (nær deg).
+  `/robot remove agent` fjerner standardroboten og stopper programmet ditt. Neste `/robot spawn` gir den tilbake med
+  samme navn, utseende og farge.
 - Chattekommandoene for én robot tar navnet til slutt: `/robot move forward 3 Miner`, `/robot come Miner`,
   `/robot inventory Miner`, `/robot camera Miner`. Uten navn gjelder de standardroboten din. I kommandoene heter den
   `agent`, og også det du kaller den: `/robot skin mint agent`. Trykk Tab for å se navnene på robotene dine.
@@ -653,7 +655,7 @@ standardroboten din.
 | `/codeling server log on [minutter]`, `/codeling server log off` og `/codeling server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
 | `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `codeling:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |
-| `/robot remove <navn>` | Fjerner en robot med navn. Tingene den har, får du. |
+| `/robot remove <navn>` | Fjerner en robot. Tingene den har, får du. `agent` er standardroboten din. Fjerner du den, stopper også programmet ditt. |
 | `/robot rename <navn> <nytt navn>` | Gir en robot nytt navn. `agent` er standardroboten din, og `/robot rename <nytt navn>` gir også den nytt navn. |
 | `/robot nametag <on\|off> [navn]` | Viser eller skjuler navnet over robotene dine (uten navn: alle). |
 | `/robot stop [navn]` | Uten navn: stopper alle robotene og programmet ditt. Med navn: stopper det den roboten holder på med. |

@@ -40,6 +40,8 @@ import net.minecraft.nbt.Tag;
  * so old worlds load unchanged; named robots go in "named" (owner to name to robot), which older worlds do not have.
  * Issue #293: the name a player gave the default robot is in "default_names". It is only a name for the player and the
  * commands: the key of the default robot stays the empty name.
+ * Issue #324: a removed default robot's name stays there for the next one, and its look stays in "appearances" under the
+ * owner's id.
  */
 public final class RobotLinks extends SavedData {
     /** The default robot's name in the commands, as in programs. */
@@ -182,6 +184,12 @@ public final class RobotLinks extends SavedData {
         return appearances.getOrDefault(robot, new Appearance("workshop", -1));
     }
 
+    /** The look a new robot for this key starts with: its replaced robot's, or the removed default robot's. */
+    Appearance previousAppearance(Key key) {
+        UUID robot = robot(key);
+        return appearance(robot == null && key.name().isEmpty() ? key.owner() : robot);
+    }
+
     void setAppearance(UUID robot, String skin, int color) {
         Appearance appearance = new Appearance(skin, color);
         if (!appearance.equals(appearances.put(robot, appearance))) setDirty();
@@ -238,7 +246,7 @@ public final class RobotLinks extends SavedData {
     /** As {@link #sameName(UUID, String)}, without the name of the robot {@code except}: a robot may keep its own name. */
     String sameName(UUID owner, String name, Key except) {
         for (String n : names(owner)) if (n.equalsIgnoreCase(name) && !new Key(owner, n).equals(except)) return n;
-        String own = defaultName(owner);
+        String own = robot(owner) == null ? "" : defaultName(owner); // a removed robot's name is free
         return !own.isEmpty() && own.equalsIgnoreCase(name) && !new Key(owner, "").equals(except) ? own : null;
     }
 
@@ -248,6 +256,8 @@ public final class RobotLinks extends SavedData {
 
     void set(Key key, UUID robot) {
         robots.put(key, robot);
+        // Names are unique: a robot that takes the removed default robot's name keeps it.
+        if (robot(key.owner()) == null && key.name().equalsIgnoreCase(defaultName(key.owner()))) defaultNames.remove(key.owner());
         setDirty();
     }
 
