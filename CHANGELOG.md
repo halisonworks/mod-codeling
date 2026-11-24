@@ -6,6 +6,13 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-11-24
+
+The fourth pre-release, for testing.
+
+**Use the same Codeling version on the server and on every client.** Mixing versions (for example a 0.0.3 client
+on a 0.0.4 server) is not supported and has not been tested.
+
 ### Added
 
 - Extended logging and a report for bug reports (issue #279): `/codeling log on` writes more to the game's log for 15 minutes
