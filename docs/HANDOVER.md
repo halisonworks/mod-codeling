@@ -72,7 +72,7 @@ Editor/relay compatibility and client tests need built editor; Playwright setup 
 The owner approved a preview, and the migration was done on 25 November 2026 with `gh`. Read back from GitHub afterwards:
 
 - 11 milestones were created: 0.1.0 to 1.0.0 as in ROADMAP, and `Deferred (unscheduled)`. All 192 open issues have the milestone of their ROADMAP target.
-- The seven old milestones are kept and still open. They hold only closed issues, and no closed issue was changed.
+- The seven old milestones are closed and kept. They hold only closed issues, and no closed issue was changed.
 - All 176 open issues with a Parent line have that parent as native sub-issue parent: 72 new, 22 moved, 82 already right. The first Parent line is the canonical one. The 16 epics have no parent.
 - Native blockers were not changed. Of the 53 explicit active edges found in the issue text in this check (the planning review counted 55, and the difference is not explained), 21 are not native blockers. 8 native blockers are not in the text. Review these before changing them.
 
