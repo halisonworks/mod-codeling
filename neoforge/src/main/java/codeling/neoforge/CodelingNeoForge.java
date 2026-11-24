@@ -1,11 +1,15 @@
 package codeling.neoforge;
 
 import codeling.Codeling;
+import codeling.Messages;
 import codeling.net.RelayPayloads;
 import codeling.net.ServerRelay;
 import codeling.robot.RobotCommands;
+import java.util.function.Consumer;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -22,6 +26,7 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 /*import net.neoforged.neoforge.event.level.BlockEvent.BreakEvent;*/
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 //? if <26.1
@@ -32,6 +37,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public final class CodelingNeoForge {
     /** Payload protocol version; NeoForge compares it between client and server. */
     private static final String NETWORK_VERSION = "1";
+    public static final ConfigurationTask.Type REFUSE_UNMODDED = new ConfigurationTask.Type("codeling:refuse_unmodded");
 
     //? if <26.1 {
     /*// Before RegisterClientPayloadHandlersEvent the client handlers are given at registration, here; the client
@@ -43,6 +49,7 @@ public final class CodelingNeoForge {
     public CodelingNeoForge(IEventBus modBus) {
         Codeling.init(); // creates the DeferredRegisters on modBus (NeoForgePlatform)
         modBus.addListener(CodelingNeoForge::registerPayloads);
+        modBus.addListener(CodelingNeoForge::refuseUnmodded);
         IEventBus game = NeoForge.EVENT_BUS;
         game.addListener((ServerTickEvent.Post event) -> Codeling.serverTick(event.getServer()));
         game.addListener((ServerStoppedEvent event) -> Codeling.serverStopped());
@@ -71,7 +78,25 @@ public final class CodelingNeoForge {
         game.addListener((RegisterCommandsEvent event) -> RobotCommands.register(event.getDispatcher()));
     }
 
-    // Optional, as on Fabric: a client without Codeling may join, and canSend tells the common code whether it has it.
+    // Issue #371: NeoForge's registry sync refuses NeoForge without Codeling, but does not ask an unmodified client, which
+    // would then be disconnected by the first robot it sees. The task never finishes, so nobody gets past it.
+    private static void refuseUnmodded(RegisterConfigurationTasksEvent event) {
+        var listener = event.getListener();
+        if (!listener.getConnectionType().isOther()) return;
+        event.register(new ConfigurationTask() {
+            @Override
+            public void start(Consumer<Packet<?>> send) {
+                listener.disconnect(Messages.of("message.codeling.join.neoforge"));
+            }
+
+            @Override
+            public Type type() {
+                return REFUSE_UNMODDED;
+            }
+        });
+    }
+
+    // Optional: a client with Codeling may join a server without it, and canSend tells the common code which it is.
     // The client's handlers for ToClient and Camera are registered in CodelingNeoForgeClient.
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(NETWORK_VERSION).optional();

@@ -25,6 +25,8 @@ Every user-visible change to Codeling is listed here. The format follows
 ### Fixed
 
 - The editor is Norwegian from the start in a browser set to Norwegian (issue #315). Before, most of them got English.
+- NeoForge: a client without NeoForge is refused when it connects to a server with Codeling, and told what to install
+  (issue #371). Before, it could join and was disconnected when it saw a robot.
 - A player with named robots but no default robot is no longer told "You have no robot" (issue #327).
 
 ## [0.0.4] - 2026-11-24
