@@ -292,7 +292,7 @@ The robot stays where it is and only looks. A position or corner you give must b
 | agent free slots | `agent.freeSlots()` | How many of the 27 slots are empty. |
 | agent is inventory full | `agent.isInventoryFull()` | True if no slot is empty. A stack that is not full can still take more of the same item. |
 | agent give (item) count (count) in slot (slot) | `agent.setItem(Item.Stone, 64, 1)` | Gives items. Only in creative mode or with the gamerule `codeling:free_items`. |
-| agent collect all | `agent.collectAll()` | Picks up items right next to it. |
+| agent collect all | `agent.collectAll()` | Picks up items right next to it. An item that was just dropped can be picked up after a moment (half a second for the robot's own), and never one that is kept for another player. |
 | agent drop (direction) from slot (slot) amount (amount) | `agent.drop(SixDirection.Back, 1, 10)` | Drops some items. |
 | agent drop all (direction) | `agent.dropAll(SixDirection.Back)` | Drops everything. |
 | agent transfer amount (amount) from slot (from) to slot (to) | `agent.transfer(10, 1, 2)` | Moves items between its own slots. |

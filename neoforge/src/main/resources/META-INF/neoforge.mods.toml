@@ -14,7 +14,10 @@ description = '''Program a robot with blocks, JavaScript or Python. Not approved
 # 26.x: adds the enum game rule type (codeling:robot_camera); see NeoForgePlatform.enumRule. Empty on 1.21.1.
 ${enum_extensions}
 
-# Common's mixin config (client mixins only), the same file Fabric loads.
+# Common's mixin configs (both sides, and client only), the same files Fabric loads.
+[[mixins]]
+config = "codeling-common.mixins.json"
+
 [[mixins]]
 config = "codeling.mixins.json"
 

@@ -1010,6 +1010,53 @@ public class RobotGameTests {
         });
     }
 
+    private static ItemEntity floatingItem(GameTestHelper helper, Vec3 at, net.minecraft.world.item.Item type, UUID keptFor) {
+        ItemEntity item = new ItemEntity(helper.getLevel(), at.x, at.y, at.z, new ItemStack(type), 0, 0, 0);
+        item.setNoGravity(true);
+        item.setTarget(keptFor);
+        item.setNoPickUpDelay();
+        helper.getLevel().addFreshEntity(item);
+        return item;
+    }
+
+    // Issue #53: collectAll leaves what a player could not pick up: an item kept for somebody else, or not ready yet.
+    @GameTest(maxTicks = 100)
+    public void collectAllLeavesOthersItemsAndItemsNotReady(GameTestHelper helper) {
+        UUID owner = spawn(helper);
+        Vec3 at = Vec3.atBottomCenterOf(helper.absolutePos(START));
+        floatingItem(helper, at, Items.STONE, null);
+        floatingItem(helper, at, Items.GOLD_INGOT, owner);
+        ItemEntity others = floatingItem(helper, at, Items.DIAMOND, UUID.randomUUID());
+        ItemEntity notReady = floatingItem(helper, at, Items.EMERALD, null);
+        notReady.setNeverPickUp();
+        List<Result> results = send(helper, owner, "agent.collectAll");
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(results, List.of(Result.ok(null)), "results");
+            helper.assertValueEqual(inv(owner).countItem(Items.STONE), 1, "everybody's item");
+            helper.assertValueEqual(inv(owner).countItem(Items.GOLD_INGOT), 1, "the owner's item");
+            helper.assertValueEqual(inv(owner).countItem(Items.DIAMOND) + inv(owner).countItem(Items.EMERALD), 0, "left");
+            helper.assertTrue(others.isAlive() && notReady.isAlive(), "both still lie there");
+        });
+    }
+
+    // Issue #53: destroy takes its own drops at once, and not what lay there before and is not the owner's to take.
+    @GameTest(maxTicks = 100)
+    public void destroyTakesItsOwnDropsOnly(GameTestHelper helper) {
+        helper.setBlock(START.south(), Blocks.DIRT);
+        UUID owner = spawn(helper);
+        Vec3 at = Vec3.atBottomCenterOf(helper.absolutePos(START.south())).add(0, 1.1, 0);
+        ItemEntity others = floatingItem(helper, at, Items.DIAMOND, UUID.randomUUID());
+        ItemEntity notReady = floatingItem(helper, at, Items.EMERALD, null);
+        notReady.setNeverPickUp();
+        List<Result> results = send(helper, owner, "agent.destroy", RobotCommand.FORWARD);
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(results, List.of(Result.ok(true)), "results");
+            helper.assertValueEqual(inv(owner).countItem(Items.DIRT), 1, "its own drop");
+            helper.assertValueEqual(inv(owner).countItem(Items.DIAMOND) + inv(owner).countItem(Items.EMERALD), 0, "left");
+            helper.assertTrue(others.isAlive() && notReady.isAlive(), "both still lie there");
+        });
+    }
+
     @GameTest(maxTicks = 100)
     public void placeOnMoveFillsVacatedBlocks(GameTestHelper helper) {
         UUID owner = spawnWithStone(helper, 10);
