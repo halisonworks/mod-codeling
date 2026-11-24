@@ -416,7 +416,7 @@ own messages. `PlayerMessageTest` fails when other code sends a message itself, 
 | The client's own command (`/codeling`) tells what it did | The game's client system message | `Messages.of` and the chat's client message |
 
 Keys are `commands.codeling.*` for command replies and `message.codeling.*` for the rest, with `%s` arguments and no
-full stop at the end. There are no separate warnings or hints: a refusal carries its own hint. Every message carries its English text as a fallback, because vanilla clients may join. Error
+full stop at the end. There are no separate warnings or hints: a refusal carries its own hint. Every message carries its English text as a fallback, for a client without Codeling's texts. Error
 codes and op names stay in the editor's log and the game log; a player never sees them. The exceptions are text that
 is not Codeling's own: `player.say` and the speech bubble (the program's words) and a robot's name.
 
@@ -452,7 +452,7 @@ Loggers: `codeling` (game and client), `codeling/relay` (editor and browser), `c
 
 ## 12. Distribution
 
-- **Modrinth** first, CurseForge later. One jar per loader (Fabric, NeoForge), each with client and server parts. Servers need the jar to host robots; players need it to open the editor. Vanilla clients can still join but cannot program.
+- **Modrinth** first, CurseForge later. One jar per loader (Fabric, NeoForge), each with client and server parts. Servers need the jar to host robots; players need it to open the editor. Everybody who joins needs it too: on Fabric, a client without Codeling is refused when it connects (tried on 26.3 on 2026-11-24, issue #326, with an unmodified client and with Fabric API only). NeoForge has not been tried.
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) builds the pxt target (Node) and the mod (Gradle, Java 25, Java 21 for 1.21.1), runs unit tests, GameTests on both loaders and versions, the relay compatibility check and the editor suite, and uploads the jars as workflow artifacts (the versions other than 26.3 and 1.21.1 in the `mc-more` job); client GameTests run on `main` and on demand. Releases only from tags: `.github/workflows/release.yml` builds the jars of every version in `MC_VERSIONS` from a `vX.Y.Z` tag and publishes them as a GitHub release with SHA-256 sums (CONTRIBUTING.md, "Releases"). Modrinth tokens and any signing keys live in CI secrets, never in the repo.
 - **Keeping up with MC versions:** Minecraft now ships several drops a year (26.1, 26.2, 26.3 in 2026). Keep version-sensitive code in one small `platform` package, follow Fabric API's per-version branch, support the latest and previous drop. The pxt target does not depend on the game version; the protocol version decouples the two.
 - **Size:** the static editor ships inside the jar. No download on first run. **(spike 2026-11-09)** Measured: `built/packaged` 48.3 MB raw (628 files), 15.1 MB deflated. Excluding the sub-webapps, `runnerembed.js` and the telemetry script gives 41.4 MB raw and 12.8 MB deflated in the jar; the whole jar is 12.9 MB. `pxtembed.js` and `embed.js` must stay (the docs side panel needs them). Replaces the earlier 45 to 60 MB / 12 to 18 MB estimate.
