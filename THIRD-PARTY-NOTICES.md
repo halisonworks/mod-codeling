@@ -214,8 +214,8 @@ Where several versions are listed, browserify bundles a copy of each.
 - TypeScript's `ThirdPartyNoticeText.txt` is not shipped. The one in TypeScript 2.6.1 lists only DefinitelyTyped, whose
   material is in the `lib.d.ts` files. The packaged editor has `typescript.js` and no `lib*.d.ts` file.
 - Font Awesome's attribution stays in the header of `semantic.css` and `rtlsemantic.css`.
-- The Norwegian pxt UI strings (`target/locales/nb/strings.json` and `webstrings.json`) are a snapshot from
-  makecode.com whose licence for reuse is not verified yet; see `target/locales/README.md`.
+- The Norwegian pxt UI strings (`target/locales/nb/strings.json`) are this project's own (issue #59). Releases 0.0.1 to
+  0.0.4 have a snapshot from makecode.com instead, whose licence for reuse was not found.
 
 ### Licence texts
 
