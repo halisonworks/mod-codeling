@@ -46,5 +46,15 @@ final class GameTestAsserts {
         server.managedBlock(player::isDone);
         return player.join();
     }
+
+    // The same for a player a test builds itself (RobotGameTests.survivalOwner).
+    static void placeNewPlayer(GameTestHelper h, net.minecraft.network.Connection connection,
+            net.minecraft.server.level.ServerPlayer player, net.minecraft.server.network.CommonListenerCookie cookie) {
+        var server = h.getLevel().getServer();
+        var placed = java.util.concurrent.CompletableFuture.runAsync(() -> server.getPlayerList().placeNewPlayer(connection, player, cookie),
+            task -> server.schedule(server.wrapRunnable(task)));
+        server.managedBlock(placed::isDone);
+        placed.join();
+    }
     *///?}
 }
