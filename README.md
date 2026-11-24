@@ -4,7 +4,7 @@ A Minecraft Java mod (Fabric and NeoForge, Minecraft 26.1 to 26.3 on Java 25 and
 The editor is a custom pxt target that runs in your browser and is served by the mod on `127.0.0.1`.
 Each robot command goes over a local WebSocket to the mod.
 
-**Status: pre-release (0.0.4), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
+**Status: pre-release (0.0.5), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
 Plan: [docs/architecture.md](docs/architecture.md).
 
 Not approved by or associated with Mojang or Microsoft. The editor is based on Microsoft MakeCode (pxt), MIT licence.
@@ -241,7 +241,7 @@ Robot commands (server side). Every action is covered by GameTests. Step 1A comm
 |---|---|
 | `/robot spawn [name]` | Spawn your robot at your feet facing your way, or move it there. Without a name it is your default robot (`agent`); a new named robot needs room under `codeling:max_robots`. Ends the current run. |
 | `/robot list` | Your robots, loaded or not, with positions. |
-| `/robot remove <name>` | Remove a loaded named robot; its items go to your inventory (the rest drop at your feet). |
+| `/robot remove <name>` | Remove a loaded robot; its items go to your inventory (the rest drop at your feet). `agent` is the default robot: that also ends the run, and the next `/robot spawn` gives it back its name, skin and color. |
 | `/robot rename <name> <new>` | Rename a robot; a named robot's queue is cleared. `agent` is the default robot, also as `/robot rename <new>`; it stays `agent` in programs. Name tag items work too (owner and ops). |
 | `/robot nametag <on\|off> [name]` | Show or hide the name tag of one robot, or of all your loaded robots. |
 | `/robot move <forward\|back\|left\|right\|up\|down> <blocks>` | Queue a move, 1 to 64 blocks, 4 ticks per block. Stops early at a solid block; open doors and trapdoors let it through. |

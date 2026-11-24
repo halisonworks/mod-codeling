@@ -96,6 +96,7 @@ public final class Messages {
         if (RobotLinks.get(server).robot(new RobotLinks.Key(owner, name)) != null) {
             return of("message.codeling.robot.unloaded", robot(server, owner, name), spawnCommand(name));
         }
-        return name.isEmpty() ? of("message.codeling.robot.none", spawnCommand(name)) : of("message.codeling.robot.unknown", name);
+        if (!name.isEmpty()) return of("message.codeling.robot.unknown", name);
+        return of(RobotLinks.get(server).names(owner).isEmpty() ? "message.codeling.robot.none" : "message.codeling.robot.no_default", spawnCommand(name));
     }
 }

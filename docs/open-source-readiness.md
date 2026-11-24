@@ -217,8 +217,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
     find it.
   - Firewall or antivirus prompts: the relay binds `127.0.0.1` only, so no inbound rule is needed; saying so stops
     players from opening ports.
-  - Multiplayer: what happens when the server has Codeling and the client does not (vanilla clients can join, per
-    docs/architecture.md section 12), and that the editor always runs on the player's own machine.
+  - Multiplayer: what happens when the server has Codeling and the client does not (it is
+    refused, see docs/architecture.md section 12), and that the editor always runs on the player's own machine.
   - Where the saved programs live (pxt keeps them in the browser's IndexedDB per origin, docs/architecture.md
     "Auth and token flow"), and that clearing site data deletes them.
 - **Action.** Add these rows to both guides, and a short FAQ section ("Does my code run on the server?", "Can other
@@ -246,7 +246,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
   `come`, `camera`, `camera follow`, `camera off`). Only `stop all` has a `requires` (gamemaster level); the
   `/robot` root has none. `/codeling` is a client command. The game rules are registered in
   `common/src/main/java/codeling/Codeling.java`: `codeling:free_items` (boolean, default false),
-  `codeling:robot_camera` (off, owner, ops; default owner), `codeling:max_robots` (integer 1 to 16, default 1).
+  `codeling:robot_camera` (off, owner, ops; default owner), `codeling:max_robots` (integer 1 to 16, default 1),
+  `codeling:pause_on_lost_focus` (boolean, default true).
   Gaps:
   - No table lists the permission level per command or the game rules with type, default and range in one place.
   - `common/src/main/resources/assets/codeling/lang/en_us.json` has keys for `free_items` and `robot_camera` but
@@ -304,9 +305,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 - **Current state.**
   - Editor: English in the `block="..."` strings of `target/sim/api.ts`; Norwegian in
     `target/locales/nb/codeling/core-strings.json` and `target-strings.json`. `BlockEnumTest` fails when a block has
-    no Norwegian label. pxt's own `nb` UI strings (`target/locales/nb/strings.json`, `webstrings.json`) are a
-    one-time snapshot from makecode.com; `target/locales/README.md` marks it `shortcut:` and says the licence for
-    reuse is not verified.
+    no Norwegian label. The `nb` UI strings for pxt's own texts (`target/locales/nb/strings.json`) are our own since
+    issue #59.
   - In game: only `common/src/main/resources/assets/codeling/lang/en_us.json` (7 keys). docs/architecture.md section
     11 plans an `nb_no.json` that does not exist. Command replies are hard-coded English: `git grep -c
     Component.literal` counts 23 in `RobotCommands.java` and 33 in `common/` overall, against 2

@@ -3,6 +3,7 @@ package codeling.gametest;
 import codeling.Codeling;
 import codeling.net.RelayPayloads;
 import codeling.net.ServerRelay;
+import codeling.neoforge.CodelingNeoForge;
 import codeling.platform.Platform;
 import codeling.robot.Result;
 import codeling.robot.RobotCamera;
@@ -12,6 +13,7 @@ import codeling.robot.RobotManager;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +41,7 @@ import net.minecraft.gametest.framework.JUnitLikeTestReporter;
 import net.minecraft.gametest.framework.TestFunction;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 *///?}
+import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -49,8 +52,12 @@ import net.minecraft.resources.Identifier;
 //? if >=1.21.5
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -63,6 +70,7 @@ import net.minecraft.world.level.gamerules.GameRules;
 /*import net.minecraft.world.level.GameRules;*/
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.FakePlayer;
@@ -70,6 +78,8 @@ import net.neoforged.neoforge.event.ServerChatEvent;
 //? if >=1.21.5
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.network.connection.ConnectionType;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 //? if >=1.21.5
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -95,6 +105,7 @@ public final class NeoForgeSmokeGameTests {
         TESTS.put("robot_places_block", NeoForgeSmokeGameTests::robotPlacesBlock);
         TESTS.put("game_rules_registered", NeoForgeSmokeGameTests::gameRulesRegistered);
         TESTS.put("payload_types_registered", NeoForgeSmokeGameTests::payloadTypesRegistered);
+        TESTS.put("client_without_neoforge_is_refused", NeoForgeSmokeGameTests::clientWithoutNeoForgeIsRefused);
         TESTS.put("fake_player_respects_claims", NeoForgeSmokeGameTests::fakePlayerRespectsClaims);
         TESTS.put("fake_player_contract", NeoForgeSmokeGameTests::fakePlayerContract);
         TESTS.put("adventure_owner_cannot_build", NeoForgeSmokeGameTests::adventureOwnerCannotBuild);
@@ -181,8 +192,20 @@ public final class NeoForgeSmokeGameTests {
     private static void robotPlacesBlock(GameTestHelper helper) {
         UUID owner = spawn(helper);
         RobotManager.robot(owner).inventory().setItem(0, new ItemStack(Items.STONE, 5));
+        // Issue #53: the accessor from codeling-common.mixins.json; an item kept for somebody else stays.
+        for (UUID keptFor : new UUID[] {UUID.randomUUID(), owner}) {
+            ItemEntity item = new ItemEntity(helper.getLevel(), 0, 0, 0, new ItemStack(keptFor == owner ? Items.GOLD_INGOT : Items.DIAMOND), 0, 0, 0);
+            item.setPos(Vec3.atBottomCenterOf(helper.absolutePos(START)));
+            item.setNoGravity(true);
+            item.setTarget(keptFor);
+            helper.getLevel().addFreshEntity(item);
+        }
+        List<Result> collect = send(helper, owner, "agent.collectAll");
         List<Result> results = send(helper, owner, "agent.place", RobotCommand.FORWARD);
         helper.succeedWhen(() -> {
+            helper.assertValueEqual(collect, List.of(Result.ok(null)), "collect");
+            helper.assertValueEqual(RobotManager.robot(owner).inventory().countItem(Items.GOLD_INGOT), 1, "the owner's item");
+            helper.assertValueEqual(RobotManager.robot(owner).inventory().countItem(Items.DIAMOND), 0, "somebody else's item");
             helper.assertValueEqual(results, List.of(Result.ok(true)), "results");
             helper.assertBlockPresent(Blocks.STONE, START.south());
             helper.assertValueEqual(RobotManager.robot(owner).inventory().getItem(0).getCount(), 4, "stone left");
@@ -197,6 +220,8 @@ public final class NeoForgeSmokeGameTests {
         helper.assertValueEqual(BuiltInRegistries.GAME_RULE.getKey(Codeling.ROBOT_CAMERA.get()), id("robot_camera"), "robot_camera id");
         helper.assertValueEqual(rules.get(Codeling.FREE_ITEMS.get()), false, "free_items default");
         helper.assertValueEqual(rules.get(Codeling.MAX_ROBOTS.get()), 1, "max_robots default");
+        helper.assertValueEqual(BuiltInRegistries.GAME_RULE.getKey(Codeling.PAUSE_ON_LOST_FOCUS.get()), id("pause_on_lost_focus"), "pause_on_lost_focus id");
+        helper.assertValueEqual(rules.get(Codeling.PAUSE_ON_LOST_FOCUS.get()), true, "pause_on_lost_focus default");
         GameRule<RobotCamera.Mode> camera = Codeling.ROBOT_CAMERA.get();
         helper.assertValueEqual(rules.get(camera), RobotCamera.Mode.owner, "robot_camera default");
         helper.assertValueEqual(camera.gameRuleType(), GameRuleType.valueOf("CODELING_ENUM"), "enum rule type from enumextensions.json");
@@ -221,6 +246,8 @@ public final class NeoForgeSmokeGameTests {
         helper.assertValueEqual(Codeling.ROBOT_CAMERA.get().getId(), "codeling:robot_camera", "robot_camera name");
         helper.assertValueEqual(Codeling.freeItems(server), false, "free_items default");
         helper.assertValueEqual(Codeling.maxRobots(server), 1, "max_robots default");
+        helper.assertValueEqual(Codeling.PAUSE_ON_LOST_FOCUS.get().getId(), "codeling:pause_on_lost_focus", "pause_on_lost_focus name");
+        helper.assertValueEqual(Codeling.pauseOnLostFocus(server), true, "pause_on_lost_focus default");
         helper.assertValueEqual(Codeling.robotCamera(server), RobotCamera.Mode.owner, "robot_camera default");
         // Saved as the constant name, as on 26.x and on Fabric.
         helper.assertValueEqual(rules.getRule(Codeling.ROBOT_CAMERA.get()).serialize(), "owner", "saved form");
@@ -244,6 +271,20 @@ public final class NeoForgeSmokeGameTests {
         // A FakePlayer has no client, so the common code never sends it a payload.
         ServerPlayer fake = Platform.INSTANCE.fakePlayer(helper.getLevel(), new GameProfile(UUID.randomUUID(), "Codeling[smoke]"));
         helper.assertFalse(Platform.INSTANCE.canSend(fake, RelayPayloads.ToClient.TYPE), "canSend to a FakePlayer");
+        helper.succeed();
+    }
+
+    // Issue #371: a client without NeoForge is refused when it connects; a NeoForge client (registry sync checks it) is not.
+    private static void clientWithoutNeoForgeIsRefused(GameTestHelper helper) {
+        for (ConnectionType type : ConnectionType.values()) {
+            var cookie = new CommonListenerCookie(new GameProfile(UUID.randomUUID(), "Codeling_join"), 0, ClientInformation.createDefault(), false, type);
+            Connection connection = new Connection(PacketFlow.SERVERBOUND);
+            new EmbeddedChannel(connection); // NeoForge's own listeners look the client's channels up on it
+            var listener = new ServerConfigurationPacketListenerImpl(helper.getLevel().getServer(), connection, cookie);
+            var tasks = ModLoader.postEventWithReturn(new RegisterConfigurationTasksEvent(listener)).getConfigurationTasks();
+            boolean refused = tasks.stream().anyMatch(task -> task.type().equals(CodelingNeoForge.REFUSE_UNMODDED));
+            helper.assertTrue(refused == type.isOther(), type + " refused: " + refused);
+        }
         helper.succeed();
     }
 

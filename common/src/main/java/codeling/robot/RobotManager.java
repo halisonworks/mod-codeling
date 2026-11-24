@@ -3,6 +3,7 @@ package codeling.robot;
 import codeling.McCompat;
 import codeling.Codeling;
 import codeling.Messages;
+import codeling.mixin.ItemEntityAccessor;
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
 import java.util.ArrayDeque;
@@ -15,8 +16,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -258,7 +261,7 @@ public final class RobotManager {
         robot.snapTo(pos, facing.toYRot(), 0);
         RobotLinks links = RobotLinks.get(level.getServer());
         showDefaultName(links, robot);
-        RobotLinks.Appearance previousAppearance = links.appearance(links.robot(key));
+        RobotLinks.Appearance previousAppearance = links.previousAppearance(key);
         if (old == null) {
             robot.setSkin(previousAppearance.skin());
             robot.setPrimaryColor(previousAppearance.color());
@@ -425,19 +428,25 @@ public final class RobotManager {
     }
 
     /**
-     * /robot remove (issue #140): one of the owner's named robots goes, and every item it holds moves to the player,
+     * /robot remove (issue #140): one of the owner's robots goes, and every item it holds moves to the player,
      * or drops at the player's feet when the inventory is full (the way a closed crafting grid gives items back), so
-     * nothing is lost. Only a loaded robot: an unloaded one holds the only copy of its items. Answers why not, or null.
+     * nothing is lost. Only a loaded robot: an unloaded one holds the only copy of its items. Removing the default robot
+     * (issue #324) also ends the owner's program; its name and look wait for the next one. Answers why not, or null.
      */
     public static Component remove(ServerPlayer player, String name) {
         RobotLinks.Key key = new RobotLinks.Key(player.getUUID(), name);
         RobotLinks links = RobotLinks.get(player.level().getServer());
         if (links.robot(key) == null) return Messages.absent(player.level().getServer(), key.owner(), name);
-        if (name.isEmpty()) return Messages.of("commands.codeling.remove.default");
         RobotEntity robot = LOADED.get(key);
         if (robot == null) return Messages.absent(player.level().getServer(), key.owner(), name);
-        RobotQueue queue = QUEUES.remove(key);
-        if (queue != null) queue.clear(Result.Code.STOPPED, "robot " + name + " was removed");
+        if (name.isEmpty()) {
+            links.setAppearance(key.owner(), robot.skin(), robot.primaryColor());
+            for (RobotQueue queue : queues(key.owner())) queue.clear(Result.Code.STOPPED, "the default robot was removed with /robot remove");
+            stop(key.owner(), "/robot remove");
+        } else {
+            RobotQueue queue = QUEUES.remove(key);
+            if (queue != null) queue.clear(Result.Code.STOPPED, "robot " + name + " was removed");
+        }
         for (int i = 0; i < robot.inventory().getContainerSize(); i++) {
             ItemStack stack = robot.inventory().removeItemNoUpdate(i);
             if (!stack.isEmpty()) McCompat.giveBack(player, stack);
@@ -1204,7 +1213,7 @@ public final class RobotManager {
                 return Result.ok(null);
             }
             case COLLECT_ALL -> {
-                collect(robot, robot.getBoundingBox().inflate(1));
+                collect(robot, robot.getBoundingBox().inflate(1), item -> !item.hasPickUpDelay());
                 return Result.ok(null);
             }
             case TRANSFER -> {
@@ -1358,10 +1367,12 @@ public final class RobotManager {
         if (player == null || !player.mayBuild()) return false;
         // shortcut: always a diamond pickaxe so stone and ores drop like a player with the right tool; no silk touch or tool choice.
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND_PICKAXE));
+        AABB space = new AABB(pos).inflate(0.25);
+        Set<ItemEntity> before = Set.copyOf(level.getEntitiesOfClass(ItemEntity.class, space));
         boolean broken = player.gameMode.destroyBlock(pos);
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        // Drops pop out inside the broken block's space; what does not fit stays in the world.
-        if (broken) collect(robot, new AABB(pos).inflate(0.25));
+        // Drops pop out inside the broken block's space and are taken at once; what does not fit stays in the world.
+        if (broken) collect(robot, space, item -> !before.contains(item) || !item.hasPickUpDelay());
         return broken;
     }
 
@@ -1567,8 +1578,11 @@ public final class RobotManager {
         return McCompat.item(McCompat.itemId(ItemIds.toModern(code)));
     }
 
-    private static void collect(RobotEntity robot, AABB box) {
+    // Picks up as the owner would (issue #53): never an item that is kept for somebody else (ItemEntity.playerTouch).
+    private static void collect(RobotEntity robot, AABB box, Predicate<ItemEntity> ready) {
         for (ItemEntity item : robot.level().getEntitiesOfClass(ItemEntity.class, box, Entity::isAlive)) {
+            UUID keptFor = ((ItemEntityAccessor) item).codeling$target();
+            if (!ready.test(item) || keptFor != null && !keptFor.equals(robot.owner())) continue;
             ItemStack rest = robot.inventory().addItem(item.getItem());
             if (rest.isEmpty()) item.discard();
             else item.setItem(rest);

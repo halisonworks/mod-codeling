@@ -113,7 +113,7 @@ tasks.named<ProcessResources>("processResources") {
     inputs.properties(props)
     inputs.properties(mixinProps)
     filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
-    filesMatching("codeling.mixins.json") { expand(mixinProps) }
+    filesMatching(listOf("codeling.mixins.json", "codeling-common.mixins.json")) { expand(mixinProps) }
 }
 
 // The JUnit-like report (--report above) needs its directory; CI uploads it.

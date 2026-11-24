@@ -6,6 +6,36 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-11-24
+
+The fifth pre-release, for testing.
+
+**Use the same Codeling version on the server and on every client.** Mixing versions (for example a 0.0.4 client
+on a 0.0.5 server) is not supported and has not been tested.
+
+### Added
+
+- Game rule `codeling:pause_on_lost_focus` (issue #297): `false` keeps the game from pausing when its window loses focus, in
+  this world. For the player who runs the world (singleplayer, or opened to LAN). `true`, the default, changes nothing. The
+  player's own F3+P option is never changed.
+
+### Changed
+
+- The Norwegian editor has new texts for its own buttons, menus and standard blocks (issue #59), written for Codeling. The
+  earlier ones came from makecode.com without a known licence and are removed. Rarely used texts are now in English.
+- `/robot remove agent` removes your default robot (issue #324). Its items go to you and your program stops. The next
+  `/robot spawn` gives it back its name, skin and color. Before, it could not be removed.
+- Robots pick up only what their owner could (issue #53): not an item that is kept for another player, and not one that was
+  thrown or dropped a moment ago. `agent.drop` followed at once by `agent.collectAll` leaves the item, so wait half a second
+  first. Breaking a block still takes its drops at once.
+
+### Fixed
+
+- The editor is Norwegian from the start in a browser set to Norwegian (issue #315). Before, most of them got English.
+- NeoForge: a client without NeoForge is refused when it connects to a server with Codeling, and told what to install
+  (issue #371). Before, it could join and was disconnected when it saw a robot.
+- A player with named robots but no default robot is no longer told "You have no robot" (issue #327).
+
 ## [0.0.4] - 2026-11-24
 
 The fourth pre-release, for testing.

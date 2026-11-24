@@ -10,19 +10,27 @@ Codeling is not made by Microsoft, Mojang or the MakeCode team. See [Disclaimer]
 
 ## What you need
 
-- Minecraft Java Edition, version 26.3 or 1.21.1, on a computer (Windows, macOS or Linux).
-- A mod loader: Fabric Loader 0.20.1 or newer with Fabric API for your Minecraft version, or NeoForge (26.3.0.102 or newer for 26.3, 21.1.265 or newer for 1.21.1).
+- Minecraft Java Edition, version 1.21.1 to 1.21.11 or 26.1 to 26.3, on a computer (Windows, macOS or Linux).
+- A mod loader: Fabric Loader 0.20.1 or newer with Fabric API for your Minecraft version, or the newest NeoForge for your Minecraft version (26.3.0.102 or newer for 26.3, 21.1.265 or newer for 1.21.1).
 - The Codeling mod file for your loader and Minecraft version (a `.jar` file). The name says which one it is:
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
   | 26.3 | `codeling-fabric-26.3-...jar` | `codeling-neoforge-26.3-...jar` |
+  | 26.2 | `codeling-fabric-26.2-...jar` | `codeling-neoforge-26.2-...jar` |
+  | 26.1 to 26.1.2 | `codeling-fabric-26.1.2-...jar` | `codeling-neoforge-26.1.2-...jar` |
+  | 1.21.11 | `codeling-fabric-1.21.11-...jar` | `codeling-neoforge-1.21.11-...jar` |
+  | 1.21.9 to 1.21.10 | `codeling-fabric-1.21.10-...jar` | `codeling-neoforge-1.21.10-...jar` |
+  | 1.21.6 to 1.21.8 | `codeling-fabric-1.21.8-...jar` | `codeling-neoforge-1.21.8-...jar` |
+  | 1.21.5 | `codeling-fabric-1.21.5-...jar` | `codeling-neoforge-1.21.5-...jar` |
+  | 1.21.4 | `codeling-fabric-1.21.4-...jar` | `codeling-neoforge-1.21.4-...jar` |
+  | 1.21.2 to 1.21.3 | `codeling-fabric-1.21.3-...jar` | `codeling-neoforge-1.21.3-...jar` |
   | 1.21.1 | `codeling-fabric-1.21.1-...jar` | `codeling-neoforge-1.21.1-...jar` |
 - A web browser (Chrome, Edge or Firefox).
 
-A parent can do the install. It takes about ten minutes. The steps below say 26.3; on 1.21.1 pick 1.21.1 in the installers and use the 1.21.1 files.
+A parent can do the install. It takes about ten minutes. The steps below say 26.3; on another version, pick that version in the installers and use the files for it.
 
-On Minecraft 1.21.1 the editor still lists blocks and items that came later (pale oak, for example). A program that uses one gets the error "minecraft:... is not in this Minecraft version". Everything else works the same.
+On older Minecraft versions the editor still lists blocks and items that came later (pale oak, for example). A program that uses one gets the error "minecraft:... is not in this Minecraft version". Everything else works the same.
 
 ## Install
 
@@ -292,7 +300,7 @@ The robot stays where it is and only looks. A position or corner you give must b
 | agent free slots | `agent.freeSlots()` | How many of the 27 slots are empty. |
 | agent is inventory full | `agent.isInventoryFull()` | True if no slot is empty. A stack that is not full can still take more of the same item. |
 | agent give (item) count (count) in slot (slot) | `agent.setItem(Item.Stone, 64, 1)` | Gives items. Only in creative mode or with the gamerule `codeling:free_items`. |
-| agent collect all | `agent.collectAll()` | Picks up items right next to it. |
+| agent collect all | `agent.collectAll()` | Picks up items right next to it. An item that was just dropped can be picked up after a moment (half a second for the robot's own), and never one that is kept for another player. |
 | agent drop (direction) from slot (slot) amount (amount) | `agent.drop(SixDirection.Back, 1, 10)` | Drops some items. |
 | agent drop all (direction) | `agent.dropAll(SixDirection.Back)` | Drops everything. |
 | agent transfer amount (amount) from slot (from) to slot (to) | `agent.transfer(10, 1, 2)` | Moves items between its own slots. |
@@ -513,6 +521,8 @@ it up, for example `/gamerule codeling:max_robots 4`. Turning it down again neve
 - Each robot has its own inventory, slot, home, gravity and assist, and is saved with the world.
 - `/robot list` shows your robots and where they are. `/robot remove Miner` removes one: everything it carries goes
   into your inventory, and what does not fit drops at your feet. The robot must be loaded (close to you).
+  `/robot remove agent` removes your default robot and stops your program. The next `/robot spawn` brings it back with
+  the same name, skin and color.
 - The chat commands for one robot take the name at the end: `/robot move forward 3 Miner`, `/robot come Miner`,
   `/robot inventory Miner`, `/robot camera Miner`. Without a name they are for your default robot. `agent` is its name
   in the commands, and so is the name you give it: `/robot skin mint agent`. Press Tab to see your robots' names.
@@ -537,6 +547,51 @@ In Blocks, the Robots category has "robot (name)", "run in parallel" and the mos
 move to, go to robot, position, place, destroy, collect all and say. Put "robot (name)" in a variable and use the variable in those blocks.
 The other robot calls (for example `miner.findNearest(Block.CoalOre, 16)`) are in JavaScript and Python. The agent
 blocks stay as they are, for your default robot.
+
+### A function for each robot
+
+Give each robot its own job with one function per robot. The first line of the function picks the robot, and the rest
+uses that variable:
+
+```
+function mine(length: number) {
+    let miner = robots.get("Miner")
+    for (let i = 0; i < length; i++) {
+        miner.destroy(SixDirection.Forward)
+        miner.move(SixDirection.Forward, 1)
+    }
+}
+function build(length: number) {
+    let builder = robots.get("Builder")
+    for (let i = 0; i < length; i++) {
+        builder.move(SixDirection.Forward, 1)
+        builder.place(SixDirection.Back)
+    }
+}
+player.onChat("mine", function (num1, num2, num3) {
+    mine(num1)
+})
+player.onChat("build", function (num1, num2, num3) {
+    build(num1)
+})
+player.onChat("both", function (num1, num2, num3) {
+    control.runInParallel(function () {
+        mine(num1)
+    })
+    build(num1)
+})
+```
+
+1. Let the world have three robots (`/gamerule codeling:max_robots 3`, your default robot counts as one). Then
+   `/robot spawn Miner` and `/robot spawn Builder`.
+2. Put blocks in Builder: right-click it, or `/robot give stone 64 1 Builder` in creative mode. It builds with the
+   slot it has picked (`/robot slot 1 Builder`).
+3. Paste the program in JavaScript, go back to Blocks and press Run.
+4. Type `mine 5`, `build 5` or `both 5` in the game's chat. Miner digs 5 blocks forward, and Builder walks 5 blocks
+   and puts a block behind it for each. With `both` they work at the same time.
+
+To make it with blocks, see [Make your own function](#make-your-own-function). Put "robot (name)" in a variable first in
+the function, and use that variable in the blocks from Robots.
 
 ### Go to another robot
 
@@ -589,7 +644,7 @@ your default robot.
 | `/codeling server log on [minutes]`, `/codeling server log off` and `/codeling server report` | The same for the server. Ops only, and the server console. |
 | `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `codeling:max_robots`. |
 | `/robot list` | Your robots and where they are. |
-| `/robot remove <name>` | Removes a robot with a name. Its items go to you. |
+| `/robot remove <name>` | Removes a robot. Its items go to you. `agent` is your default robot; removing it also stops your program. |
 | `/robot rename <name> <new name>` | Renames a robot. `agent` is your default robot, and `/robot rename <new name>` renames it too. |
 | `/robot nametag <on\|off> [name]` | Shows or hides the name over your robots (without a name: all of them). |
 | `/robot stop [name]` | Without a name: stops all your robots and your program. With a name: stops what that robot is doing. |
@@ -652,12 +707,15 @@ These keep the game fast for everyone.
 
 ## Multiplayer
 
-- The server needs Codeling for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who wants to code needs the same loader and Codeling too.
+- The server needs Codeling for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Codeling too.
 - Use the same Codeling version on the server and on every client. Mixing versions is not supported and has not been tested.
 - Only you can program your robot. Nobody else can send it commands. This goes for robots with a name too: a name
   only ever picks one of your own robots.
 - `/gamerule codeling:max_robots <1-16>` sets how many robots each player may have (1, the default, is one robot
   without a name).
+- `/gamerule codeling:pause_on_lost_focus false` keeps the game of the player who runs the world (singleplayer, or opened
+  to LAN) from pausing when its window loses focus. Escape still pauses. `true`, the default, is as the player's own
+  F3+P says.
 - Only you and server ops can open your robot's inventory. Others see "This is not your robot" above the hotbar.
 - In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
@@ -678,7 +736,7 @@ These keep the game fast for everyone.
 | "Not in a world" | Open a world first, then press Run again. |
 | "This server does not have Codeling installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
 | The robot does nothing while you are in the browser, and the log says "Minecraft is paused" | The pause menu is open in the game. Go back to the game and close it; the robot goes on by itself. |
-| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. |
+| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. Or turn it off for this world with `/gamerule codeling:pause_on_lost_focus false` (ops, so cheats must be on). |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Type `/robot spawn`, or walk closer to the robot. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Check the name with `/robot list`. Walk closer to the robot, or type `/robot spawn Miner`. |
 | "This world allows one robot per player" | Robots with names need the game rule `codeling:max_robots` above 1. Ask an op. |

@@ -168,6 +168,18 @@ public class MultiRobotGameTests {
         helper.succeed();
     }
 
+    // Issue #297: /gamerule turns the pause on lost focus off and on again; the client reads it (RobotClientGameTest).
+    @GameTest(maxTicks = 100)
+    public void pauseOnLostFocusRule(GameTestHelper helper) {
+        var server = helper.getLevel().getServer();
+        helper.assertTrue(Codeling.pauseOnLostFocus(server), "on by default");
+        for (boolean value : new boolean[] {false, true}) {
+            server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "gamerule codeling:pause_on_lost_focus " + value);
+            helper.assertTrue(Codeling.pauseOnLostFocus(server) == value, "set to " + value);
+        }
+        helper.succeed();
+    }
+
     // Rule 3: the default robot and two named ones; a fourth is refused; names are checked and unique per player.
     @GameTest(maxTicks = 100, environment = MORE)
     public void raisedRuleAllowsNamedRobotsUpToTheLimit(GameTestHelper helper) {
@@ -230,6 +242,61 @@ public class MultiRobotGameTests {
                 e -> e.isAlive() && e.getItem().is(Items.COBBLESTONE)).stream().mapToInt(e -> e.getItem().getCount()).sum();
         helper.assertValueEqual(dropped, 7, "cobblestone dropped at the player");
         helper.assertTrue(digger.isRemoved(), "Digger is gone");
+        leave(helper, player);
+        helper.succeed();
+    }
+
+    // Issue #324: the default robot can be removed too. Its items go to the player, the program stops, and the name and
+    // the look come back with the next /robot spawn.
+    @GameTest(maxTicks = 100, environment = MORE)
+    public void theDefaultRobotCanBeRemoved(GameTestHelper helper) {
+        ServerPlayer player = player(helper);
+        helper.assertTrue(run(player, "robot remove agent").toString().contains("You have no robot"), "nothing to remove");
+        RobotEntity agent = spawn(helper, player, "", START);
+        RobotEntity miner = spawn(helper, player, "Miner", START.south(2));
+        miner.inventory().setItem(0, new ItemStack(Items.DIRT, 3));
+        run(player, "robot rename agent Bob");
+        run(player, "robot skin mint agent");
+        run(player, "robot color 3366FF agent");
+        agent.inventory().setItem(0, new ItemStack(Items.STONE, 10));
+        List<JsonObject> inbox = new ArrayList<>();
+        ServerRelay.handle(player, "{\"v\":2,\"t\":\"control\",\"op\":\"start\"}", r -> inbox.add(JsonParser.parseString(r).getAsJsonObject()));
+        String move = ",\"run\":" + inbox.getLast().get("run").getAsLong() + ",\"op\":\"agent.move\",\"args\":[0,5]";
+        ServerRelay.handle(player, "{\"v\":2,\"t\":\"cmd\",\"id\":1" + move + "}", r -> inbox.add(JsonParser.parseString(r).getAsJsonObject()));
+        helper.assertValueEqual(run(player, "robot remove Bob"), List.of("Robot Bob is removed. Its items are in your inventory or at your feet"), "the answer");
+        helper.assertTrue(agent.isRemoved() && RobotManager.robot(player.getUUID()) == null, "the default robot is gone");
+        helper.assertValueEqual(player.getInventory().countItem(Items.STONE), 10, "stone in the player's inventory");
+        helper.assertTrue(inbox.getLast().toString().contains("STOPPED"), "the waiting command was stopped: " + inbox);
+        ServerRelay.handle(player, "{\"v\":2,\"t\":\"cmd\",\"id\":2" + move + ",\"robot\":\"Miner\"}", r -> inbox.add(JsonParser.parseString(r).getAsJsonObject()));
+        helper.assertTrue(inbox.getLast().toString().contains("STOPPED"), "the program is over: " + inbox);
+        helper.assertTrue(RobotManager.robot(key(player, "Miner")) == miner && miner.inventory().getItem(0).getCount() == 3, "Miner stays");
+        helper.assertTrue(suggested(player, "robot come ").equals(List.of("Miner")), "only Miner is suggested: " + suggested(player, "robot come "));
+        helper.assertTrue(!run(player, "robot list").toString().contains("Bob"), "not in the list");
+        for (String command : List.of("robot status", "robot remove agent")) { // issue #327: the player still has Miner
+            helper.assertValueEqual(run(player, command), List.of("You have no default robot. Use /robot spawn to get one"), command);
+        }
+        // Back with its name and look, and empty.
+        run(player, "robot spawn");
+        RobotEntity again = RobotManager.robot(player.getUUID());
+        helper.assertTrue(again != null && again != agent, "a new robot");
+        helper.assertTrue(again.getCustomName() != null && again.getCustomName().getString().equals("Bob"), "its name");
+        helper.assertValueEqual(again.skin() + " " + again.primaryColor(), "mint " + 0x3366FF, "its look");
+        helper.assertTrue(again.inventory().isEmpty(), "no items twice");
+        // A full inventory: the rest drops where the player stands.
+        again.inventory().setItem(0, new ItemStack(Items.COBBLESTONE, 7));
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) player.getInventory().setItem(i, new ItemStack(Items.GLASS, 64));
+        run(player, "robot remove agent");
+        int dropped = helper.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(player.blockPosition()).inflate(3),
+                e -> e.isAlive() && e.getItem().is(Items.COBBLESTONE)).stream().mapToInt(e -> e.getItem().getCount()).sum();
+        helper.assertValueEqual(dropped, 7, "cobblestone dropped at the player");
+        // Another robot may take the name of a removed one; the default robot then comes back without it.
+        helper.assertTrue(run(player, "robot rename Miner Bob").toString().contains("is now called Bob"), "the name is free");
+        run(player, "robot spawn");
+        RobotEntity third = RobotManager.robot(player.getUUID());
+        helper.assertTrue(third.getCustomName() == null && RobotManager.robot(key(player, "Bob")) == miner, "one Bob");
+        // Not loaded: refused, it holds the only copy of its items.
+        third.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+        helper.assertTrue(run(player, "robot remove agent").toString().contains("is not loaded"), "refused while not loaded");
         leave(helper, player);
         helper.succeed();
     }
@@ -350,12 +417,9 @@ public class MultiRobotGameTests {
         }
         helper.assertTrue(run(player, "robot rename Bob bob").toString().contains("is now called bob"), "another case of its own name");
         run(player, "robot rename bob Bob");
-        // Spawn moves it, remove refuses it.
+        // Spawn moves it.
         run(player, "robot spawn Bob");
         helper.assertTrue(RobotManager.robot(player.getUUID()) == agent && RobotManager.robot(key(player, "Bob")) == null, "spawn Bob moves the default robot");
-        for (String word : List.of("agent", "Bob")) {
-            helper.assertValueEqual(run(player, "robot remove " + word), List.of("Your default robot cannot be removed"), "remove");
-        }
         // The tag and the queue of the default robot alone.
         run(player, "robot nametag off agent");
         helper.assertTrue(!agent.isCustomNameVisible() && miner.isCustomNameVisible(), "only the default robot's tag is hidden");

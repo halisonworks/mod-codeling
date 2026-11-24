@@ -10,19 +10,27 @@ Codeling er ikke laget av Microsoft, Mojang eller MakeCode-teamet. Se [Ansvarsfr
 
 ## Dette trenger du
 
-- Minecraft Java Edition, versjon 26.3 eller 1.21.1, på en datamaskin (Windows, macOS eller Linux).
-- En modlaster: Fabric Loader 0.20.1 eller nyere med Fabric API for Minecraft-versjonen din, eller NeoForge (26.3.0.102 eller nyere for 26.3, 21.1.265 eller nyere for 1.21.1).
+- Minecraft Java Edition, versjon 1.21.1 til 1.21.11 eller 26.1 til 26.3, på en datamaskin (Windows, macOS eller Linux).
+- En modlaster: Fabric Loader 0.20.1 eller nyere med Fabric API for Minecraft-versjonen din, eller den nyeste NeoForge for Minecraft-versjonen din (26.3.0.102 eller nyere for 26.3, 21.1.265 eller nyere for 1.21.1).
 - Codeling-filen for modlasteren og Minecraft-versjonen din (en `.jar`-fil). Navnet sier hvilken det er:
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
   | 26.3 | `codeling-fabric-26.3-...jar` | `codeling-neoforge-26.3-...jar` |
+  | 26.2 | `codeling-fabric-26.2-...jar` | `codeling-neoforge-26.2-...jar` |
+  | 26.1 til 26.1.2 | `codeling-fabric-26.1.2-...jar` | `codeling-neoforge-26.1.2-...jar` |
+  | 1.21.11 | `codeling-fabric-1.21.11-...jar` | `codeling-neoforge-1.21.11-...jar` |
+  | 1.21.9 til 1.21.10 | `codeling-fabric-1.21.10-...jar` | `codeling-neoforge-1.21.10-...jar` |
+  | 1.21.6 til 1.21.8 | `codeling-fabric-1.21.8-...jar` | `codeling-neoforge-1.21.8-...jar` |
+  | 1.21.5 | `codeling-fabric-1.21.5-...jar` | `codeling-neoforge-1.21.5-...jar` |
+  | 1.21.4 | `codeling-fabric-1.21.4-...jar` | `codeling-neoforge-1.21.4-...jar` |
+  | 1.21.2 til 1.21.3 | `codeling-fabric-1.21.3-...jar` | `codeling-neoforge-1.21.3-...jar` |
   | 1.21.1 | `codeling-fabric-1.21.1-...jar` | `codeling-neoforge-1.21.1-...jar` |
 - En nettleser (Chrome, Edge eller Firefox).
 
-En forelder kan gjøre installasjonen. Den tar omtrent ti minutter. Stegene under sier 26.3; på 1.21.1 velger du 1.21.1 i installasjonsprogrammene og bruker 1.21.1-filene.
+En forelder kan gjøre installasjonen. Den tar omtrent ti minutter. Stegene under sier 26.3; på en annen versjon velger du den i installasjonsprogrammene og bruker filene for den.
 
-På Minecraft 1.21.1 viser redigereren også blokker og gjenstander som kom senere (for eksempel blek eik). Et program som bruker en av dem, får feilen "minecraft:... is not in this Minecraft version". Alt annet virker likt.
+På eldre Minecraft-versjoner viser redigereren også blokker og gjenstander som kom senere (for eksempel blek eik). Et program som bruker en av dem, får feilen "minecraft:... is not in this Minecraft version". Alt annet virker likt.
 
 ## Installere
 
@@ -116,15 +124,15 @@ Et program med "gjenta for alltid" slutter aldri av seg selv: trykk på stoppkna
 En funksjon er en bit av programmet med et navn du velger selv. Den kjører ikke bare fordi du har laget den: programmet
 må også kjøre (kalle) den.
 
-1. Åpne "Avansert" og så "Funksjoner", og trykk på "Lag en funksjon...". Skriv et navn, for eksempel `buildWall`, og
-   trykk på "Fullført".
+1. Åpne "Avansert" og så "Funksjoner", og trykk på "Lag en funksjon ...". Skriv et navn, for eksempel `buildWall`, og
+   trykk på "Ferdig".
 2. Dra robotblokker inn i "funksjon buildWall".
 3. Åpne "Funksjoner" igjen og dra ut "kjør buildWall": inn i "ved start" (dra den ut av Løkker først) for å kjøre den når du
    trykker på Kjør, eller inn i "når chatkommando" (fra Spiller) for å kjøre den når du skriver i chatten i
    spillet.
 4. Trykk på Kjør-knappen.
 
-Denne funksjonen har et tall, `length` ("Legg til en parameter", "Nummer"). Trykk på Kjør én gang. Skriv så `wall 5` i
+Denne funksjonen har et tall, `length` ("Legg til en parameter", "Tall"). Trykk på Kjør én gang. Skriv så `wall 5` i
 chatten i spillet, og igjen så ofte du vil, med det tallet du vil:
 
 ```
@@ -149,15 +157,15 @@ kommando.
 - Klikk på rundingen på en blokk (eller i feltet til venstre for et linjenummer i JavaScript og Python) for å sette et
   stoppunkt. Programmet stopper der hver gang det kommer dit.
 - I Blokker kjører "Step" én blokk og stopper igjen (knappen har ikke norsk tekst). I JavaScript og Python kjører
-  "Hopp over" én linje (et funksjonskall i ett steg), og "Gå inn i" går inn i funksjonen.
-- Pilen (Fortsett kjøring) kjører videre til neste stoppunkt, eller til slutten.
+  "Ta neste steg" én linje (et funksjonskall i ett steg), og "Gå inn i" går inn i funksjonen.
+- Pilen (Fortsett) kjører videre til neste stoppunkt, eller til slutten.
 - Mens programmet står stille, er blokken eller linjen som kommer etterpå markert, og "Variabler" viser verdien til
   hver variabel.
-- Skilpaddeknappen (Langsom tilstand) kjører programmet sakte og markerer hver blokk mens den kjører, uten å stoppe.
+- Skilpaddeknappen (Sakte film) kjører programmet sakte og markerer hver blokk mens den kjører, uten å stoppe.
 
 En robotkommando blir alltid ferdig før programmet stopper. Roboten står stille mens programmet står stille, og det
-gjør også "gjenta for alltid" og "kjør samtidig". For å stoppe programmet trykker du på "Avslutt feilsøkingsmodus",
-eller skriver `/robot stop` i spillet. Når du slår på feilsøkingsmodus eller Langsom tilstand, starter programmet fra
+gjør også "gjenta for alltid" og "kjør samtidig". For å stoppe programmet trykker du på "Avslutt feilsøking",
+eller skriver `/robot stop` i spillet. Når du slår på feilsøkingsmodus eller Sakte film, starter programmet fra
 begynnelsen, så roboten gjør kommandoene sine på nytt fra der den står.
 
 ## Feil, og å sjekke sitt eget program
@@ -202,7 +210,7 @@ Feilkodene et program kan fange:
 | `UNLOADED` | Roboten eller blokken er i en del av verden som ikke er lastet, eller roboten er ikke laget. |
 | `OUT_OF_RANGE` | Et tall er for stort eller for lite, for eksempel en flytting på mer enn 64 blokker eller en plass over 27. |
 
-Disse avslutter programmet og kan ikke fanges: stoppknappen, `/robot stop`, "Avslutt feilsøkingsmodus", tapt kontakt
+Disse avslutter programmet og kan ikke fanges: stoppknappen, `/robot stop`, "Avslutt feilsøking", tapt kontakt
 med spillet, `STOPPED` (spillet stoppet roboten) og `VERSION` (editoren er eldre enn spillet; last den inn på nytt).
 
 Programmet kan også sjekke sitt eget arbeid. "sjekk ... ellers stopp med" i kategorien Logikk stopper programmet med
@@ -296,7 +304,7 @@ Roboten blir stående og ser bare. En posisjon eller et hjørne du gir, må vær
 | robot ledige plasser | `agent.freeSlots()` | Hvor mange av de 27 plassene som er tomme. |
 | robot er inventaret fullt | `agent.isInventoryFull()` | Sann hvis ingen plass er tom. En stabel som ikke er full, kan fortsatt ta flere av samme ting. |
 | robot gi (ting) antall (antall) i plass (plass) | `agent.setItem(Item.Stone, 64, 1)` | Gir roboten ting. Bare i kreativ modus eller med spilleregelen `codeling:free_items`. |
-| robot samle alt | `agent.collectAll()` | Plukker opp ting rett ved siden av seg. |
+| robot samle alt | `agent.collectAll()` | Plukker opp ting rett ved siden av seg. En ting som nettopp ble sluppet, kan plukkes opp etter et øyeblikk (et halvt sekund for det roboten selv slapp), og aldri en som er holdt av til en annen spiller. |
 | robot slipp (retning) fra plass (plass) antall (antall) | `agent.drop(SixDirection.Back, 1, 10)` | Slipper noen ting. |
 | robot slipp alt (retning) | `agent.dropAll(SixDirection.Back)` | Slipper alt. |
 | robot overfør antall (antall) fra plass (fra) til plass (til) | `agent.transfer(10, 1, 2)` | Flytter ting mellom sine egne plasser. |
@@ -522,6 +530,8 @@ ikke flere.
   verdenen.
 - `/robot list` viser robotene dine og hvor de er. `/robot remove Miner` fjerner en: alt den bærer, havner i
   inventaret ditt, og det som ikke får plass, faller ned ved føttene dine. Roboten må være lastet inn (nær deg).
+  `/robot remove agent` fjerner standardroboten og stopper programmet ditt. Neste `/robot spawn` gir den tilbake med
+  samme navn, utseende og farge.
 - Chattekommandoene for én robot tar navnet til slutt: `/robot move forward 3 Miner`, `/robot come Miner`,
   `/robot inventory Miner`, `/robot camera Miner`. Uten navn gjelder de standardroboten din. I kommandoene heter den
   `agent`, og også det du kaller den: `/robot skin mint agent`. Trykk Tab for å se navnene på robotene dine.
@@ -546,6 +556,51 @@ I Blokker har kategorien Roboter "robot (navn)", "kjør samtidig" og de mest bru
 gå til robot, posisjon, plasser, ødelegg, samle alt og si. Legg "robot (navn)" i en variabel og bruk variabelen i de blokkene. De andre
 robotkallene (for eksempel `miner.findNearest(Block.CoalOre, 16)`) finnes i JavaScript og Python. Robotblokkene for
 `agent` er som før og gjelder standardroboten din.
+
+### En funksjon for hver robot
+
+Gi hver robot sin egen jobb med én funksjon per robot. Den første linjen i funksjonen velger roboten, og resten bruker
+den variabelen:
+
+```
+function mine(length: number) {
+    let miner = robots.get("Miner")
+    for (let i = 0; i < length; i++) {
+        miner.destroy(SixDirection.Forward)
+        miner.move(SixDirection.Forward, 1)
+    }
+}
+function build(length: number) {
+    let builder = robots.get("Builder")
+    for (let i = 0; i < length; i++) {
+        builder.move(SixDirection.Forward, 1)
+        builder.place(SixDirection.Back)
+    }
+}
+player.onChat("mine", function (num1, num2, num3) {
+    mine(num1)
+})
+player.onChat("build", function (num1, num2, num3) {
+    build(num1)
+})
+player.onChat("both", function (num1, num2, num3) {
+    control.runInParallel(function () {
+        mine(num1)
+    })
+    build(num1)
+})
+```
+
+1. La verdenen ha tre roboter (`/gamerule codeling:max_robots 3`, standardroboten din teller som én). Så
+   `/robot spawn Miner` og `/robot spawn Builder`.
+2. Legg blokker i Builder: høyreklikk på den, eller `/robot give stone 64 1 Builder` i kreativ modus. Den bygger med
+   plassen den har valgt (`/robot slot 1 Builder`).
+3. Lim inn programmet i JavaScript, gå tilbake til Blokker og trykk på Kjør.
+4. Skriv `mine 5`, `build 5` eller `both 5` i chatten i spillet. Miner graver 5 blokker framover, og Builder går
+   5 blokker og setter en blokk bak seg for hver. Med `both` jobber de samtidig.
+
+Vil du lage det med blokker, se [Lag din egen funksjon](#lag-din-egen-funksjon). Legg "robot (navn)" i en variabel først i
+funksjonen, og bruk den variabelen i blokkene fra Roboter.
 
 ### Gå til en annen robot
 
@@ -600,7 +655,7 @@ standardroboten din.
 | `/codeling server log on [minutter]`, `/codeling server log off` og `/codeling server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
 | `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `codeling:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |
-| `/robot remove <navn>` | Fjerner en robot med navn. Tingene den har, får du. |
+| `/robot remove <navn>` | Fjerner en robot. Tingene den har, får du. `agent` er standardroboten din. Fjerner du den, stopper også programmet ditt. |
 | `/robot rename <navn> <nytt navn>` | Gir en robot nytt navn. `agent` er standardroboten din, og `/robot rename <nytt navn>` gir også den nytt navn. |
 | `/robot nametag <on\|off> [navn]` | Viser eller skjuler navnet over robotene dine (uten navn: alle). |
 | `/robot stop [navn]` | Uten navn: stopper alle robotene og programmet ditt. Med navn: stopper det den roboten holder på med. |
@@ -664,7 +719,7 @@ Grensene holder spillet raskt for alle.
 
 ## Flerspiller
 
-- Serveren trenger Codeling for sin modlaster (Fabric Loader og Fabric API, eller NeoForge). Alle spillere som vil programmere, trenger samme modlaster og Codeling også.
+- Serveren trenger Codeling for sin modlaster (Fabric Loader og Fabric API, eller NeoForge). Alle som blir med på serveren, trenger samme modlaster og Codeling også.
 - Bruk samme Codeling-versjon på serveren og hos alle spillerne. Å blande versjoner er ikke støttet og ikke testet.
 - Bare du kan programmere roboten din. Ingen andre kan sende den kommandoer. Det gjelder roboter med navn også: et
   navn velger alltid bare en av dine egne roboter.
@@ -679,6 +734,9 @@ Grensene holder spillet raskt for alle.
   fra chatten mens programmet ditt kjører og lytter etter det første ordet i den.
 - Et signal når bare programmet til spilleren det ble sendt til. "send signal" i et program går bare til de andre
   modene på serveren, aldri til en annen spiller, og har bare med navnet.
+- `/gamerule codeling:pause_on_lost_focus false` gjør at spillet til den som kjører verdenen (enspiller, eller åpnet for
+  LAN), ikke går på pause når vinduet mister fokus. Escape pauser fortsatt. `true`, som er standard, følger spillerens
+  eget valg med F3+P.
 - Spillregelen `codeling:robot_camera` bestemmer hvem som kan bruke robotkameraet: `owner` (standard: hver spiller gjennom sin egen robot), `ops` (bare operatører) eller `off` (ingen). For eksempel `/gamerule codeling:robot_camera off`. På NeoForge 26.3 viser skjermen Edit Game Rules regelen som et tekstfelt: skriv `off`, `owner` eller `ops` (på NeoForge 1.21.1 er den ikke med på skjermen; bruk kommandoen). Serveren sjekker dette, og kameraet slutter med en gang når regelen tar det bort.
 - Roboten knuser og bruker ting som om den var deg. Hvis serveren beskytter et område, kan heller ikke roboten endre det.
 
@@ -692,7 +750,7 @@ Feilmeldingene er på engelsk.
 | "Not in a world" | Åpne en verden først, og trykk Kjør igjen. |
 | "This server does not have Codeling installed" | Serveren mangler moden. Spør den som eier serveren, eller spill i enspiller. |
 | Roboten gjør ingenting mens du er i nettleseren, og loggen sier "Minecraft is paused" | Pausemenyen er åpen i spillet. Gå tilbake til spillet og lukk den; roboten fortsetter av seg selv. |
-| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. |
+| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. Eller slå det av for denne verdenen med `/gamerule codeling:pause_on_lost_focus false` (operatører, så juks må være på). |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Skriv `/robot spawn`, eller gå nærmere roboten. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Sjekk navnet med `/robot list`. Gå nærmere roboten, eller skriv `/robot spawn Miner`. |
 | "This world allows one robot per player" | Roboter med navn trenger spillregelen `codeling:max_robots` over 1. Spør en operatør. |
@@ -714,7 +772,7 @@ roboter. Se [Flerspiller](#flerspiller).
 
 **Hvor lagres programmene mine?** I nettleseren din, på datamaskinen din, og ikke i verdenen. En annen nettleser, en annen
 datamaskin eller et privat vindu har dem ikke. Sletter du nettleserens data for editoren, slettes de. Vil du ha en
-kopi, trykker du på lagre-knappen ved siden av prosjektnavnet. Da får du en `.mkcd`-fil. «Importer» på editorens
+kopi, trykker du på lagre-knappen ved siden av prosjektnavnet. Da får du en `.mkcd`-fil. «Hent inn» på editorens
 hjemskjerm åpner den igjen.
 
 **Virker det uten nett?** Ja, når Codeling er installert. Editoren følger med moden og trenger ikke internett. Bare noen
