@@ -12,6 +12,12 @@ Every user-visible change to Codeling is listed here. The format follows
   this world. For the player who runs the world (singleplayer, or opened to LAN). `true`, the default, changes nothing. The
   player's own F3+P option is never changed.
 
+### Changed
+
+- Robots pick up only what their owner could (issue #53): not an item that is kept for another player, and not one that was
+  thrown or dropped a moment ago. `agent.drop` followed at once by `agent.collectAll` leaves the item, so wait half a second
+  first. Breaking a block still takes its drops at once.
+
 ## [0.0.4] - 2026-11-24
 
 The fourth pre-release, for testing.
