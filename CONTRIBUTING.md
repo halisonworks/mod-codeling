@@ -212,4 +212,5 @@ A change to how old Blocks files load needs a patch rule in `target/editor/exten
 
 - Never commit usernames, passwords, API keys, tokens or private keys, not even local dev values.
 - Configuration that needs a secret reads it from the environment or a `.env` file (gitignored); only an `.env.example` with empty placeholders is checked in. Release tokens and signing keys belong in GitHub Actions secrets.
+- Log with `codeling.log.Log` only, and follow [docs/architecture.md](docs/architecture.md), "The log" (`LogUseTest` fails otherwise).
 - The editor token is made at runtime with `SecureRandom` and must never be logged or written to a file. Keep it out of process arguments and environment variables too: `/codeling` opens a one-time launcher file that only the user can read, never the URL itself (`EditorLauncher`, issue #191).

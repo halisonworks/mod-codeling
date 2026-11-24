@@ -6,8 +6,18 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Extended logging and a report for bug reports (issue #279): `/codeling log on` writes more to the game's log for 15 minutes
+  (1 to 60), and `/codeling report` writes the versions, the game rules and the newest Codeling lines to
+  `logs/codeling-report.txt`, without known player names, chat or what robots say. Ops have `/codeling server log` and
+  `/codeling server report` for the server.
+
 ### Changed
 
+- Codeling is quiet in the game's log in normal play (issue #279): start, stop, the editor's connection, programs that start
+  and end, refused commands and faults. The messages between the editor and the game, what programs say, and the first
+  characters of the editor token are no longer logged.
 - Less work and less memory use per frame when robots are in view (issue #284): the robot's animations are read from the
   model file once instead of for every frame. They look the same.
 - Messages in the game look and read like Minecraft's own (issue #278): white for done, red for refused, the game's
@@ -20,6 +30,8 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ### Fixed
 
+- `/codeling signal` works from the chat of an operator who plays on Fabric with Codeling (issue #279). It answered
+  "Incorrect argument for command".
 - The robot log in the editor keeps its newest 1000 lines (issue #283). Before, it kept every line, and the browser
   used more and more memory while a program ran.
 

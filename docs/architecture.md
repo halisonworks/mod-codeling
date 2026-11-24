@@ -420,6 +420,36 @@ full stop at the end. There are no separate warnings or hints: a refusal carries
 codes and op names stay in the editor's log and the game log; a player never sees them. The exceptions are text that
 is not Codeling's own: `player.say` and the speech bubble (the program's words) and a robot's name.
 
+### The log
+
+Everything the mod logs goes through `codeling.log.Log` (issue #279). `LogUseTest` fails when other code logs by itself,
+or when a log call is given the editor's address, the token or a program's or player's own words.
+
+| Level | What goes there | With |
+|---|---|---|
+| error | Codeling cannot do something it is there for (the editor server does not start, a file cannot be read) | `Log.error` |
+| warn | Something is wrong and Codeling goes on (an editor with an old link, no world, a listener that fails) | `Log.warn` |
+| info | Start with the versions, stop, the editor connects and disconnects, a program starts and ends, a refused command | `Log.info` |
+| debug | Each step of a command, spawns, paths, builds, the camera. At info, marked `[detail]`, while extended logging is on | `Log.detail` |
+| trace | Not used | |
+
+Loggers: `codeling` (game and client), `codeling/relay` (editor and browser), `codeling/signals` (other mods' listeners).
+
+- **Extended logging** is off by default and never saved. `/codeling log on [minutes]` (client command, this game: in
+  singleplayer both halves) and `/codeling server log on [minutes]` (operators, the server) switch it on for 15 minutes
+  (1 to 60). It also ends after 50,000 lines. The log says when it goes on and off.
+- **One command** can be followed by `run N command M`: `browser ->` (relay), `client: to the server`, `server: from`,
+  `robot: ... starts`, `server: to`, `client: from the server` and `-> browser`.
+- **Repeated lines**: the same line is written 20 times in 10 seconds, then counted (not while extended logging is on).
+- **Never logged**, at any level: the token or a part of it, an editor address with a token, pictures, chat, what a robot
+  says, robot and player names from a message, program source. `Protocol.describe` shows kinds, numbers and lengths only.
+  Player names stand in the lines of a multiplayer server, where an operator must know whose program it was.
+- **The report**: `/codeling report` and `/codeling server report` write `logs/codeling-report.txt` with the versions, Java,
+  operating system, game rules and the newest 500 Codeling lines. Known player names, robot names in log lines, UUIDs
+  and the home folder are taken out. The player reads it through and sends it; nothing is sent by the mod.
+- Size, measured on 2026-11-24 with 20 robots that each run one command per tick for 400 ticks (8000 commands, server side):
+  no lines normally, 26,667 lines of about 128 bytes with extended logging on.
+
 ## 12. Distribution
 
 - **Modrinth** first, CurseForge later. One jar per loader (Fabric, NeoForge), each with client and server parts. Servers need the jar to host robots; players need it to open the editor. Vanilla clients can still join but cannot program.

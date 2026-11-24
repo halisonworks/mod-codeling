@@ -7,12 +7,11 @@ import codeling.client.RobotRenderer;
 import codeling.client.RobotScreen;
 import codeling.net.RelayPayloads;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-//? if >=26.1 {
-import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
-//?} else
-/*import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;*/
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 //? if >=26.1 {
@@ -64,14 +63,16 @@ public final class CodelingFabricClient implements ClientModInitializer {
         // Runs on the render thread.
         ClientPlayNetworking.registerGlobalReceiver(RelayPayloads.ToClient.TYPE, (payload, context) -> CodelingClient.receive(payload.json()));
         ClientPlayConnectionEvents.DISCONNECT.register((listener, client) -> CodelingClient.disconnected());
-        // "/codeling chat <text>" is the server's command (issue #27). Fabric sends a line to the server only when the
-        // client tree says "unknown or incomplete command", so the client knows "chat <text>" without running it.
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) ->
-                //? if >=26.1 {
-                dispatcher.register(ClientCommands.literal("codeling").executes(ctx -> CodelingClient.openEditor())
-                        .then(ClientCommands.literal("chat").then(ClientCommands.argument("text", StringArgumentType.greedyString())))));
-                //?} else
-                /*dispatcher.register(ClientCommandManager.literal("codeling").executes(ctx -> CodelingClient.openEditor())
-                        .then(ClientCommandManager.literal("chat").then(ClientCommandManager.argument("text", StringArgumentType.greedyString())))));*/
+        // "/codeling chat", "signal" and "server" are the server's commands (issues #27, #249 and #279). Fabric sends a
+        // line to the server only when the client tree says "unknown or incomplete command", so the client knows
+        // "chat <text>" without running it.
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> {
+            LiteralArgumentBuilder<FabricClientCommandSource> command = CodelingClient.command();
+            for (String server : new String[] {"chat", "signal", "server"}) {
+                command.then(LiteralArgumentBuilder.<FabricClientCommandSource>literal(server)
+                        .then(RequiredArgumentBuilder.argument("text", StringArgumentType.greedyString())));
+            }
+            dispatcher.register(command);
+        });
     }
 }

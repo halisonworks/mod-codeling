@@ -74,8 +74,8 @@ body:
   - type: textarea
     id: log
     attributes:
-      label: Log
-      description: The line from the program log in the editor, and the lines with "codeling" from logs/latest.log. Remove names, chat and editor links first.
+      label: Report
+      description: Type /codeling report in the game and paste the report here (on a server, an operator types /codeling server report and takes logs/codeling-report.txt). Can you make the problem happen again? Type /codeling log on first, then the report has more. Read through it and remove names. Add the line from the robot log in the editor.
       render: text
   - type: input
     id: extra

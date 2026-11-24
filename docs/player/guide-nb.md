@@ -563,6 +563,9 @@ standardroboten din.
 | `/codeling` | Åpner editoren i nettleseren. |
 | `/codeling chat <tekst>` | Sender en chattelinje til "når chatkommando"-koden i ditt eget program, slik det å skrive den i chatten ville gjort. Virker på servere der chatteutvidelser tar chattelinjene først. Sier fra når ingen av programmene dine lytter. |
 | `/codeling signal <spillere> <navn> [tall]` | Sender et signal til programmene til spillerne du nevner (for eksempel `@a` eller et spillernavn), med tallet (0 uten tall). Bare for operatører, og for kommandoblokker. Den sier hvor mange programmer som fikk det, og nevner spillerne det ikke nådde. |
+| `/codeling log on [minutter]` og `/codeling log off` | Utvidet logging i ditt eget spill i 15 minutter (eller 1 til 60). Se «Meld fra om et problem». |
+| `/codeling report` | Skriver det en feilmelding trenger til `logs/codeling-report.txt` i mappen til spillet. |
+| `/codeling server log on [minutter]`, `/codeling server log off` og `/codeling server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
 | `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `codeling:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |
 | `/robot remove <navn>` | Fjerner en robot med navn. Tingene den har, får du. |
@@ -663,6 +666,19 @@ Feilmeldingene er på engelsk.
 | `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Codeling. Lukk den og start Minecraft på nytt. I spillets logg står det "Codeling could not start the editor server on port 25580". |
 | Blokkene ser gamle ut etter en oppdatering | Trykk Ctrl+F5 i nettleseren. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, en lukket fane eller at du forlot verdenen stoppet det. Trykk Kjør igjen. |
+
+## Meld fra om et problem
+
+1. Skriv `/codeling log on`. Da skriver Codeling mer i spillets logg i 15 minutter. Det slår seg av selv.
+2. Gjør det som gikk galt en gang til.
+3. Skriv `/codeling report` og klikk «[copy the report]». Rapporten ligger også i `logs/codeling-report.txt`.
+4. Les gjennom den. Codeling utelater spillernavn, robotnavn, chat og det roboter sier der den kjenner dem. Fjern resten
+   du ikke vil at andre skal se.
+5. Lim den inn i [en feilmelding](https://github.com/halisonworks/mod-codeling/issues/new/choose). Det du skriver der, er offentlig.
+   Er du barn, be en voksen om hjelp.
+
+På en server andre eier, gjør eieren det samme med `/codeling server log on` og `/codeling server report`. Codeling
+sender aldri noe av seg selv.
 
 ## Ansvarsfraskrivelse
 
