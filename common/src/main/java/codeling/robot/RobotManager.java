@@ -32,6 +32,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -1590,12 +1591,11 @@ public final class RobotManager {
     }
 
     /**
-     * MakeCode's yaw convention (Bedrock agent): south 0, west 90, north 180, east -90. Java's yaw is the same
-     * except that it says 270 for east, so only east is folded. shortcut: unconfirmed against MakeCode in game (issue #20).
+     * MakeCode's yaw convention (its agent.getOrientation page): south 0, west 90, north -180, east -90, which is Java's
+     * yaw folded to -180 to 180. shortcut: not yet confirmed in Minecraft Education (issue #22).
      */
     public static int orientation(Direction facing) {
-        int yaw = (int) facing.toYRot();
-        return yaw > 180 ? yaw - 360 : yaw;
+        return Mth.wrapDegrees((int) facing.toYRot());
     }
 
     static Direction relative(Direction facing, int sixDirection) {
