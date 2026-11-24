@@ -16,6 +16,11 @@ Every user-visible change to Codeling is listed here. The format follows
 - The project moved to `github.com/halisonworks/mod-codeling`. The links in the mod list (homepage, sources, issues) and
   the downloads in `scripts/setup-multimc.ps1` use the new address.
 
+### Fixed
+
+- The robot log in the editor keeps its newest 1000 lines (issue #283). Before, it kept every line, and the browser
+  used more and more memory while a program ran.
+
 ## [0.0.3] - 2026-11-12
 
 The third pre-release, for testing.
