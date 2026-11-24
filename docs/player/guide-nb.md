@@ -223,7 +223,7 @@ Plassene er robotens 27 inventarplasser, nummerert fra 1 til 27.
 | robot redstonestyrke (retning) | `agent.redstonePower(SixDirection.Forward)` | Rødsteinstyrke fra 0 til 15. |
 | når roboten får redstonesignal | `agent.onRedstonePowered(function () { })` | Kjører koden sin hver gang blokken roboten står i, får et redstonesignal, for eksempel når du slår på en spak ved siden av den. Se "Reager på blokker, redstone og dagen" under. |
 | robot posisjon | `agent.getPosition()` | Hvor roboten er. |
-| robot retning | `agent.getOrientation()` | Hvilken vei den ser, i grader. |
+| robot retning | `agent.getOrientation()` | Hvilken vei den ser, i grader: sør 0, vest 90, nord -180, øst -90. |
 | robot finn nærmeste (blokk) innen (radius) | `agent.findNearest(Block.OakLog, 16)` | Den nærmeste blokken av den typen, eller ingenting. |
 | robot finn nærmeste (kategori) innen (radius) | `agent.findNearestCategory(BlockCategory.Logs, 16)` | Det samme for stammer, løv, malm, planker, ull eller blomster. |
 
