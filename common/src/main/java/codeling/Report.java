@@ -45,7 +45,8 @@ public final class Report {
             lines.add("Game rules: not known here (no world, or somebody else's server)");
         } else {
             lines.add("Game rules: free_items " + Codeling.freeItems(server) + ", max_robots " + Codeling.maxRobots(server)
-                    + ", robot_camera " + Codeling.robotCamera(server));
+                    + ", robot_camera " + Codeling.robotCamera(server)
+                    + ", pause_on_lost_focus " + Codeling.pauseOnLostFocus(server));
             lines.add("Robots in the loaded world: " + RobotManager.loadedCount() + ", programs running: " + RobotManager.runCount());
         }
         lines.add("Extended logging: " + (Log.extended() ? "on" : "off"));

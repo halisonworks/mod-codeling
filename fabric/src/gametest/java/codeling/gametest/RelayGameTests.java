@@ -713,7 +713,7 @@ public class RelayGameTests {
             } catch (IOException e) {
                 throw new java.io.UncheckedIOException(e);
             }
-            for (String line : List.of("Codeling: ", "Minecraft: ", "Fabric Loader: ", "Java: ", "Operating system: ", "Game rules: free_items ", "Extended logging: on")) {
+            for (String line : List.of("Codeling: ", "Minecraft: ", "Fabric Loader: ", "Java: ", "Operating system: ", "Game rules: free_items ", ", pause_on_lost_focus ", "Extended logging: on")) {
                 helper.assertTrue(report.contains(line), line + " in the report");
             }
             helper.assertTrue(!report.contains("secret words") && !report.contains(b.player().getGameProfile().name()), "no words or names in the report");
