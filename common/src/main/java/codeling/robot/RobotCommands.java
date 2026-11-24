@@ -2,6 +2,7 @@ package codeling.robot;
 
 import codeling.McCompat;
 import codeling.Codeling;
+import codeling.Messages;
 import codeling.api.Signals;
 import codeling.net.PlayerEvents;
 import codeling.net.RelayPayloads;
@@ -16,16 +17,18 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -44,6 +47,13 @@ public final class RobotCommands {
             ? builder.buildFuture()
             : SharedSuggestionProvider.suggest(RobotLinks.get(c.getSource().getServer()).names(c.getSource().getPlayer().getUUID()), builder);
 
+    /** What /robot give takes: our block names and the item ids, without those this Minecraft version lacks. */
+    private static final SuggestionProvider<CommandSourceStack> ITEMS = (c, builder) -> SharedSuggestionProvider.suggest(giveNames(), builder);
+    private static List<String> giveNames; // made once: the suggestions are asked for at every key press
+    private static final DynamicCommandExceptionType UNKNOWN_ITEM = Messages.argumentError("commands.codeling.give.unknown");
+    private static final DynamicCommandExceptionType BAD_COLOR = Messages.argumentError("commands.codeling.color.invalid");
+    private static final DynamicCommandExceptionType BAD_SIGNAL = Messages.argumentError("commands.codeling.signal.invalid");
+
     private RobotCommands() {
     }
 
@@ -51,8 +61,10 @@ public final class RobotCommands {
         LiteralArgumentBuilder<CommandSourceStack> move = Commands.literal("move");
         for (int i = 0; i < DIRECTIONS.length; i++) {
             int direction = i;
-            move.then(Commands.literal(DIRECTIONS[i]).then(named(Commands.argument("blocks", IntegerArgumentType.integer()),
-                    c -> send(c, "agent.move", List.of(direction, IntegerArgumentType.getInteger(c, "blocks"))))));
+            move.then(Commands.literal(DIRECTIONS[i]).then(named(Commands.argument("blocks", IntegerArgumentType.integer(1, RobotCommand.MAX_MOVE)),
+                    c -> send(c, "agent.move", List.of(direction, IntegerArgumentType.getInteger(c, "blocks")),
+                            either(done("commands.codeling.move", robot(c), direction(DIRECTIONS[direction]), IntegerArgumentType.getInteger(c, "blocks")),
+                                    refused("commands.codeling.move.blocked", robot(c), direction(DIRECTIONS[direction])))))));
         }
         LiteralArgumentBuilder<CommandSourceStack> place = Commands.literal("place");
         LiteralArgumentBuilder<CommandSourceStack> destroy = Commands.literal("destroy");
@@ -61,12 +73,23 @@ public final class RobotCommands {
         LiteralArgumentBuilder<CommandSourceStack> drop = Commands.literal("drop");
         for (int i = 0; i < DIRECTIONS.length; i++) {
             int d = i;
-            place.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.place", List.of(d))));
-            destroy.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.destroy", List.of(d))));
-            inspect.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.inspect", List.of(RobotCommand.KIND_BLOCK, d))));
-            detect.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.detect", List.of(RobotCommand.KIND_BLOCK, d))));
-            drop.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.dropAll", List.of(d))));
+            place.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.place", List.of(d), either(
+                    done("commands.codeling.place", robot(c), direction(DIRECTIONS[d])), refused("commands.codeling.place.failed", robot(c), direction(DIRECTIONS[d]))))));
+            destroy.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.destroy", List.of(d), either(
+                    done("commands.codeling.destroy", robot(c), direction(DIRECTIONS[d])), refused("commands.codeling.destroy.failed", robot(c), direction(DIRECTIONS[d]))))));
+            inspect.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.inspect", List.of(RobotCommand.KIND_BLOCK, d), code -> {
+                Component block = RobotManager.blockName((Integer) code);
+                return block == null ? done("commands.codeling.inspect.unknown", direction(DIRECTIONS[d])) : done("commands.codeling.inspect", direction(DIRECTIONS[d]), block);
+            })));
+            detect.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.detect", List.of(RobotCommand.KIND_BLOCK, d), either(
+                    done("commands.codeling.detect.yes", direction(DIRECTIONS[d])), done("commands.codeling.detect.no", direction(DIRECTIONS[d]))))));
+            drop.then(named(Commands.literal(DIRECTIONS[i]), c -> send(c, "agent.dropAll", List.of(d), either(
+                    done("commands.codeling.drop", robot(c), direction(DIRECTIONS[d])), refused("commands.codeling.drop.failed", robot(c))))));
         }
+        LiteralArgumentBuilder<CommandSourceStack> skin = Commands.literal("skin");
+        for (String name : RobotAppearance.SKINS) skin.then(named(Commands.literal(name), c -> skin(c, name)));
+        LiteralArgumentBuilder<CommandSourceStack> animation = Commands.literal("animation");
+        for (String name : RobotAppearance.ANIMATIONS) animation.then(named(Commands.literal(name), c -> animation(c, name)));
         // Issue #27: a chat line for the caller's own program, for servers whose chat plugins take chat lines away. No
         // operator rights needed: it reaches nobody but the caller's program. /codeling alone is the client's command.
         // Issue #249: a signal for the programs of the players named, for operators, command blocks and map makers.
@@ -79,20 +102,23 @@ public final class RobotCommands {
         Command<CommandSourceStack> giveToSlot = c -> give(c, IntegerArgumentType.getInteger(c, "slot"));
         dispatcher.register(Commands.literal("robot")
                 .then(place).then(destroy).then(inspect).then(detect).then(drop)
-                .then(named(Commands.literal("collect"), c -> send(c, "agent.collectAll", List.of())))
-                .then(Commands.literal("slot").then(named(Commands.argument("slot", IntegerArgumentType.integer()),
-                        c -> send(c, "agent.setSlot", List.of(IntegerArgumentType.getInteger(c, "slot"))))))
-                .then(Commands.literal("give").then(Commands.argument("block", StringArgumentType.word())
-                        .then(Commands.argument("count", IntegerArgumentType.integer())
+                .then(named(Commands.literal("collect"), c -> send(c, "agent.collectAll", List.of(), v -> done("commands.codeling.collect", robot(c)))))
+                .then(Commands.literal("slot").then(named(Commands.argument("slot", IntegerArgumentType.integer(1, RobotCommand.SLOTS)),
+                        c -> send(c, "agent.setSlot", List.of(IntegerArgumentType.getInteger(c, "slot")),
+                                v -> done("commands.codeling.inventory.slot", robot(c), IntegerArgumentType.getInteger(c, "slot"))))))
+                .then(Commands.literal("give").then(Commands.argument("block", StringArgumentType.word()).suggests(ITEMS)
+                        .then(Commands.argument("count", IntegerArgumentType.integer(1, RobotCommand.MAX_QUANTITY))
                                 .executes(c -> give(c, selectedSlot(c)))
-                                .then(named(Commands.argument("slot", IntegerArgumentType.integer()), giveToSlot))
+                                .then(named(Commands.argument("slot", IntegerArgumentType.integer(1, RobotCommand.SLOTS)), giveToSlot))
                                 .then(robotName().executes(c -> give(c, selectedSlot(c)))))))
                 .then(Commands.literal("assist").then(named(Commands.argument("on", BoolArgumentType.bool()),
-                        c -> send(c, "agent.setAssist", List.of(RobotCommand.PLACE_ON_MOVE, BoolArgumentType.getBool(c, "on"))))))
+                        c -> send(c, "agent.setAssist", List.of(RobotCommand.PLACE_ON_MOVE, BoolArgumentType.getBool(c, "on")),
+                                v -> done(BoolArgumentType.getBool(c, "on") ? "commands.codeling.assist.on" : "commands.codeling.assist.off", robot(c))))))
                 .then(Commands.literal("gravity").then(named(Commands.argument("on", BoolArgumentType.bool()),
-                        c -> send(c, "agent.setGravity", List.of(BoolArgumentType.getBool(c, "on"))))))
+                        c -> send(c, "agent.setGravity", List.of(BoolArgumentType.getBool(c, "on")),
+                                v -> done(BoolArgumentType.getBool(c, "on") ? "commands.codeling.gravity.on" : "commands.codeling.gravity.off", robot(c))))))
                 .then(named(Commands.literal("inventory"), RobotCommands::inventory))
-                .then(named(Commands.literal("sethome"), c -> send(c, "agent.setHome", List.of())))
+                .then(named(Commands.literal("sethome"), c -> send(c, "agent.setHome", List.of(), v -> done("commands.codeling.sethome", robot(c)))))
                 .then(named(Commands.literal("come"), RobotCommands::come))
                 .then(named(Commands.literal("camera"), c -> camera(c, false))
                         .then(named(Commands.literal("follow"), c -> camera(c, true)))
@@ -108,7 +134,7 @@ public final class RobotCommands {
                         /*.then(Commands.literal("all").requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))*/
                                 .executes(c -> {
                                     RobotManager.stopAll();
-                                    c.getSource().sendSuccess(() -> Component.literal("Stopped all robots"), true);
+                                    Messages.operatorSuccess(c.getSource(), Messages.of("commands.codeling.stop.all"));
                                     return 1;
                                 })))
                 .then(named(Commands.literal("status"), RobotCommands::status))
@@ -121,50 +147,42 @@ public final class RobotCommands {
                 .then(Commands.literal("nametag")
                         .then(named(Commands.literal("on"), c -> nametag(c, true)))
                         .then(named(Commands.literal("off"), c -> nametag(c, false))))
-                .then(Commands.literal("skin").then(named(Commands.argument("skin", StringArgumentType.word())
-                        .suggests((c, builder) -> SharedSuggestionProvider.suggest(RobotAppearance.SKINS, builder)), RobotCommands::skin)))
-                .then(Commands.literal("color").then(named(Commands.argument("color", StringArgumentType.word()), RobotCommands::color)))
-                .then(Commands.literal("animation").then(named(Commands.argument("animation", StringArgumentType.word())
-                        .suggests((c, builder) -> SharedSuggestionProvider.suggest(RobotAppearance.ANIMATIONS, builder)), RobotCommands::animation)))
+                .then(skin)
+                .then(Commands.literal("color").then(named(Commands.argument("color", StringArgumentType.word())
+                        .suggests((c, builder) -> SharedSuggestionProvider.suggest(List.of("reset"), builder)), RobotCommands::color)))
+                .then(animation)
                 .then(move)
                 .then(Commands.literal("turn")
-                        .then(named(Commands.literal("left"), c -> send(c, "agent.turn", List.of(RobotCommand.LEFT_TURN))))
-                        .then(named(Commands.literal("right"), c -> send(c, "agent.turn", List.of(RobotCommand.RIGHT_TURN))))));
+                        .then(named(Commands.literal("left"), c -> send(c, "agent.turn", List.of(RobotCommand.LEFT_TURN), v -> done("commands.codeling.turn", robot(c), direction("left")))))
+                        .then(named(Commands.literal("right"), c -> send(c, "agent.turn", List.of(RobotCommand.RIGHT_TURN), v -> done("commands.codeling.turn", robot(c), direction("right")))))));
     }
 
     private static int chat(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         ServerPlayer player = c.getSource().getPlayerOrException();
         String text = StringArgumentType.getString(c, "text");
         if (PlayerEvents.chat(player, text)) return 1;
-        c.getSource().sendFailure(Component.literal(PlayerEvents.listensForChat(player.getUUID())
-                ? "Your program has no on chat command for \"" + text.strip().split("\\s+")[0] + "\"."
-                : "No program of yours is listening for chat commands. Run a program with on chat command from the editor first."));
-        return 0;
+        return Messages.failure(c.getSource(), PlayerEvents.listensForChat(player.getUUID())
+                ? Messages.of("commands.codeling.chat.unknown", text.strip().split("\\s+")[0])
+                : Messages.of("commands.codeling.chat.no_program"));
     }
 
     // Answers how many programs got it (the command's result, for command blocks) and names the players it did not
     // reach, so a map maker sees a typo at once.
     private static int signal(CommandContext<CommandSourceStack> c, double value) throws CommandSyntaxException {
         String name = StringArgumentType.getString(c, "name");
-        String problem = Signals.nameProblem(name);
-        if (problem != null) {
-            c.getSource().sendFailure(Component.literal(problem));
-            return 0;
-        }
+        if (Signals.nameProblem(name) != null) throw BAD_SIGNAL.create(name);
         int reached = 0;
         List<String> missed = new ArrayList<>();
         for (ServerPlayer player : EntityArgument.getPlayers(c, "players")) {
             if (PlayerEvents.signal(player.getUUID(), name, value)) reached++;
             else missed.add(player.getGameProfile().name());
         }
-        String others = missed.isEmpty() ? "" : " It did not reach " + String.join(", ", missed)
-                + " (no running program listening for it, or " + RobotQueue.MAX_LENGTH + " events waiting).";
-        if (reached == 0) {
-            c.getSource().sendFailure(Component.literal("Signal \"" + name + "\" reached no program." + others));
-            return 0;
-        }
-        int n = reached;
-        c.getSource().sendSuccess(() -> Component.literal("Sent signal \"" + name + "\" to " + n + (n == 1 ? " program." : " programs.") + others), false);
+        List<Component> lines = new ArrayList<>();
+        lines.add(reached == 0 ? Messages.of("commands.codeling.signal.none", name)
+                : reached == 1 ? Messages.of("commands.codeling.signal.single", name) : Messages.of("commands.codeling.signal.multiple", name, reached));
+        if (!missed.isEmpty()) lines.add(Messages.of("commands.codeling.signal.missed", String.join(", ", missed), RobotQueue.MAX_LENGTH));
+        if (reached == 0) return Messages.failure(c.getSource(), Messages.lines(lines));
+        Messages.success(c.getSource(), Messages.lines(lines));
         return reached;
     }
 
@@ -190,73 +208,57 @@ public final class RobotCommands {
         return new RobotLinks.Key(c.getSource().getPlayerOrException().getUUID(), name(c));
     }
 
-    // "Robot" or "Robot Miner", for messages.
-    private static String robot(String name) {
-        return name.isEmpty() ? "Robot" : "Robot " + name;
+    private static Component robot(CommandContext<CommandSourceStack> c) {
+        return Messages.robot(name(c));
     }
 
-    private static int skin(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+    /** Answers why there is no loaded robot for this command. */
+    private static int absent(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        return Messages.failure(c.getSource(), Messages.absent(c.getSource().getServer(), key(c).owner(), name(c)));
+    }
+
+    private static int skin(CommandContext<CommandSourceStack> c, String skin) throws CommandSyntaxException {
         RobotEntity robot = RobotManager.robot(key(c));
-        if (robot == null) {
-            c.getSource().sendFailure(Component.literal("Robot is not loaded. Use /robot spawn first."));
-            return 0;
-        }
-        String skin = StringArgumentType.getString(c, "skin");
-        if (!RobotAppearance.SKINS.contains(skin)) {
-            c.getSource().sendFailure(Component.literal("Choose workshop, industrial or mint."));
-            return 0;
-        }
+        if (robot == null) return absent(c);
         robot.setSkin(skin);
-        c.getSource().sendSuccess(() -> Component.literal("Robot skin: " + skin), false);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.skin", robot(c), skin));
         return 1;
     }
 
     private static int color(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
-        RobotEntity robot = RobotManager.robot(key(c));
-        if (robot == null) {
-            c.getSource().sendFailure(Component.literal("Robot is not loaded. Use /robot spawn first."));
-            return 0;
-        }
+        String text = StringArgumentType.getString(c, "color");
+        int color;
         try {
-            robot.setPrimaryColor(RobotAppearance.color(StringArgumentType.getString(c, "color")));
+            color = RobotAppearance.color(text);
         } catch (IllegalArgumentException exception) {
-            c.getSource().sendFailure(Component.literal("Use six hex digits, for example 3366FF, or reset."));
-            return 0;
+            throw BAD_COLOR.create(text);
         }
-        c.getSource().sendSuccess(() -> Component.literal("Robot panel color updated"), false);
+        RobotEntity robot = RobotManager.robot(key(c));
+        if (robot == null) return absent(c);
+        robot.setPrimaryColor(color);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.color", robot(c), text));
         return 1;
     }
 
-    private static int animation(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+    private static int animation(CommandContext<CommandSourceStack> c, String animation) throws CommandSyntaxException {
         RobotEntity robot = RobotManager.robot(key(c));
-        if (robot == null) {
-            c.getSource().sendFailure(Component.literal("Robot is not loaded. Use /robot spawn first."));
-            return 0;
-        }
-        String animation = StringArgumentType.getString(c, "animation");
-        if (!RobotAppearance.ANIMATIONS.contains(animation)) {
-            c.getSource().sendFailure(Component.literal("Choose " + String.join(", ", RobotAppearance.ANIMATIONS) + "."));
-            return 0;
-        }
+        if (robot == null) return absent(c);
         robot.animate(animation);
-        c.getSource().sendSuccess(() -> Component.literal("Robot animation: " + animation), false);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.animation", robot(c), animation));
         return 1;
     }
 
     private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         ServerPlayer player = c.getSource().getPlayerOrException();
         String name = name(c);
-        String refusal = RobotManager.spawnRefusal(c.getSource().getServer(), player.getUUID(), name);
-        if (refusal != null) {
-            c.getSource().sendFailure(Component.literal(refusal));
-            return 0;
-        }
+        Component refusal = RobotManager.spawnRefusal(c.getSource().getServer(), player.getUUID(), name);
+        if (refusal != null) return Messages.failure(c.getSource(), refusal);
         codeling.Codeling.LOG.info("spawn: {} typed /robot spawn{} while standing at x={} y={} z={} (block {}) in {}, looking {}.", player.getGameProfile().name(),
                 name.isEmpty() ? "" : " " + name, String.format(java.util.Locale.ROOT, "%.2f", player.getX()), String.format(java.util.Locale.ROOT, "%.2f", player.getY()),
                 String.format(java.util.Locale.ROOT, "%.2f", player.getZ()), player.blockPosition().toShortString().replace(",", ""), McCompat.dimension(McCompat.level(player)).getPath(),
                 player.getDirection().getName());
         RobotManager.spawn(McCompat.level(player), key(c), Vec3.atBottomCenterOf(player.blockPosition()), player.getDirection());
-        c.getSource().sendSuccess(() -> Component.literal(robot(name) + " spawned facing " + player.getDirection().getName()), false);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.spawn", robot(c), direction(player.getDirection().getName())));
         return 1;
     }
 
@@ -265,12 +267,12 @@ public final class RobotCommands {
         ServerPlayer player = c.getSource().getPlayerOrException();
         RobotEntity robot = RobotManager.robot(key(c));
         if (robot != null && robot.level() != player.level()) {
-            String spawn = name(c).isEmpty() ? "/robot spawn" : "/robot spawn " + name(c);
-            c.getSource().sendFailure(Component.literal("Your robot is in another dimension. Use " + spawn + " to bring it here."));
-            return 0;
+            return Messages.failure(c.getSource(), Messages.of("commands.codeling.come.dimension", robot(c), Messages.spawnCommand(name(c))));
         }
         BlockPos at = player.blockPosition();
-        return send(c, "come", new RobotCommand(RobotCommand.Op.COME, at.getX(), at.getY(), at.getZ()));
+        return send(c, new RobotCommand(RobotCommand.Op.COME, at.getX(), at.getY(), at.getZ()), value -> "walked".equals(value)
+                ? done("commands.codeling.come.walked", robot(c)) : "teleported".equals(value) ? done("commands.codeling.come.teleported", robot(c))
+                : refused("commands.codeling.come.blocked", robot(c)));
     }
 
     // Issues #176 and #177: toggles the view through (or, with follow, behind) the player's robot; the other mode or
@@ -280,12 +282,11 @@ public final class RobotCommands {
         RobotEntity robot = RobotManager.robot(key(c));
         if (robot != null && RobotCamera.viewing(player) == robot && RobotCamera.following(player) == follow) return RobotCamera.stop(player, "toggled off with /robot camera") ? 1 : 0;
         if (!Platform.INSTANCE.canSend(player, RelayPayloads.Camera.TYPE)) {
-            c.getSource().sendFailure(Component.literal("The robot camera needs Codeling installed in your game."));
-            return 0;
+            return Messages.failure(c.getSource(), Messages.of("commands.codeling.camera.no_client"));
         }
-        String refusal = RobotCamera.start(player, robot, follow);
-        if (refusal != null) c.getSource().sendFailure(Component.literal(refusal));
-        return refusal == null ? 1 : 0;
+        if (robot == null && RobotCamera.ruleRefusal(player) == null) return absent(c);
+        Component refusal = RobotCamera.start(player, robot, follow);
+        return refusal == null ? 1 : Messages.failure(c.getSource(), refusal);
     }
 
     // Without a name every robot of the player stops (and the editor's run ends); with a name only that robot's queue.
@@ -295,28 +296,21 @@ public final class RobotCommands {
         if (name.isEmpty()) {
             for (RobotQueue queue : RobotManager.queues(owner)) queue.clear(Result.Code.STOPPED, "stopped with /robot stop"); // the editor shows why
             RobotManager.stop(owner, "/robot stop");
-            c.getSource().sendSuccess(() -> Component.literal("Robot stopped"), false);
-            return 1;
+        } else {
+            if (RobotLinks.get(c.getSource().getServer()).robot(key(c)) == null) return absent(c);
+            RobotManager.queue(key(c)).clear(Result.Code.STOPPED, "stopped with /robot stop " + name);
         }
-        if (RobotLinks.get(c.getSource().getServer()).robot(key(c)) == null) {
-            c.getSource().sendFailure(Component.literal("You have no robot called " + name));
-            return 0;
-        }
-        RobotManager.queue(key(c)).clear(Result.Code.STOPPED, "stopped with /robot stop " + name);
-        c.getSource().sendSuccess(() -> Component.literal(robot(name) + " stopped"), false);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.stop", robot(c)));
         return 1;
     }
 
     private static int status(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         RobotLinks.Key key = key(c);
         RobotEntity robot = RobotManager.robot(key);
+        if (robot == null) return absent(c);
         RobotQueue queue = RobotManager.queue(key);
-        String spawn = key.name().isEmpty() ? "No robot. Use /robot spawn" : "You have no robot called " + key.name();
-        String text = robot == null
-                ? (RobotLinks.get(c.getSource().getServer()).robot(key) == null ? spawn : robot(key.name()) + " is not loaded")
-                : robot(key.name()) + " at " + robot.blockPosition().toShortString() + " in " + McCompat.dimension(robot.level())
-                        + ", facing " + robot.getDirection().getName() + ", queue " + queue.size() + ", run " + queue.run();
-        c.getSource().sendSuccess(() -> Component.literal(text), false);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.status", robot(c), robot.blockPosition().toShortString(),
+                McCompat.dimension(robot.level()).toString(), direction(robot.getDirection().getName()), queue.size()));
         return 1;
     }
 
@@ -326,31 +320,35 @@ public final class RobotCommands {
         RobotLinks links = RobotLinks.get(c.getSource().getServer());
         List<String> names = new java.util.ArrayList<>(links.names(owner));
         if (links.robot(owner) != null) names.addFirst("");
-        int max = Codeling.maxRobots(c.getSource().getServer());
-        StringBuilder text = new StringBuilder(names.isEmpty() ? "No robot. Use /robot spawn" : "Your robots (" + names.size() + ", this world allows " + max + "):");
+        if (names.isEmpty()) {
+            Messages.success(c.getSource(), Messages.of("message.codeling.robot.none", Messages.spawnCommand("")));
+            return 0;
+        }
+        List<Component> lines = new ArrayList<>();
+        lines.add(Messages.of("commands.codeling.list", names.size(), Codeling.maxRobots(c.getSource().getServer())));
         for (String name : names) {
             RobotEntity robot = RobotManager.robot(new RobotLinks.Key(owner, name));
-            text.append("\n").append(name.isEmpty() ? "default robot (agent)" : name).append(robot == null ? ": not loaded"
-                    : ": " + robot.blockPosition().toShortString() + " in " + McCompat.dimension(robot.level()));
+            Object shown = name.isEmpty() ? Messages.of("commands.codeling.list.default") : name;
+            lines.add(robot == null ? Messages.of("commands.codeling.list.unloaded", shown)
+                    : Messages.of("commands.codeling.list.at", shown, robot.blockPosition().toShortString(), McCompat.dimension(robot.level()).toString()));
         }
-        c.getSource().sendSuccess(() -> Component.literal(text.toString()), false);
-        return 1;
+        Messages.success(c.getSource(), Messages.lines(lines));
+        return names.size();
     }
 
     private static int remove(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
-        String name = name(c);
-        String refusal = RobotManager.remove(c.getSource().getPlayerOrException(), name);
-        if (refusal != null) c.getSource().sendFailure(Component.literal(refusal));
-        else c.getSource().sendSuccess(() -> Component.literal(robot(name) + " removed. Its items are in your inventory or at your feet."), false);
-        return refusal == null ? 1 : 0;
+        Component refusal = RobotManager.remove(c.getSource().getPlayerOrException(), name(c));
+        if (refusal != null) return Messages.failure(c.getSource(), refusal);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.remove", robot(c)));
+        return 1;
     }
 
     private static int rename(CommandContext<CommandSourceStack> c, String from, String to) throws CommandSyntaxException {
         UUID owner = c.getSource().getPlayerOrException().getUUID();
-        String refusal = RobotManager.rename(c.getSource().getServer(), new RobotLinks.Key(owner, from), to);
-        if (refusal != null) c.getSource().sendFailure(Component.literal(refusal));
-        else c.getSource().sendSuccess(() -> Component.literal(robot(from) + " is now called " + to), false);
-        return refusal == null ? 1 : 0;
+        Component refusal = RobotManager.rename(c.getSource().getServer(), new RobotLinks.Key(owner, from), to);
+        if (refusal != null) return Messages.failure(c.getSource(), refusal);
+        Messages.success(c.getSource(), Messages.of("commands.codeling.rename", Messages.robot(from), to));
+        return 1;
     }
 
     // Issue #151: shows or hides the name over the robot; without a name for all of the player's loaded robots.
@@ -358,12 +356,9 @@ public final class RobotCommands {
         UUID owner = c.getSource().getPlayerOrException().getUUID();
         List<RobotEntity> robots = name(c).isEmpty() ? RobotManager.robots(owner)
                 : RobotManager.robot(key(c)) == null ? List.of() : List.of(RobotManager.robot(key(c)));
-        if (robots.isEmpty()) {
-            c.getSource().sendFailure(Component.literal(name(c).isEmpty() ? "No robot is loaded" : robot(name(c)) + " is not loaded"));
-            return 0;
-        }
+        if (robots.isEmpty()) return absent(c);
         robots.forEach(r -> r.setCustomNameVisible(on));
-        c.getSource().sendSuccess(() -> Component.literal("Name tag " + (on ? "on" : "off")), false);
+        Messages.success(c.getSource(), Messages.of(on ? "commands.codeling.nametag.on" : "commands.codeling.nametag.off"));
         return 1;
     }
 
@@ -375,53 +370,114 @@ public final class RobotCommands {
     // <block> is one of our block constant names (stone, oak_planks, white_wool), an item id (iron_ingot) or a number.
     private static int give(CommandContext<CommandSourceStack> c, int slot) throws CommandSyntaxException {
         String block = StringArgumentType.getString(c, "block");
-        int code = block.matches("-?\\d+") ? Integer.parseInt(block) : BlockIds.byName(block);
-        if (code == BlockIds.UNKNOWN) code = ItemIds.byName(block);
-        return send(c, "agent.setItem", List.of(code, IntegerArgumentType.getInteger(c, "count"), slot));
+        int count = IntegerArgumentType.getInteger(c, "count");
+        int code = itemCode(block);
+        RobotCommand command;
+        try {
+            command = RobotCommand.parse("agent.setItem", List.of(code, count, slot));
+        } catch (RobotException | NumberFormatException e) {
+            throw UNKNOWN_ITEM.create(block); // the count and the slot are in range by their arguments
+        }
+        return send(c, command, value -> code == 0 ? done("commands.codeling.give.empty", robot(c), slot)
+                : done("commands.codeling.give", robot(c), count, RobotManager.itemName(code), slot));
+    }
+
+    private static List<String> giveNames() {
+        if (giveNames == null) {
+            giveNames = Stream.concat(BlockIds.modernIds().stream(), ItemIds.modernIds().stream()).filter(ItemIds::inThisVersion)
+                    .map(id -> id.substring("minecraft:".length())).distinct().filter(id -> itemCode(id) != BlockIds.UNKNOWN).toList();
+        }
+        return giveNames;
+    }
+
+    private static int itemCode(String block) {
+        if (block.matches("-?\\d{1,9}")) return Integer.parseInt(block);
+        int code = BlockIds.byName(block);
+        return code == BlockIds.UNKNOWN ? ItemIds.byName(block) : code;
     }
 
     // Opens the inventory screen when the robot is within reach (issue #69), else prints the slots.
     private static int inventory(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         ServerPlayer player = c.getSource().getPlayerOrException();
         RobotEntity robot = RobotManager.robot(key(c));
-        if (robot == null) {
-            String spawn = name(c).isEmpty() ? "/robot spawn" : "/robot spawn " + name(c);
-            c.getSource().sendFailure(Component.literal(robot(name(c)) + " is not loaded (or not spawned: " + spawn + ")"));
-            return 0;
-        }
+        if (robot == null) return absent(c);
         if (robot.level() == player.level() && McCompat.inReach(player, robot, 0) && RobotManager.openInventory(player, robot)) {
             return 1;
         }
-        StringBuilder text = new StringBuilder("Selected slot " + robot.selectedSlot() + (robot.placeOnMove() ? ", place on move on" : ""));
+        List<Component> lines = new ArrayList<>();
+        lines.add(Messages.of("commands.codeling.inventory.slot", robot(c), robot.selectedSlot()));
+        if (robot.placeOnMove()) lines.add(Messages.of("commands.codeling.assist.on", robot(c)));
+        boolean empty = true;
         for (int i = 0; i < robot.inventory().getContainerSize(); i++) {
             ItemStack stack = robot.inventory().getItem(i);
-            if (!stack.isEmpty()) text.append("\n").append(i + 1).append(": ").append(stack.getCount()).append(" ").append(BuiltInRegistries.ITEM.getKey(stack.getItem()));
+            if (stack.isEmpty()) continue;
+            empty = false;
+            lines.add(Messages.of("commands.codeling.inventory.line", i + 1, stack.getCount(), stack.getHoverName()));
         }
-        c.getSource().sendSuccess(() -> Component.literal(text.toString()), false);
+        if (empty) lines.add(Messages.of("commands.codeling.inventory.empty"));
+        Messages.success(c.getSource(), Messages.lines(lines));
         return 1;
     }
 
-    private static int send(CommandContext<CommandSourceStack> c, String op, List<?> args) throws CommandSyntaxException {
-        try {
-            return send(c, op, RobotCommand.parse(op, args));
-        } catch (RobotException e) {
-            c.getSource().sendFailure(Component.literal(op + ": " + e.result()));
-            return 0;
-        }
+    private static Component direction(String name) {
+        return Messages.of("message.codeling.direction." + name);
     }
 
-    private static int send(CommandContext<CommandSourceStack> c, String op, RobotCommand command) throws CommandSyntaxException {
+    /** What the player is told about a finished action: white when it was done, red when the robot could not do it. */
+    private record Reply(boolean done, Component text) {
+    }
+
+    private static Reply done(String key, Object... args) {
+        return new Reply(true, Messages.of(key, args));
+    }
+
+    private static Reply refused(String key, Object... args) {
+        return new Reply(false, Messages.of(key, args));
+    }
+
+    /** The reply of an action that answers true or false. */
+    private static Function<Object, Reply> either(Reply yes, Reply no) {
+        return value -> Boolean.TRUE.equals(value) ? yes : no;
+    }
+
+    private static int send(CommandContext<CommandSourceStack> c, String op, List<?> args, Function<Object, Reply> reply) throws CommandSyntaxException {
+        RobotCommand command;
+        try {
+            command = RobotCommand.parse(op, args);
+        } catch (RobotException e) {
+            return failed(c, e.code);
+        }
+        return send(c, command, reply);
+    }
+
+    private static int send(CommandContext<CommandSourceStack> c, RobotCommand command, Function<Object, Reply> reply) throws CommandSyntaxException {
         CommandSourceStack source = c.getSource();
         RobotLinks.Key key = key(c);
+        if (RobotManager.robot(key) == null) return absent(c);
         try {
             RobotManager.submit(key, RobotManager.queue(key).run(), command, result -> {
-                if (result.ok()) source.sendSuccess(() -> Component.literal(op + ": " + result), false);
-                else source.sendFailure(Component.literal(op + ": " + result));
+                if (!result.ok()) {
+                    failed(c, result.code());
+                    return;
+                }
+                Reply r = reply.apply(result.value());
+                if (r.done()) Messages.success(source, r.text());
+                else Messages.failure(source, r.text());
             });
             return 1;
         } catch (RobotException e) {
-            source.sendFailure(Component.literal(op + ": " + e.result()));
-            return 0;
+            return failed(c, e.code);
         }
+    }
+
+    // The editor shows the code and the validator's text (programs use them, issue #218); a command says it in plain words.
+    private static int failed(CommandContext<CommandSourceStack> c, Result.Code code) {
+        return Messages.failure(c.getSource(), switch (code) {
+            case UNLOADED -> Messages.of("commands.codeling.failed.unloaded", robot(c));
+            case RATE_LIMITED -> Messages.of("commands.codeling.failed.busy", robot(c), "/robot stop");
+            case STOPPED -> Messages.of("commands.codeling.stop", robot(c));
+            case NO_PERMISSION -> Messages.of("commands.codeling.give.no_permission", "codeling:free_items");
+            default -> Messages.of("commands.codeling.failed", robot(c));
+        });
     }
 }

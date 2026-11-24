@@ -8,6 +8,11 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ### Changed
 
+- Messages in the game look and read like Minecraft's own (issue #278): white for done, red for refused, the game's
+  errors for wrong arguments, and above the hotbar when you click a robot that is not yours. The `/robot` commands answer in
+  plain words without internal codes, a missing robot is always explained the same way, and `/robot give`,
+  `/robot skin`, `/robot animation` and `/robot color` suggest what you can write. `/robot status` without a robot and a
+  refused `/codeling signal` name now count as failed commands.
 - The project moved to `github.com/halisonworks/mod-codeling`. The links in the mod list (homepage, sources, issues) and
   the downloads in `scripts/setup-multimc.ps1` use the new address.
 

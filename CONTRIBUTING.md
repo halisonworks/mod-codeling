@@ -194,7 +194,7 @@ A new op touches every layer. Follow an existing one end to end; `agent.freeSlot
    - rejections in `fabric/src/test/java/codeling/robot/RobotCommandTest.java`,
    - a GameTest in `fabric/src/gametest/java/codeling/gametest/RobotGameTests.java`,
    - one line in `e2e/programs/blocks.mjs` keyed by the `blockId`, written the way the editor formats it, with values that differ from the block's defaults. The editor suite fails when a visible block has no line.
-7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/codeling/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/codeling/lang/en_us.json`.
+7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/codeling/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/codeling/lang/en_us.json`, and code sends them with `codeling.Messages` (the kinds are in [docs/architecture.md](docs/architecture.md), "Messages to the player"; `PlayerMessageTest` fails otherwise).
 8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/codeling/robot/RobotCommands.java` and in the same tables.
 
 A change to how old Blocks files load needs a patch rule in `target/editor/extension.ts`, a version bump in `target/package.json` and `target/package-lock.json`, and a fixture in `e2e/fixtures/`.

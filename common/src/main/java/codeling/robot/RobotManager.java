@@ -2,6 +2,7 @@ package codeling.robot;
 
 import codeling.McCompat;
 import codeling.Codeling;
+import codeling.Messages;
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
 import java.util.ArrayDeque;
@@ -271,20 +272,34 @@ public final class RobotManager {
      * the owner already has are always allowed (spawn moves it). A new named robot needs a free name and room under
      * codeling:max_robots, which counts the default robot as one. Lowering the rule never removes robots.
      */
-    public static String spawnRefusal(MinecraftServer server, UUID owner, String name) {
+    public static Component spawnRefusal(MinecraftServer server, UUID owner, String name) {
         RobotLinks links = RobotLinks.get(server);
         if (name.isEmpty() || links.robot(new RobotLinks.Key(owner, name)) != null) return null;
-        String problem = RobotCommand.nameProblem(name);
+        Component problem = nameProblem(name);
         if (problem != null) return problem;
         String same = links.sameName(owner, name);
-        if (same != null) return "You already have a robot called " + same;
+        if (same != null) return Messages.of("message.codeling.name.taken", same);
         int max = Codeling.maxRobots(server);
         if (links.names(owner).size() + 1 < max) return null;
-        return max == 1
-                ? "This world allows one robot per player, so robots cannot have names here (game rule codeling:max_robots is 1). "
-                        + "Use /robot spawn without a name, or ask an operator for /gamerule codeling:max_robots 4"
-                : "This world allows " + max + " robots per player: your default robot and " + (max - 1) + " with a name (game rule "
-                        + "codeling:max_robots is " + max + "). Remove one with /robot remove <name>, or ask an operator to raise the rule";
+        return max == 1 ? Messages.of("commands.codeling.spawn.one", "codeling:max_robots", "/robot spawn")
+                : Messages.of("commands.codeling.spawn.limit", max, max - 1, "codeling:max_robots", "/robot remove");
+    }
+
+    // The same rules as RobotCommand.nameProblem, in the player's language.
+    private static Component nameProblem(String name) {
+        if (RobotCommand.nameProblem(name) == null) return null;
+        return RobotCommand.reservedName(name) ? Messages.of("message.codeling.name.reserved", name) : Messages.of("message.codeling.name.invalid", RobotCommand.MAX_NAME);
+    }
+
+    /** The name of the block with this code, or null when Codeling has no number for it. */
+    static Component blockName(int code) {
+        String id = BlockIds.toModern(code);
+        return id == null ? null : McCompat.block(Identifier.parse(id)).getName();
+    }
+
+    /** The name of the item with this code. */
+    static Component itemName(int code) {
+        return new ItemStack(item(code)).getHoverName();
     }
 
     /** Queues a validated command for the owner's default robot; {@code done} gets the result on a later tick. */
@@ -336,17 +351,17 @@ public final class RobotManager {
      * name everywhere (robots.get, the commands, the tag) and its queued commands stop; the default robot stays the
      * default robot (agent in programs) and only shows the new name. Answers why not, or null. Names are unique per owner.
      */
-    public static String rename(MinecraftServer server, RobotLinks.Key key, String name) {
+    public static Component rename(MinecraftServer server, RobotLinks.Key key, String name) {
         RobotLinks links = RobotLinks.get(server);
         UUID id = links.robot(key);
-        if (id == null) return key.name().isEmpty() ? "No robot. Use /robot spawn" : "You have no robot called " + key.name();
-        String problem = RobotCommand.nameProblem(name);
+        if (id == null) return Messages.absent(server, key.owner(), key.name());
+        Component problem = nameProblem(name);
         if (problem != null) return problem;
         String same = links.sameName(key.owner(), name);
-        if (same != null && !same.equals(key.name())) return "You already have a robot called " + same;
+        if (same != null && !same.equals(key.name())) return Messages.of("message.codeling.name.taken", same);
         RobotEntity robot = LOADED.get(key);
         if (key.name().isEmpty()) {
-            if (robot == null) return "Robot is not loaded";
+            if (robot == null) return Messages.absent(server, key.owner(), key.name());
             robot.setCustomName(Component.literal(name));
             robot.setCustomNameVisible(true);
             return null;
@@ -367,13 +382,13 @@ public final class RobotManager {
     /** A vanilla name tag used on a robot (issue #151): the owner or an op renames it, and the tag is used up. */
     static void nameTag(ServerPlayer player, RobotEntity robot, ItemStack stack) {
         if (!mayOpen(player, robot)) {
-            player.sendSystemMessage(Component.literal("This is not your robot."));
+            Messages.actionBar(player, Messages.of("message.codeling.not_yours"));
             return;
         }
         if (robot.key() == null) return; // a stale copy, removed this tick
-        String refusal = rename(player.level().getServer(), robot.key(), stack.get(DataComponents.CUSTOM_NAME).getString());
+        Component refusal = rename(player.level().getServer(), robot.key(), stack.get(DataComponents.CUSTOM_NAME).getString());
         if (refusal != null) {
-            player.sendSystemMessage(Component.literal(refusal));
+            Messages.actionBar(player, refusal);
             return;
         }
         if (!player.hasInfiniteMaterials()) stack.shrink(1);
@@ -384,12 +399,12 @@ public final class RobotManager {
      * or drops at the player's feet when the inventory is full (the way a closed crafting grid gives items back), so
      * nothing is lost. Only a loaded robot: an unloaded one holds the only copy of its items. Answers why not, or null.
      */
-    public static String remove(ServerPlayer player, String name) {
+    public static Component remove(ServerPlayer player, String name) {
         RobotLinks.Key key = new RobotLinks.Key(player.getUUID(), name);
         RobotLinks links = RobotLinks.get(player.level().getServer());
-        if (name.isEmpty() || links.robot(key) == null) return "You have no robot called " + name;
+        if (name.isEmpty() || links.robot(key) == null) return Messages.absent(player.level().getServer(), key.owner(), name);
         RobotEntity robot = LOADED.get(key);
-        if (robot == null) return "Robot " + name + " is not loaded. Go near it, or bring it to you with /robot spawn " + name + ", then remove it";
+        if (robot == null) return Messages.absent(player.level().getServer(), key.owner(), name);
         RobotQueue queue = QUEUES.remove(key);
         if (queue != null) queue.clear(Result.Code.STOPPED, "robot " + name + " was removed");
         for (int i = 0; i < robot.inventory().getContainerSize(); i++) {
@@ -408,7 +423,7 @@ public final class RobotManager {
      */
     public static boolean openInventory(ServerPlayer player, RobotEntity robot) {
         if (!mayOpen(player, robot)) {
-            player.sendSystemMessage(Component.literal("This is not your robot."));
+            Messages.actionBar(player, Messages.of("message.codeling.not_yours"));
             return false;
         }
         player.openMenu(new SimpleMenuProvider((id, inventory, p) -> new RobotMenu(id, inventory, robot), robot.getDisplayName()));
