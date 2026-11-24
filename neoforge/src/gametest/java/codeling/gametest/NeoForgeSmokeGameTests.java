@@ -51,6 +51,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -181,8 +182,20 @@ public final class NeoForgeSmokeGameTests {
     private static void robotPlacesBlock(GameTestHelper helper) {
         UUID owner = spawn(helper);
         RobotManager.robot(owner).inventory().setItem(0, new ItemStack(Items.STONE, 5));
+        // Issue #53: the accessor from codeling-common.mixins.json; an item kept for somebody else stays.
+        for (UUID keptFor : new UUID[] {UUID.randomUUID(), owner}) {
+            ItemEntity item = new ItemEntity(helper.getLevel(), 0, 0, 0, new ItemStack(keptFor == owner ? Items.GOLD_INGOT : Items.DIAMOND), 0, 0, 0);
+            item.setPos(Vec3.atBottomCenterOf(helper.absolutePos(START)));
+            item.setNoGravity(true);
+            item.setTarget(keptFor);
+            helper.getLevel().addFreshEntity(item);
+        }
+        List<Result> collect = send(helper, owner, "agent.collectAll");
         List<Result> results = send(helper, owner, "agent.place", RobotCommand.FORWARD);
         helper.succeedWhen(() -> {
+            helper.assertValueEqual(collect, List.of(Result.ok(null)), "collect");
+            helper.assertValueEqual(RobotManager.robot(owner).inventory().countItem(Items.GOLD_INGOT), 1, "the owner's item");
+            helper.assertValueEqual(RobotManager.robot(owner).inventory().countItem(Items.DIAMOND), 0, "somebody else's item");
             helper.assertValueEqual(results, List.of(Result.ok(true)), "results");
             helper.assertBlockPresent(Blocks.STONE, START.south());
             helper.assertValueEqual(RobotManager.robot(owner).inventory().getItem(0).getCount(), 4, "stone left");
