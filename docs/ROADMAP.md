@@ -1,6 +1,6 @@
 # Product roadmap and milestone allocation
 
-Status: proposed planning baseline, 24 November 2026. Development baseline: 0.0.5; this does not assert that a 0.0.5 release has been published. Snapshot of 192 open issues; no dates or staffing commitments. Owner review is required before release scope is frozen.
+Status: proposed planning baseline, 24 November 2026. Development baseline: 0.0.5, published as a pre-release on 24 November 2026 (tag `v0.0.5`). Snapshot of 192 open issues; no dates or staffing commitments. Owner review is required before release scope is frozen.
 
 ## Product intent and boundaries
 
