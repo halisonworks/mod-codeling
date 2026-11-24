@@ -6,6 +6,13 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-11-24
+
+The fifth pre-release, for testing.
+
+**Use the same Codeling version on the server and on every client.** Mixing versions (for example a 0.0.4 client
+on a 0.0.5 server) is not supported and has not been tested.
+
 ### Added
 
 - Game rule `codeling:pause_on_lost_focus` (issue #297): `false` keeps the game from pausing when its window loses focus, in
