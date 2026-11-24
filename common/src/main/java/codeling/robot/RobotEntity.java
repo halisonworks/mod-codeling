@@ -82,14 +82,18 @@ public class RobotEntity extends Entity {
 
     /**
      * Sets which robot this is. A named robot shows its name as a vanilla custom name (the name tag); the default
-     * robot keeps whatever display name a name tag gave it.
+     * robot shows the name its owner gave it, if any (RobotManager.showDefaultName).
      */
     void setKey(RobotLinks.Key key) {
         this.key = key;
-        if (!key.name().isEmpty() && !Component.literal(key.name()).equals(getCustomName())) {
-            setCustomName(Component.literal(key.name()));
-            setCustomNameVisible(true);
-        }
+        if (!key.name().isEmpty()) showName(key.name());
+    }
+
+    /** Shows {@code name} over the robot; a name already there stays hidden or shown as it was. */
+    void showName(String name) {
+        if (Component.literal(name).equals(getCustomName())) return;
+        setCustomName(Component.literal(name));
+        setCustomNameVisible(true);
     }
 
     /** The owner's player name, or empty when it was never known. */

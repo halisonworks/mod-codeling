@@ -28,9 +28,8 @@ class PlayerMessageTest {
     private static final List<String> ALLOWED = List.of(
             "player.sendSystemMessage(Component.literal(c.text()))",
             "lines.add(Component.literal(entity.said()))",
-            "!Component.literal(key.name()).equals(getCustomName())",
-            "setCustomName(Component.literal(key.name()))",
-            "robot.setCustomName(Component.literal(name))",
+            "if (Component.literal(name).equals(getCustomName())) return;",
+            "setCustomName(Component.literal(name))",
             "Component.translatable(\"hud.codeling.camera\", robot.getDisplayName())");
     private static final Pattern KEY = Pattern.compile("\"((?:commands|message)\\.codeling\\.[a-z_.]+)\"");
 

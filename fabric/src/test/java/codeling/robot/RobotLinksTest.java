@@ -64,6 +64,30 @@ class RobotLinksTest {
         assertTrue(loaded.names(owner).isEmpty());
     }
 
+    // Issue #293: the default robot's own name, beside the links, which stay as they were.
+    @Test
+    void theDefaultRobotsNameSurvivesSaveAndLoad() {
+        UUID owner = UUID.randomUUID(), robot = UUID.randomUUID();
+        RobotLinks links = decode(new JsonObject());
+        assertTrue(links.commandNames(owner).isEmpty(), "no robot, nothing to suggest");
+        links.set(owner, robot);
+        assertEquals(java.util.List.of("agent"), links.commandNames(owner));
+        links.setDefaultName(owner, "Bob");
+        links.set(new RobotLinks.Key(owner, "Miner"), UUID.randomUUID());
+        RobotLinks loaded = decode(RobotLinks.CODEC.encodeStart(JsonOps.INSTANCE, links).getOrThrow());
+        assertEquals("Bob", loaded.defaultName(owner));
+        assertEquals(new RobotLinks.Key(owner, ""), loaded.key(robot), "its key is still the empty name");
+        assertEquals(java.util.List.of("agent", "Bob", "Miner"), loaded.commandNames(owner));
+        assertEquals("", loaded.resolve(owner, "agent"));
+        assertEquals("", loaded.resolve(owner, "Bob"));
+        assertEquals("Miner", loaded.resolve(owner, "Miner"));
+        assertEquals("Other", loaded.resolve(owner, "Other"));
+        assertEquals("Bob", loaded.sameName(owner, "bob"));
+        assertNull(loaded.sameName(owner, "bob", new RobotLinks.Key(owner, "")), "a robot may keep its own name");
+        loaded.set(new RobotLinks.Key(owner, "agent"), UUID.randomUUID());
+        assertEquals("agent", loaded.resolve(owner, "agent"), "a named robot goes first");
+    }
+
     @Test
     void readsTheOldBareMap() {
         UUID owner = UUID.randomUUID(), robot = UUID.randomUUID();
