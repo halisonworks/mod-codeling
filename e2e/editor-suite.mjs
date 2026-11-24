@@ -4,7 +4,8 @@
 //      blocks, no changed or lost arguments, and a test program for every block (programs/blocks.mjs);
 //   2. small MakeCode-style example programs (programs/examples.mjs) round-trip the same way and run unchanged in the
 //      simulator against the relay's fake answers, with the robot log they must produce;
-//   3. pause and forever (issue #215): the times in the robot log, a forever that repeats, and Stop during a pause;
+//   3. pause and forever (issue #215): the times in the robot log, a forever that repeats, and Stop during a pause; the
+//      robot log keeps its newest 1000 lines (issue #283);
 //   4. position math (issue #219): distance, subtract, scale, sort by distance and nearest give the right numbers,
 //      the player calls (issue #26) and go to robot (issue #243) send their ops and use the relay's answers; chat and death events (issue #27)
 //      run their handlers with the numbers, keep the program running until Stop, and runChatCommand sends nothing;
@@ -179,6 +180,26 @@ async function timingSection(page) {
     check(text.filter(l => l === "say: loop").length >= 3, "forever", `the forever loop did not repeat: ${text.join(" | ")}`);
     check(after.length === atStop.length && !after.some(l => l.endsWith("too late")), "stop",
         `lines after Stop: ${after.slice(atStop.length).join(" | ") || "none"}`);
+}
+
+// Issue #283: the robot log keeps its newest 1000 lines.
+const LOG_LINES = 1000;
+const LOG_LIMIT = `for (let index = 0; index < 1050; index++) {
+    console.log("line " + index)
+}
+console.log("end")
+`;
+
+async function logLimitSection(page) {
+    step("robot log: the newest 1000 lines stay");
+    await editor.toJavaScript(page, true);
+    await editor.setSource(page, "ts", LOG_LIMIT);
+    await editor.start(page);
+    const log = await until(page, () => editor.robotLog(page), lines => lines.includes("say: end"), "the program to log its last line");
+    await editor.stop(page);
+    check(log.length === LOG_LINES, "log limit", `the robot log has ${log.length} lines, expected ${LOG_LINES}`);
+    check(log[0] === "say: line 51" && log[LOG_LINES - 1] === "say: end", "log limit",
+        `the robot log goes from "${log[0]}" to "${log[log.length - 1]}", expected the newest lines in order`);
 }
 
 // Issue #219: known positions give known answers. pos(0, 64, 0) against a world position goes through
@@ -910,6 +931,7 @@ async function main() {
         await blocksSection(page);
         await examplesSection(page);
         await timingSection(page);
+        await logLimitSection(page);
         await positionMathSection(page);
         await playerSection(page);
         await goToRobotSection(page);
