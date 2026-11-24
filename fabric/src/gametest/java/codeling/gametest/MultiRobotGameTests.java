@@ -272,8 +272,9 @@ public class MultiRobotGameTests {
         helper.assertTrue(RobotManager.robot(key(player, "Miner")) == miner && miner.inventory().getItem(0).getCount() == 3, "Miner stays");
         helper.assertTrue(suggested(player, "robot come ").equals(List.of("Miner")), "only Miner is suggested: " + suggested(player, "robot come "));
         helper.assertTrue(!run(player, "robot list").toString().contains("Bob"), "not in the list");
-        helper.assertTrue(run(player, "robot status").toString().contains("You have no robot"), "no default robot");
-        helper.assertTrue(run(player, "robot remove agent").toString().contains("You have no robot"), "removed for good");
+        for (String command : List.of("robot status", "robot remove agent")) { // issue #327: the player still has Miner
+            helper.assertValueEqual(run(player, command), List.of("You have no default robot. Use /robot spawn to get one"), command);
+        }
         // Back with its name and look, and empty.
         run(player, "robot spawn");
         RobotEntity again = RobotManager.robot(player.getUUID());
