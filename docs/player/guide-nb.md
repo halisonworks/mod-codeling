@@ -111,6 +111,36 @@ En pause holder bare igjen koden den står i. Kode i "kjør samtidig" og i andre
 Et program med "gjenta for alltid" slutter aldri av seg selv: trykk på stoppknappen i editoren, eller skriv
 `/robot stop` i spillet. Begge stopper det med en gang, også midt i en pause.
 
+## Lag din egen funksjon
+
+En funksjon er en bit av programmet med et navn du velger selv. Den kjører ikke bare fordi du har laget den: programmet
+må også kjøre (kalle) den.
+
+1. Åpne "Avansert" og så "Funksjoner", og trykk på "Lag en funksjon...". Skriv et navn, for eksempel `buildWall`, og
+   trykk på "Fullført".
+2. Dra robotblokker inn i "funksjon buildWall".
+3. Åpne "Funksjoner" igjen og dra ut "kjør buildWall": inn i "ved start" (dra den ut av Løkker først) for å kjøre den når du
+   trykker på Kjør, eller inn i "når chatkommando" (fra Spiller) for å kjøre den når du skriver i chatten i
+   spillet.
+4. Trykk på Kjør-knappen.
+
+Denne funksjonen har et tall, `length` ("Legg til en parameter", "Nummer"). Trykk på Kjør én gang. Skriv så `wall 5` i
+chatten i spillet, og igjen så ofte du vil, med det tallet du vil:
+
+```
+function buildWall(length: number) {
+    agent.move(SixDirection.Forward, length)
+    agent.turn(TurnDirection.Left)
+}
+player.onChat("wall", function (num1, num2, num3) {
+    buildWall(num1)
+})
+```
+
+`wall` er nøkkelordet i chatten, ikke navnet på funksjonen: kallet inni "når chatkommando" kobler dem sammen. Programmet
+må kjøre, med fanen åpen i nettleseren. Et stoppet program kan ikke startes fra spillet. Mer om chatkommandoer:
+[Reager på chat og død](#reager-på-chat-og-død).
+
 ## Gå gjennom et program steg for steg
 
 Knappen med insektet under simulatoren slår på feilsøkingsmodus. Programmet starter og stopper før sin første

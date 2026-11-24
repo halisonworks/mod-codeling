@@ -109,6 +109,34 @@ A pause only holds the code it is in. Code in "run in parallel" and in other "fo
 with "forever" never ends by itself: press the stop button in the editor, or type `/robot stop` in the game. Both
 stop it at once, also in the middle of a pause.
 
+## Make your own function
+
+A function is a piece of program with a name you choose. Making it does not run it: your program must also call it.
+
+1. Open "Advanced", then "Functions", and press "Make a Function...". Write a name, for example `buildWall`, and press
+   "Done".
+2. Drag robot blocks into "function buildWall".
+3. Open "Functions" again and drag "call buildWall" out: into "on start" (drag that out of Loops first) to run it when you
+   press Run, or into "on chat command" (from Player) to run it when you type in the game's chat.
+4. Press Run.
+
+This function has a number, `length` ("Add a parameter", "Number"). Press Run once. Then type `wall 5` in the game's
+chat, and again whenever you want, with the number you like:
+
+```
+function buildWall(length: number) {
+    agent.move(SixDirection.Forward, length)
+    agent.turn(TurnDirection.Left)
+}
+player.onChat("wall", function (num1, num2, num3) {
+    buildWall(num1)
+})
+```
+
+`wall` is the chat keyword, not the function's name: the call inside "on chat command" connects them. The program must be
+running, with its browser tab open; a stopped program cannot be started from the game. More about chat commands:
+[React to chat and death](#react-to-chat-and-death).
+
 ## Step through a program
 
 The bug button under the simulator turns on debug mode. The program starts and stops before its first command.
