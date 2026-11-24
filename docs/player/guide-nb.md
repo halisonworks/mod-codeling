@@ -660,12 +660,33 @@ Feilmeldingene er på engelsk.
 | "Not in a world" | Åpne en verden først, og trykk Kjør igjen. |
 | "This server does not have Codeling installed" | Serveren mangler moden. Spør den som eier serveren, eller spill i enspiller. |
 | Roboten gjør ingenting mens du er i nettleseren, og loggen sier "Minecraft is paused" | Pausemenyen er åpen i spillet. Gå tilbake til spillet og lukk den; roboten fortsetter av seg selv. |
+| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Skriv `/robot spawn`, eller gå nærmere roboten. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Sjekk navnet med `/robot list`. Gå nærmere roboten, eller skriv `/robot spawn Miner`. |
 | "This world allows one robot per player" | Roboter med navn trenger spillregelen `codeling:max_robots` over 1. Spør en operatør. |
-| `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Codeling. Lukk den og start Minecraft på nytt. I spillets logg står det "Codeling could not start the editor server on port 25580". |
+| `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Codeling. Lukk den og start Minecraft på nytt. I spillets logg står det "Codeling could not start the editor server on port 25580". Slik finner du programmet på Windows: skriv `netstat -ano \| findstr 25580` i et kommandovindu. Det siste tallet er PID-en i Oppgavebehandling (Detaljer). På macOS og Linux skriver du `lsof -i :25580`. |
+| `/codeling` er en ukjent kommando | Ditt eget spill har ikke Codeling. Installer samme versjon som serveren, for samme modlaster og Minecraft-versjon. |
+| Serveren avviser deg når du blir med, og nevner Codeling | Ditt eget spill har ikke Codeling. Installer det som i raden over. |
+| En brannmur eller et antivirusprogram spør om Minecraft eller Java | Codeling trenger det ikke. Editoren kan bare nås fra din egen datamaskin, så åpne aldri port 25580 i en brannmur eller ruter. Minecraft selv kan spørre når du åpner en verden for andre. |
+| Programmene dine er borte | De lagres i én nettleser på én datamaskin. Åpne editoren i nettleseren du brukte før. Se [Spørsmål og svar](#spørsmål-og-svar). |
 | Blokkene ser gamle ut etter en oppdatering | Trykk Ctrl+F5 i nettleseren. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, en lukket fane eller at du forlot verdenen stoppet det. Trykk Kjør igjen. |
+
+## Spørsmål og svar
+
+**Hvor kjører koden min?** I din egen nettleser, på din egen datamaskin. Spillet får bare kommandoene, for eksempel «flytt
+fremover». På en server sjekker serveren hver kommando og flytter roboten. Programmet ditt sendes aldri til serveren.
+
+**Hvem kan styre roboten min?** Bare du kan programmere den. Operatører på serveren kan åpne inventaret og stoppe alle
+roboter. Se [Flerspiller](#flerspiller).
+
+**Hvor lagres programmene mine?** I nettleseren din, på datamaskinen din, og ikke i verdenen. En annen nettleser, en annen
+datamaskin eller et privat vindu har dem ikke. Sletter du nettleserens data for editoren, slettes de. Vil du ha en
+kopi, trykker du på lagre-knappen ved siden av prosjektnavnet. Da får du en `.mkcd`-fil. «Importer» på editorens
+hjemskjerm åpner den igjen.
+
+**Virker det uten nett?** Ja, når Codeling er installert. Editoren følger med moden og trenger ikke internett. Bare noen
+lenker, for eksempel til vilkår og personvern, går til internett. En server på internett trenger nett som vanlig.
 
 ## Meld fra om et problem
 
