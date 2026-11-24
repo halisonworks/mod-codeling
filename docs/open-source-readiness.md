@@ -305,9 +305,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 - **Current state.**
   - Editor: English in the `block="..."` strings of `target/sim/api.ts`; Norwegian in
     `target/locales/nb/codeling/core-strings.json` and `target-strings.json`. `BlockEnumTest` fails when a block has
-    no Norwegian label. pxt's own `nb` UI strings (`target/locales/nb/strings.json`, `webstrings.json`) are a
-    one-time snapshot from makecode.com; `target/locales/README.md` marks it `shortcut:` and says the licence for
-    reuse is not verified.
+    no Norwegian label. The `nb` UI strings for pxt's own texts (`target/locales/nb/strings.json`) are our own since
+    issue #59.
   - In game: only `common/src/main/resources/assets/codeling/lang/en_us.json` (7 keys). docs/architecture.md section
     11 plans an `nb_no.json` that does not exist. Command replies are hard-coded English: `git grep -c
     Component.literal` counts 23 in `RobotCommands.java` and 33 in `common/` overall, against 2
