@@ -20,6 +20,10 @@ Every user-visible change to Codeling is listed here. The format follows
   thrown or dropped a moment ago. `agent.drop` followed at once by `agent.collectAll` leaves the item, so wait half a second
   first. Breaking a block still takes its drops at once.
 
+### Fixed
+
+- The editor is Norwegian from the start in a browser set to Norwegian (issue #315). Before, most of them got English.
+
 ## [0.0.4] - 2026-11-24
 
 The fourth pre-release, for testing.
