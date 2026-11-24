@@ -85,6 +85,9 @@ tasks.named<ProcessResources>(editorResources) {
             "different version of Microsoft MakeCode." to "different version of the Codeling editor.",
             // Screen-reader heading on the home screen.
             "lf(\"MakeCode Home\")" to "lf(\"Codeling Home\")",
+            // Issue #315: browsers say nb-NO, nn-NO or no, but the editor's Norwegian is locales/nb. Also for pxt's cookie.
+            "r=s||i||a||p.defaultLocale||navigator.userLanguage||navigator.language;" to
+                "r=s||i||a||p.defaultLocale||navigator.userLanguage||navigator.language,/^(nb|nn|no)(-|$)/i.test(r||\"\")&&(r=\"nb\");",
             // Issue #217: pxt disables Stop in debug mode and runs the program again when the player leaves it, so the
             // robot would do the whole program unasked. Leaving debug mode stops the program instead. The restart also
             // cleared the breakpoints and made the text editor editable again (setBreakpointsMap outside debug mode).
