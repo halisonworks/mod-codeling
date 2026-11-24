@@ -1,6 +1,7 @@
 package codeling.client;
 
 import codeling.Codeling;
+import codeling.Messages;
 import codeling.net.Protocol;
 import codeling.net.RelayPayloads;
 import codeling.relay.EditorLauncher;
@@ -99,14 +100,13 @@ public final class CodelingClient {
         Minecraft client = Minecraft.getInstance();
         // The click copies the link; the chat log gets only the visible text.
         //? if >=1.21.5 {
-        Component copy = Component.literal("[copy the editor link]")
+        Component copy = Messages.of("message.codeling.editor.copy")
                 .withStyle(s -> s.withClickEvent(new ClickEvent.CopyToClipboard(relay.editorUrl())).withUnderlined(true));
         //?} else {
-        /*Component copy = Component.literal("[copy the editor link]")
+        /*Component copy = Messages.of("message.codeling.editor.copy")
                 .withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, relay.editorUrl())).withUnderlined(true));
         *///?}
-        Component message = Component.literal("Opening the Codeling editor in your browser. If it does not open, ")
-                .append(copy).append(" and paste it into the address bar.");
+        Component message = Messages.of("message.codeling.editor.opening", copy);
         //? if >=26.2 {
         client.gui.hud.getChat().addClientSystemMessage(message);
         //?} else if >=26.1 {

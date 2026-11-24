@@ -626,7 +626,7 @@ These keep the game fast for everyone.
   only ever picks one of your own robots.
 - `/gamerule codeling:max_robots <1-16>` sets how many robots each player may have (1, the default, is one robot
   without a name).
-- Only you and server ops can open your robot's inventory. Others see "This is not your robot."
+- Only you and server ops can open your robot's inventory. Others see "This is not your robot" above the hotbar.
 - In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
 - A program's `player.say` goes to its own player only, and `player.teleport` works on a server only for ops.

@@ -635,7 +635,7 @@ Grensene holder spillet raskt for alle.
   navn velger alltid bare en av dine egne roboter.
 - `/gamerule codeling:max_robots <1-16>` bestemmer hvor mange roboter hver spiller kan ha (1, standard, er én robot
   uten navn).
-- Bare du og operatører på serveren kan åpne inventaret til roboten din. Andre får beskjeden "This is not your robot."
+- Bare du og operatører på serveren kan åpne inventaret til roboten din. Andre får beskjeden "This is not your robot" over hurtiglinjen.
 - I overlevelse samler roboten sine egne ressurser. "robot gi" og `/robot give` virker bare i kreativ modus, eller når verdenen har `/gamerule codeling:free_items true`. Ellers legger du ting i roboten gjennom inventarskjermen dens.
 - Operatører kan stoppe alle roboter med `/robot stop all`.
 - `player.say` i et program går bare til spilleren som kjører det, og `player.teleport` virker på en server bare for operatører.

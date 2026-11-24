@@ -105,8 +105,8 @@ public final class ServerRelay {
     private static boolean camera(ServerPlayer player, RobotLinks.Key key, Protocol.Cmd cmd, Consumer<String> out) throws RobotException {
         if (cmd.command().op() != RobotCommand.Op.CAMERA) return false;
         if (cmd.run() != RobotManager.queue(player.getUUID()).run()) throw new RobotException(Result.Code.STOPPED, "run " + cmd.run() + " is no longer active");
-        String refusal = RobotCamera.set(player, RobotManager.robot(key), cmd.command().a());
-        out.accept(Protocol.reply(cmd.id(), refusal == null ? Result.ok(null) : Result.error(Result.Code.NO_PERMISSION, refusal)));
+        net.minecraft.network.chat.Component refusal = RobotCamera.set(player, RobotManager.robot(key), cmd.command().a());
+        out.accept(Protocol.reply(cmd.id(), refusal == null ? Result.ok(null) : Result.error(Result.Code.NO_PERMISSION, refusal.getString())));
         return true;
     }
 
