@@ -48,7 +48,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 ### 1. SECURITY.md and private vulnerability reporting (Must, S)
 
 - **Current state.** No `SECURITY.md` in the repo or in `.github/` (`git ls-files`). GitHub's community profile
-  (`gh api repos/Eirahub/MinecraftCodeling/community/profile`) lists only README and LICENSE.
+  (`gh api repos/halisonworks/mod-codeling/community/profile`) lists only README and LICENSE.
   `gh api .../private-vulnerability-reporting` answers `{"enabled": false}`. Secret scanning and push protection are
   `disabled` (`security_and_analysis` on the repo).
 - **Why it matters.** Codeling runs an HTTP and WebSocket server on the player's machine (`core/.../RelayServer.java`)
@@ -61,7 +61,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 
 ### 10. CODE_OF_CONDUCT.md (Should, S)
 
-- **Current state.** Missing (`git ls-files`, community profile `code_of_conduct: null`).
+- **Current state.** Done (issue #269): `CODE_OF_CONDUCT.md`, Contributor Covenant 2.1, with the contact form on
+  halison.io as the contact.
 - **Why it matters.** The audience includes children and parents (docs/player/guide-en.md: "A parent can do the
   install"). A code of conduct with a contact address sets expectations for issues and pull requests.
 - **Action.** Add Contributor Covenant 2.1 with a contact method that is not a personal address (for example a
@@ -69,10 +70,10 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 
 ### 11. Issue and pull request templates (Should, S)
 
-- **Current state.** No `.github/ISSUE_TEMPLATE/` and no `.github/pull_request_template.md`. The repo has 24 labels
-  already (`type: feature`, `area: relay`, `P0` to `P3`, and so on), but nothing applies them.
+- **Current state.** Done (issue #270): issue forms for bug and idea, a `config.yml` with links to the guides and to
+  private reporting, and a pull request template. Discussions are off, so questions go to the guides.
 - **Why it matters.** A bug report for this mod is only useful with the Minecraft version, loader and version, mod
-  version, the editor's log line and the game log (`codeling/relay` logger). Templates ask for that up front.
+  version, the editor's log line and the report (`/codeling report`, issue #279). Templates ask for that up front.
 - **Action.** Issue forms (YAML) for bug report (versions, loader, singleplayer or server, steps, log), feature or
   block request, and a `config.yml` that points questions to Discussions or the guide. A PR template with: base branch
   is `develop`, linked issue, tests run (from the table in `CONTRIBUTING.md`), `check-text.sh` passed, docs and `nb`
@@ -186,12 +187,13 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 
 ### 23. Repository name contains "Minecraft" (Nice, S)
 
-- **Current state.** The repo is `Eirahub/MinecraftCodeling`. The product name is Codeling, and the project rule is
+- **Current state.** The repo was `Eirahub/MinecraftCodeling`. The product name is Codeling, and the project rule is
   that "Minecraft" must not be part of a product name.
 - **Why it matters.** The repo name is not the product name, but it appears in every link. Mojang's usage guidelines
   allow saying a mod is "for Minecraft"; whether a repo name counts as a product name is a judgment call.
 - **Action.** Decide once and write it down. If it should change, rename to `codeling` or `codeling-mod` (GitHub
   redirects the old URL).
+- **Done.** The repo is now `halisonworks/mod-codeling`; GitHub redirects the old URL.
 
 ## Documentation
 
@@ -206,7 +208,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 
 ### 12. Troubleshooting and FAQ (Should, S)
 
-- **Current state.** docs/player/guide-en.md and guide-nb.md have a troubleshooting table (expired link, not in a
+- **Current state.** Done (issue #271): the rows and the FAQ below are in both guides. Before, docs/player/guide-en.md and guide-nb.md had a troubleshooting table (expired link, not in a
   world, server without Codeling, pause menu, robot not loaded, max robots, port 25580 busy, old blocks after an
   update, program stopped). Not covered (checked with `git grep` for `F3`, `firewall`, `antivirus` in `docs/player`):
   - F3+P (pause on lost focus) for the case where no editor session is linked yet. README "From the browser to the
@@ -344,14 +346,14 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 - **Current state.** `THIRD-PARTY-NOTICES.md` has the trademark statement, pxt-core's MIT text, pxt-sample (full
   text in `target/LICENSE-pxt-sample.txt`) and a Fabric note. It says itself that the libraries pxt bundles into the
   static editor (Blockly, Apache-2.0; Semantic UI, MIT; Monaco, MIT; and others) have no complete list yet
-  (issue #61). docs/architecture.md section 4 says Blockly's LICENSE and NOTICE must ship with the jar. The `nb`
+  (issue #199). docs/architecture.md section 4 says Blockly's LICENSE and NOTICE must ship with the jar. The `nb`
   editor strings have an unverified licence (item 17). NeoForge (LGPL-2.1, linked, not bundled) is not mentioned;
   that is fine legally but worth a line for symmetry with Fabric.
 - **Why it matters.** The jars redistribute `target/built/packaged` under `codeling-editor/`. Apache-2.0 requires
   its licence and any NOTICE text to travel with redistributed copies.
 - **Action.** Generate the list from `target/node_modules` and the files that end up in `built/packaged` (for
   example with `license-checker` or pxt's own third-party file if it ships one), add the licence texts to
-  `THIRD-PARTY-NOTICES.md`, and copy that file and `LICENSE` into the jar (`META-INF/`). Close issue #61. Settle the
+  `THIRD-PARTY-NOTICES.md`, and copy that file and `LICENSE` into the jar (`META-INF/`). Close issue #199. Settle the
   `nb` strings.
 
 ## Ordered action list
@@ -360,7 +362,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 2. Add rulesets for `main` and `develop` with the CI jobs as required checks; consider `develop` as default branch.
 3. Fill in the repo description, topics and social preview.
 4. Add links and an icon to `fabric.mod.json` and `neoforge.mods.toml`.
-5. Complete `THIRD-PARTY-NOTICES.md` for the bundled editor (issue #61), ship it in the jar, and settle the licence
+5. Complete `THIRD-PARTY-NOTICES.md` for the bundled editor (issue #199), ship it in the jar, and settle the licence
    of the `nb` pxt strings.
 6. Add screenshots and a GIF to the README.
 7. Add `CHANGELOG.md`, write down the versioning rule, and create a tag-driven `release.yml`.

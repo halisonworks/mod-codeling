@@ -109,6 +109,34 @@ A pause only holds the code it is in. Code in "run in parallel" and in other "fo
 with "forever" never ends by itself: press the stop button in the editor, or type `/robot stop` in the game. Both
 stop it at once, also in the middle of a pause.
 
+## Make your own function
+
+A function is a piece of program with a name you choose. Making it does not run it: your program must also call it.
+
+1. Open "Advanced", then "Functions", and press "Make a Function...". Write a name, for example `buildWall`, and press
+   "Done".
+2. Drag robot blocks into "function buildWall".
+3. Open "Functions" again and drag "call buildWall" out: into "on start" (drag that out of Loops first) to run it when you
+   press Run, or into "on chat command" (from Player) to run it when you type in the game's chat.
+4. Press Run.
+
+This function has a number, `length` ("Add a parameter", "Number"). Press Run once. Then type `wall 5` in the game's
+chat, and again whenever you want, with the number you like:
+
+```
+function buildWall(length: number) {
+    agent.move(SixDirection.Forward, length)
+    agent.turn(TurnDirection.Left)
+}
+player.onChat("wall", function (num1, num2, num3) {
+    buildWall(num1)
+})
+```
+
+`wall` is the chat keyword, not the function's name: the call inside "on chat command" connects them. The program must be
+running, with its browser tab open; a stopped program cannot be started from the game. More about chat commands:
+[React to chat and death](#react-to-chat-and-death).
+
 ## Step through a program
 
 The bug button under the simulator turns on debug mode. The program starts and stops before its first command.
@@ -221,7 +249,7 @@ Slots are the robot's 27 inventory places, numbered 1 to 27.
 | agent redstone power (direction) | `agent.redstonePower(SixDirection.Forward)` | Redstone power, 0 to 15. |
 | on agent redstone powered | `agent.onRedstonePowered(function () { })` | Runs its code each time the block your robot stands in gets a redstone signal, for example when you flip a lever next to it. See "React to blocks, redstone and the day" below. |
 | agent position | `agent.getPosition()` | Where the robot is. |
-| agent orientation | `agent.getOrientation()` | Which way it looks, in degrees. |
+| agent orientation | `agent.getOrientation()` | Which way it looks, in degrees: south 0, west 90, north -180, east -90. |
 | agent find nearest (block) within (radius) | `agent.findNearest(Block.OakLog, 16)` | The nearest block of that kind, or nothing. |
 | agent find nearest (category) within (radius) | `agent.findNearestCategory(BlockCategory.Logs, 16)` | Same, for logs, leaves, ores, planks, wool or flowers. |
 
@@ -486,7 +514,8 @@ it up, for example `/gamerule codeling:max_robots 4`. Turning it down again neve
 - `/robot list` shows your robots and where they are. `/robot remove Miner` removes one: everything it carries goes
   into your inventory, and what does not fit drops at your feet. The robot must be loaded (close to you).
 - The chat commands for one robot take the name at the end: `/robot move forward 3 Miner`, `/robot come Miner`,
-  `/robot inventory Miner`, `/robot camera Miner`. Without a name they are for your default robot.
+  `/robot inventory Miner`, `/robot camera Miner`. Without a name they are for your default robot. `agent` is its name
+  in the commands, and so is the name you give it: `/robot skin mint agent`. Press Tab to see your robots' names.
 - `/robot stop` stops all your robots and your program. `/robot stop Miner` stops only what Miner is doing.
 
 In a program, `robots.get("Miner")` is the robot called Miner. It can do everything `agent` can:
@@ -538,8 +567,8 @@ stop the program with an error that you can catch (see "Errors, and checking you
 ### Name tags
 
 A robot with a name shows it over its head. Rename it with `/robot rename Miner Digger`, or with a name tag item
-from an anvil (right-click the robot with it). Only the owner and ops can rename a robot. `/robot rename Bob` (one
-name) gives your default robot a tag; it is still `agent` in programs.
+from an anvil (right-click the robot with it). Only the owner and ops can rename a robot. `/robot rename agent Bob`
+gives your default robot a name. The commands then take both `agent` and `Bob`; in programs it is still `agent`.
 
 Look at a robot up close and you also see whose robot it is. `/robot nametag off` hides the names of all your robots,
 `/robot nametag on` shows them again; add a name to change only one robot. While a robot talks (`agent.say`), the
@@ -555,10 +584,13 @@ your default robot.
 | `/codeling` | Opens the editor in your browser. |
 | `/codeling chat <text>` | Sends a chat line to your own running program's "on chat command" code, as typing it in the chat would. Works on servers whose chat plugins take chat lines first. Says so when no program of yours is listening. |
 | `/codeling signal <players> <name> [number]` | Sends a signal to the programs of the players named (for example `@a` or a player name), with the number (0 without one). Ops only, and command blocks. It says how many programs got it and names the players it did not reach. |
+| `/codeling log on [minutes]` and `/codeling log off` | Extended logging in your own game for 15 minutes (or 1 to 60). See "Report a problem". |
+| `/codeling report` | Writes what a bug report needs to `logs/codeling-report.txt` in the game's folder. |
+| `/codeling server log on [minutes]`, `/codeling server log off` and `/codeling server report` | The same for the server. Ops only, and the server console. |
 | `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `codeling:max_robots`. |
 | `/robot list` | Your robots and where they are. |
 | `/robot remove <name>` | Removes a robot with a name. Its items go to you. |
-| `/robot rename <name> <new name>` | Renames a robot. `/robot rename <new name>` gives your default robot a name tag. |
+| `/robot rename <name> <new name>` | Renames a robot. `agent` is your default robot, and `/robot rename <new name>` renames it too. |
 | `/robot nametag <on\|off> [name]` | Shows or hides the name over your robots (without a name: all of them). |
 | `/robot stop [name]` | Without a name: stops all your robots and your program. With a name: stops what that robot is doing. |
 | `/robot status [name]` | Where the robot is and which way it looks. |
@@ -593,7 +625,7 @@ While you look through the robot, your own body stays where it is and does not m
 
 ## Robot appearance
 
-The robot is one block tall and has three original skins. Use `/robot skin workshop`, `/robot skin industrial` or `/robot skin mint`. Add a robot name after the skin to change a named robot, for example `/robot skin mint Miner`. Names and skins survive saving and moving between dimensions.
+The robot is one block tall and has three original skins. Use `/robot skin workshop`, `/robot skin industrial` or `/robot skin mint`. Add a robot name after the skin to change that robot, for example `/robot skin mint Miner` or `/robot skin mint agent` (your default robot). Names and skins survive saving and moving between dimensions.
 
 Walking and left/right turns animate automatically. Use `/robot animation look_left`, `look_right`, `look_up`, `look_down` or `wave` for a short gesture; add a robot name at the end when needed. `idle` cancels a gesture. The lamp is a visual detail; directional illumination is separate work.
 
@@ -621,11 +653,12 @@ These keep the game fast for everyone.
 ## Multiplayer
 
 - The server needs Codeling for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who wants to code needs the same loader and Codeling too.
+- Use the same Codeling version on the server and on every client. Mixing versions is not supported and has not been tested.
 - Only you can program your robot. Nobody else can send it commands. This goes for robots with a name too: a name
   only ever picks one of your own robots.
 - `/gamerule codeling:max_robots <1-16>` sets how many robots each player may have (1, the default, is one robot
   without a name).
-- Only you and server ops can open your robot's inventory. Others see "This is not your robot."
+- Only you and server ops can open your robot's inventory. Others see "This is not your robot" above the hotbar.
 - In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
 - A program's `player.say` goes to its own player only, and `player.teleport` works on a server only for ops.
@@ -645,12 +678,46 @@ These keep the game fast for everyone.
 | "Not in a world" | Open a world first, then press Run again. |
 | "This server does not have Codeling installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
 | The robot does nothing while you are in the browser, and the log says "Minecraft is paused" | The pause menu is open in the game. Go back to the game and close it; the robot goes on by itself. |
+| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Type `/robot spawn`, or walk closer to the robot. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Check the name with `/robot list`. Walk closer to the robot, or type `/robot spawn Miner`. |
 | "This world allows one robot per player" | Robots with names need the game rule `codeling:max_robots` above 1. Ask an op. |
-| `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Codeling. Close it and restart Minecraft. The game log says "Codeling could not start the editor server on port 25580". |
+| `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Codeling. Close it and restart Minecraft. The game log says "Codeling could not start the editor server on port 25580". To find the program on Windows, type `netstat -ano \| findstr 25580` in a command prompt: the last number is its PID in Task Manager (Details). On macOS and Linux, type `lsof -i :25580`. |
+| `/codeling` is an unknown command | Your own game does not have Codeling. Install the same version as the server, for the same loader and Minecraft version. |
+| The server refuses you when you join, and names Codeling | Your own game does not have Codeling. Install it as in the row above. |
+| A firewall or antivirus program asks about Minecraft or Java | Codeling does not need it. The editor is only reachable from your own computer, so never open port 25580 in a firewall or router. Minecraft itself may ask when you open a world to others. |
+| Your programs are gone | They are saved in one browser on one computer. Open the editor in the browser you used before. See [Questions and answers](#questions-and-answers). |
 | The blocks look old after an update | Press Ctrl+F5 in the browser. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, a closed tab or leaving the world stopped it. Press Run again. |
+
+## Questions and answers
+
+**Where does my code run?** In your own browser, on your own computer. The game gets only the commands, such as "move forward".
+On a server, the server checks each command and moves the robot. Your program is never sent to the server.
+
+**Who can control my robot?** Only you can program it. Server ops can open its inventory and stop all robots. See
+[Multiplayer](#multiplayer).
+
+**Where are my programs saved?** In your browser, on your computer, and not in the world. Another browser, another
+computer or a private window does not have them. Clearing the browser's data for the editor's page deletes them. To
+keep a copy, press the save button beside the project's name. You get a `.mkcd` file. "Import" on the editor's home
+screen opens it again.
+
+**Does it work offline?** Yes, when Codeling is installed. The editor comes from the mod and needs no internet. Only
+some links, such as the terms and privacy pages, go to the internet. A server on the internet needs it as usual.
+
+## Report a problem
+
+1. Type `/codeling log on`. Codeling then writes more to the game's log for 15 minutes. It goes off by itself.
+2. Do again what went wrong.
+3. Type `/codeling report` and click "[copy the report]". The report is also in `logs/codeling-report.txt`.
+4. Read through it. Codeling leaves out player names, robot names, chat and what robots say where it knows them. Remove
+   the rest you do not want others to see.
+5. Paste it in [a bug report](https://github.com/halisonworks/mod-codeling/issues/new/choose). What you write there is public.
+   If you are a child, ask an adult to help you.
+
+On somebody else's server, the owner does the same with `/codeling server log on` and `/codeling server report`. Codeling
+never sends anything by itself.
 
 ## Disclaimer
 

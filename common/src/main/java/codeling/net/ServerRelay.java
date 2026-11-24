@@ -2,6 +2,7 @@ package codeling.net;
 
 import codeling.platform.Platform;
 import codeling.Codeling;
+import codeling.log.Log;
 import codeling.robot.Positions;
 import codeling.robot.Result;
 import codeling.robot.RobotCamera;
@@ -60,25 +61,38 @@ public final class ServerRelay {
     /** Handles one message from {@code player}'s browser; {@code out} sends a reply to that browser. */
     public static void handle(ServerPlayer player, String json, Consumer<String> out) {
         UUID owner = player.getUUID();
+        String name = Log.person(player.getGameProfile().name());
         long now = player.level().getServer().getTickCount();
         Long id = null;
+        if (Codeling.LOG.detailed() && !json.contains("\"heartbeat\"")) Codeling.LOG.detail("server: from {}: {}", name, Protocol.describe(json));
         try {
             JsonObject msg = Protocol.parse(json);
             id = Protocol.id(msg);
             switch (Protocol.type(msg)) {
-                case "control" -> control(owner, player.getGameProfile().name(), msg, now, out);
+                case "control" -> control(owner, name, msg, now, out);
                 case "cmd" -> {
                     Protocol.Cmd cmd = Protocol.cmd(msg);
                     SESSIONS.touch(owner, cmd.run(), now);
                     RobotLinks.Key key = new RobotLinks.Key(owner, cmd.robot());
                     if (toWorld(player, cmd, out) || camera(player, key, cmd, out) || PlayerApi.submit(player, cmd, out)) return;
-                    RobotManager.submit(key, cmd.run(), cmd.command(), result -> out.accept(Protocol.reply(cmd.id(), result)));
+                    RobotManager.submit(key, cmd.run(), cmd.id(), cmd.command(), result -> reply(name, cmd, result, out));
                 }
                 default -> throw new RobotException(Result.Code.BAD_ARGS, "unknown message type " + Protocol.type(msg));
             }
         } catch (RobotException e) {
+            if (e.code != Result.Code.STOPPED) Codeling.LOG.info("refused: {}'s program, {}: {}", name, Protocol.describe(json), e.code);
             out.accept(Protocol.error(id, e.code, e.getMessage()));
         }
+    }
+
+    /** The answer to one command. A refusal is logged; the message is not, it may hold the program's own words. */
+    static void reply(String name, Protocol.Cmd cmd, Result result, Consumer<String> out) {
+        String json = Protocol.reply(cmd.id(), result);
+        if (!result.ok() && result.code() != Result.Code.STOPPED) {
+            Codeling.LOG.info("refused: {}'s program, run {} command {} {}: {}", name, cmd.run(), cmd.id(), cmd.command().op(), result.code());
+        }
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("server: to {}: run {} {}", name, cmd.run(), Protocol.describe(json));
+        out.accept(json);
     }
 
     /**
@@ -94,10 +108,10 @@ public final class ServerRelay {
         Direction facing = player.getDirection();
         int kind = c.op() == RobotCommand.Op.LOCAL_TO_WORLD ? Positions.LOCAL : Positions.RELATIVE;
         java.util.List<Integer> world = Positions.toWorld(kind, c.a(), c.b(), c.c(), feet.getX(), feet.getY(), feet.getZ(), facing.getStepX(), facing.getStepZ());
-        Codeling.LOG.info("pos: {}'s {} position ({}, {}, {}) is {} of the player's feet block x={} y={} z={} (looking {}), which is x={} y={} z={} in the world.",
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("pos: {}'s {} position ({}, {}, {}) is {} of the player's feet block x={} y={} z={} (looking {}), which is x={} y={} z={} in the world.",
                 player.getGameProfile().name(), kind == Positions.LOCAL ? "local (^)" : "relative (~)", c.a(), c.b(), c.c(), Positions.describe(kind, c.a(), c.b(), c.c()),
                 feet.getX(), feet.getY(), feet.getZ(), facing.getName(), world.get(0), world.get(1), world.get(2));
-        out.accept(Protocol.reply(cmd.id(), Result.ok(world)));
+        reply(player.getGameProfile().name(), cmd, Result.ok(world), out);
         return true;
     }
 
@@ -105,8 +119,8 @@ public final class ServerRelay {
     private static boolean camera(ServerPlayer player, RobotLinks.Key key, Protocol.Cmd cmd, Consumer<String> out) throws RobotException {
         if (cmd.command().op() != RobotCommand.Op.CAMERA) return false;
         if (cmd.run() != RobotManager.queue(player.getUUID()).run()) throw new RobotException(Result.Code.STOPPED, "run " + cmd.run() + " is no longer active");
-        String refusal = RobotCamera.set(player, RobotManager.robot(key), cmd.command().a());
-        out.accept(Protocol.reply(cmd.id(), refusal == null ? Result.ok(null) : Result.error(Result.Code.NO_PERMISSION, refusal)));
+        net.minecraft.network.chat.Component refusal = RobotCamera.set(player, RobotManager.robot(key), cmd.command().a());
+        reply(player.getGameProfile().name(), cmd, refusal == null ? Result.ok(null) : Result.error(Result.Code.NO_PERMISSION, refusal.getString()), out);
         return true;
     }
 

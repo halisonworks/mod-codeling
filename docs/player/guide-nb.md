@@ -111,6 +111,36 @@ En pause holder bare igjen koden den står i. Kode i "kjør samtidig" og i andre
 Et program med "gjenta for alltid" slutter aldri av seg selv: trykk på stoppknappen i editoren, eller skriv
 `/robot stop` i spillet. Begge stopper det med en gang, også midt i en pause.
 
+## Lag din egen funksjon
+
+En funksjon er en bit av programmet med et navn du velger selv. Den kjører ikke bare fordi du har laget den: programmet
+må også kjøre (kalle) den.
+
+1. Åpne "Avansert" og så "Funksjoner", og trykk på "Lag en funksjon...". Skriv et navn, for eksempel `buildWall`, og
+   trykk på "Fullført".
+2. Dra robotblokker inn i "funksjon buildWall".
+3. Åpne "Funksjoner" igjen og dra ut "kjør buildWall": inn i "ved start" (dra den ut av Løkker først) for å kjøre den når du
+   trykker på Kjør, eller inn i "når chatkommando" (fra Spiller) for å kjøre den når du skriver i chatten i
+   spillet.
+4. Trykk på Kjør-knappen.
+
+Denne funksjonen har et tall, `length` ("Legg til en parameter", "Nummer"). Trykk på Kjør én gang. Skriv så `wall 5` i
+chatten i spillet, og igjen så ofte du vil, med det tallet du vil:
+
+```
+function buildWall(length: number) {
+    agent.move(SixDirection.Forward, length)
+    agent.turn(TurnDirection.Left)
+}
+player.onChat("wall", function (num1, num2, num3) {
+    buildWall(num1)
+})
+```
+
+`wall` er nøkkelordet i chatten, ikke navnet på funksjonen: kallet inni "når chatkommando" kobler dem sammen. Programmet
+må kjøre, med fanen åpen i nettleseren. Et stoppet program kan ikke startes fra spillet. Mer om chatkommandoer:
+[Reager på chat og død](#reager-på-chat-og-død).
+
 ## Gå gjennom et program steg for steg
 
 Knappen med insektet under simulatoren slår på feilsøkingsmodus. Programmet starter og stopper før sin første
@@ -223,7 +253,7 @@ Plassene er robotens 27 inventarplasser, nummerert fra 1 til 27.
 | robot redstonestyrke (retning) | `agent.redstonePower(SixDirection.Forward)` | Rødsteinstyrke fra 0 til 15. |
 | når roboten får redstonesignal | `agent.onRedstonePowered(function () { })` | Kjører koden sin hver gang blokken roboten står i, får et redstonesignal, for eksempel når du slår på en spak ved siden av den. Se "Reager på blokker, redstone og dagen" under. |
 | robot posisjon | `agent.getPosition()` | Hvor roboten er. |
-| robot retning | `agent.getOrientation()` | Hvilken vei den ser, i grader. |
+| robot retning | `agent.getOrientation()` | Hvilken vei den ser, i grader: sør 0, vest 90, nord -180, øst -90. |
 | robot finn nærmeste (blokk) innen (radius) | `agent.findNearest(Block.OakLog, 16)` | Den nærmeste blokken av den typen, eller ingenting. |
 | robot finn nærmeste (kategori) innen (radius) | `agent.findNearestCategory(BlockCategory.Logs, 16)` | Det samme for stammer, løv, malm, planker, ull eller blomster. |
 
@@ -493,7 +523,8 @@ ikke flere.
 - `/robot list` viser robotene dine og hvor de er. `/robot remove Miner` fjerner en: alt den bærer, havner i
   inventaret ditt, og det som ikke får plass, faller ned ved føttene dine. Roboten må være lastet inn (nær deg).
 - Chattekommandoene for én robot tar navnet til slutt: `/robot move forward 3 Miner`, `/robot come Miner`,
-  `/robot inventory Miner`, `/robot camera Miner`. Uten navn gjelder de standardroboten din.
+  `/robot inventory Miner`, `/robot camera Miner`. Uten navn gjelder de standardroboten din. I kommandoene heter den
+  `agent`, og også det du kaller den: `/robot skin mint agent`. Trykk Tab for å se navnene på robotene dine.
 - `/robot stop` stopper alle robotene og programmet ditt. `/robot stop Miner` stopper bare det Miner holder på med.
 
 I et program er `robots.get("Miner")` roboten som heter Miner. Den kan alt `agent` kan:
@@ -547,7 +578,8 @@ programmet med en feil som du kan fange (se "Feil, og å sjekke sitt eget progra
 
 En robot med navn viser det over hodet. Gi den nytt navn med `/robot rename Miner Digger`, eller med et navneskilt
 fra en ambolt (høyreklikk på roboten med det). Bare eieren og operatører kan gi en robot nytt navn.
-`/robot rename Bob` (ett navn) gir standardroboten din et navneskilt; i programmer heter den fortsatt `agent`.
+`/robot rename agent Bob` gir standardroboten din et navn. Da tar kommandoene både `agent` og `Bob`. I programmer heter
+den fortsatt `agent`.
 
 Ser du på en robot på nært hold, ser du også hvem som eier den. `/robot nametag off` skjuler navnene på alle robotene
 dine, `/robot nametag on` viser dem igjen; legg til et navn for å endre bare én robot. Mens en robot snakker
@@ -563,10 +595,13 @@ standardroboten din.
 | `/codeling` | Åpner editoren i nettleseren. |
 | `/codeling chat <tekst>` | Sender en chattelinje til "når chatkommando"-koden i ditt eget program, slik det å skrive den i chatten ville gjort. Virker på servere der chatteutvidelser tar chattelinjene først. Sier fra når ingen av programmene dine lytter. |
 | `/codeling signal <spillere> <navn> [tall]` | Sender et signal til programmene til spillerne du nevner (for eksempel `@a` eller et spillernavn), med tallet (0 uten tall). Bare for operatører, og for kommandoblokker. Den sier hvor mange programmer som fikk det, og nevner spillerne det ikke nådde. |
+| `/codeling log on [minutter]` og `/codeling log off` | Utvidet logging i ditt eget spill i 15 minutter (eller 1 til 60). Se «Meld fra om et problem». |
+| `/codeling report` | Skriver det en feilmelding trenger til `logs/codeling-report.txt` i mappen til spillet. |
+| `/codeling server log on [minutter]`, `/codeling server log off` og `/codeling server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
 | `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `codeling:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |
 | `/robot remove <navn>` | Fjerner en robot med navn. Tingene den har, får du. |
-| `/robot rename <navn> <nytt navn>` | Gir en robot nytt navn. `/robot rename <nytt navn>` gir standardroboten din et navneskilt. |
+| `/robot rename <navn> <nytt navn>` | Gir en robot nytt navn. `agent` er standardroboten din, og `/robot rename <nytt navn>` gir også den nytt navn. |
 | `/robot nametag <on\|off> [navn]` | Viser eller skjuler navnet over robotene dine (uten navn: alle). |
 | `/robot stop [navn]` | Uten navn: stopper alle robotene og programmet ditt. Med navn: stopper det den roboten holder på med. |
 | `/robot status [navn]` | Hvor roboten er og hvilken vei den ser. |
@@ -602,7 +637,7 @@ Mens du ser gjennom roboten, står kroppen din stille der den er. Øverst til ve
 
 ## Robotens utseende
 
-Roboten er én blokk høy og har tre egne skins. Bruk `/robot skin workshop`, `/robot skin industrial` eller `/robot skin mint`. Legg til et robotnavn etter skinet for å endre en robot med navn, for eksempel `/robot skin mint Miner`. Navn og skins består når du lagrer og når roboten bytter dimensjon.
+Roboten er én blokk høy og har tre egne skins. Bruk `/robot skin workshop`, `/robot skin industrial` eller `/robot skin mint`. Legg til et robotnavn etter skinet for å endre den roboten, for eksempel `/robot skin mint Miner` eller `/robot skin mint agent` (standardroboten din). Navn og skins består når du lagrer og når roboten bytter dimensjon.
 
 Gåing og svinger til venstre og høyre animeres av seg selv. Bruk `/robot animation look_left`, `look_right`, `look_up`, `look_down` eller `wave` for en kort bevegelse. Legg til et robotnavn til slutt når det trengs. `idle` avbryter en bevegelse. Lampen er bare en visuell detalj. Lys i en bestemt retning er eget arbeid.
 
@@ -630,11 +665,12 @@ Grensene holder spillet raskt for alle.
 ## Flerspiller
 
 - Serveren trenger Codeling for sin modlaster (Fabric Loader og Fabric API, eller NeoForge). Alle spillere som vil programmere, trenger samme modlaster og Codeling også.
+- Bruk samme Codeling-versjon på serveren og hos alle spillerne. Å blande versjoner er ikke støttet og ikke testet.
 - Bare du kan programmere roboten din. Ingen andre kan sende den kommandoer. Det gjelder roboter med navn også: et
   navn velger alltid bare en av dine egne roboter.
 - `/gamerule codeling:max_robots <1-16>` bestemmer hvor mange roboter hver spiller kan ha (1, standard, er én robot
   uten navn).
-- Bare du og operatører på serveren kan åpne inventaret til roboten din. Andre får beskjeden "This is not your robot."
+- Bare du og operatører på serveren kan åpne inventaret til roboten din. Andre får beskjeden "This is not your robot" over hurtiglinjen.
 - I overlevelse samler roboten sine egne ressurser. "robot gi" og `/robot give` virker bare i kreativ modus, eller når verdenen har `/gamerule codeling:free_items true`. Ellers legger du ting i roboten gjennom inventarskjermen dens.
 - Operatører kan stoppe alle roboter med `/robot stop all`.
 - `player.say` i et program går bare til spilleren som kjører det, og `player.teleport` virker på en server bare for operatører.
@@ -656,12 +692,46 @@ Feilmeldingene er på engelsk.
 | "Not in a world" | Åpne en verden først, og trykk Kjør igjen. |
 | "This server does not have Codeling installed" | Serveren mangler moden. Spør den som eier serveren, eller spill i enspiller. |
 | Roboten gjør ingenting mens du er i nettleseren, og loggen sier "Minecraft is paused" | Pausemenyen er åpen i spillet. Gå tilbake til spillet og lukk den; roboten fortsetter av seg selv. |
+| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Skriv `/robot spawn`, eller gå nærmere roboten. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Sjekk navnet med `/robot list`. Gå nærmere roboten, eller skriv `/robot spawn Miner`. |
 | "This world allows one robot per player" | Roboter med navn trenger spillregelen `codeling:max_robots` over 1. Spør en operatør. |
-| `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Codeling. Lukk den og start Minecraft på nytt. I spillets logg står det "Codeling could not start the editor server on port 25580". |
+| `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Codeling. Lukk den og start Minecraft på nytt. I spillets logg står det "Codeling could not start the editor server on port 25580". Slik finner du programmet på Windows: skriv `netstat -ano \| findstr 25580` i et kommandovindu. Det siste tallet er PID-en i Oppgavebehandling (Detaljer). På macOS og Linux skriver du `lsof -i :25580`. |
+| `/codeling` er en ukjent kommando | Ditt eget spill har ikke Codeling. Installer samme versjon som serveren, for samme modlaster og Minecraft-versjon. |
+| Serveren avviser deg når du blir med, og nevner Codeling | Ditt eget spill har ikke Codeling. Installer det som i raden over. |
+| En brannmur eller et antivirusprogram spør om Minecraft eller Java | Codeling trenger det ikke. Editoren kan bare nås fra din egen datamaskin, så åpne aldri port 25580 i en brannmur eller ruter. Minecraft selv kan spørre når du åpner en verden for andre. |
+| Programmene dine er borte | De lagres i én nettleser på én datamaskin. Åpne editoren i nettleseren du brukte før. Se [Spørsmål og svar](#spørsmål-og-svar). |
 | Blokkene ser gamle ut etter en oppdatering | Trykk Ctrl+F5 i nettleseren. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, en lukket fane eller at du forlot verdenen stoppet det. Trykk Kjør igjen. |
+
+## Spørsmål og svar
+
+**Hvor kjører koden min?** I din egen nettleser, på din egen datamaskin. Spillet får bare kommandoene, for eksempel «flytt
+fremover». På en server sjekker serveren hver kommando og flytter roboten. Programmet ditt sendes aldri til serveren.
+
+**Hvem kan styre roboten min?** Bare du kan programmere den. Operatører på serveren kan åpne inventaret og stoppe alle
+roboter. Se [Flerspiller](#flerspiller).
+
+**Hvor lagres programmene mine?** I nettleseren din, på datamaskinen din, og ikke i verdenen. En annen nettleser, en annen
+datamaskin eller et privat vindu har dem ikke. Sletter du nettleserens data for editoren, slettes de. Vil du ha en
+kopi, trykker du på lagre-knappen ved siden av prosjektnavnet. Da får du en `.mkcd`-fil. «Importer» på editorens
+hjemskjerm åpner den igjen.
+
+**Virker det uten nett?** Ja, når Codeling er installert. Editoren følger med moden og trenger ikke internett. Bare noen
+lenker, for eksempel til vilkår og personvern, går til internett. En server på internett trenger nett som vanlig.
+
+## Meld fra om et problem
+
+1. Skriv `/codeling log on`. Da skriver Codeling mer i spillets logg i 15 minutter. Det slår seg av selv.
+2. Gjør det som gikk galt en gang til.
+3. Skriv `/codeling report` og klikk «[copy the report]». Rapporten ligger også i `logs/codeling-report.txt`.
+4. Les gjennom den. Codeling utelater spillernavn, robotnavn, chat og det roboter sier der den kjenner dem. Fjern resten
+   du ikke vil at andre skal se.
+5. Lim den inn i [en feilmelding](https://github.com/halisonworks/mod-codeling/issues/new/choose). Det du skriver der, er offentlig.
+   Er du barn, be en voksen om hjelp.
+
+På en server andre eier, gjør eieren det samme med `/codeling server log on` og `/codeling server report`. Codeling
+sender aldri noe av seg selv.
 
 ## Ansvarsfraskrivelse
 

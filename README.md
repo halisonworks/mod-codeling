@@ -4,7 +4,7 @@ A Minecraft Java mod (Fabric and NeoForge, Minecraft 26.1 to 26.3 on Java 25 and
 The editor is a custom pxt target that runs in your browser and is served by the mod on `127.0.0.1`.
 Each robot command goes over a local WebSocket to the mod.
 
-**Status: pre-release (0.0.3), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
+**Status: pre-release (0.0.4), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
 Plan: [docs/architecture.md](docs/architecture.md).
 
 Not approved by or associated with Mojang or Microsoft. The editor is based on Microsoft MakeCode (pxt), MIT licence.
@@ -29,6 +29,7 @@ Player guide (install, first program, every command): [English](docs/player/guid
 | `fabric/src/gametest/` | Server and client GameTests (own mod id `codeling-gametest`, not in the jar). Screenshot templates in `resources/templates/`. |
 | `gradle/loader.gradle.kts` | Build logic both loader modules apply: version, jar name rule (`checkJarNames`) and the editor copy with the branding patch. |
 | `docs/` | Architecture and research notes. |
+| `art/robot/` | Blockbench projects, textures, masks and generator script for the robot model (issue #242). Not in the jars. |
 
 ## Build
 
@@ -74,9 +75,9 @@ Jar names follow one rule for every loader and Minecraft version: `<modid>-<load
 
 `./gradlew build` runs the JUnit tests (`:core:test` for the Minecraft-free code, `:fabric:<version>:test` for the rest) and the server GameTests (`:fabric:<version>:runGameTest`, a headless GameTest server; `check` depends on it), for both Minecraft versions.
 Run only the GameTests with `./gradlew :fabric:26.3:runGameTest` (or `:fabric:1.21.1:runGameTest`). The JUnit XML report is `fabric/versions/<version>/build/test-results/gameTest/TEST-gametest.xml`; the server world and log are in `fabric/versions/<version>/build/run/gameTest/`.
-The 1.21.1 build runs the same GameTests (148 of them) through vanilla's older GameTest annotation; a test environment of 26.3 (a game rule set for some tests) is a batch there whose `@BeforeBatch` sets the rule.
+The 1.21.1 build runs the same GameTests (150 of them) through vanilla's older GameTest annotation; a test environment of 26.3 (a game rule set for some tests) is a batch there whose `@BeforeBatch` sets the rule.
 
-On NeoForge, `build` runs nine smoke GameTests (`:neoforge:<version>:runGameTestServer`, a headless GameTest server that exits with the number of failed tests): a robot spawns, moves and places a block, the three game rules are registered (the enum rule takes `/gamerule codeling:robot_camera ops`), the three payload types round-trip through NeoForge's registry, and a claim mod that refuses the robot's FakePlayer stops a placement and sees the owner's UUID, the robot of an owner in adventure mode places and breaks nothing, a chat line the running program listens for is cancelled through `ServerChatEvent` and becomes an event, and a stone the player breaks becomes an event through the block break event without changing the break. Report: `neoforge/versions/<version>/build/test-results/gameTest/TEST-gametest.xml`; world and log: `neoforge/versions/<version>/run/gametest/`. The full GameTest suite and the client GameTests stay on Fabric (NeoForge has no client GameTest API).
+On NeoForge, `build` runs ten smoke GameTests (`:neoforge:<version>:runGameTestServer`, a headless GameTest server that exits with the number of failed tests): a robot spawns, moves and places a block, the three game rules are registered (the enum rule takes `/gamerule codeling:robot_camera ops`), the three payload types round-trip through NeoForge's registry, and a claim mod that refuses the robot's FakePlayer stops a placement and sees the owner's UUID, another mod sees the robot's clicks with the owner's UUID and the name `Codeling[<owner name>]`, the robot of an owner in adventure mode places and breaks nothing, a chat line the running program listens for is cancelled through `ServerChatEvent` and becomes an event, and a stone the player breaks becomes an event through the block break event without changing the break. Report: `neoforge/versions/<version>/build/test-results/gameTest/TEST-gametest.xml`; world and log: `neoforge/versions/<version>/run/gametest/`. The full GameTest suite and the client GameTests stay on Fabric (NeoForge has no client GameTest API).
 `./gradlew :neoforge:26.3:runClientSmoke` (or `:neoforge:1.21.1:runClientSmoke`) starts the NeoForge client once (a game window, not part of `build`), checks that the camera mixins were merged and that the relay serves the editor, logs `Codeling client smoke: OK` and quits.
 
 Robustness tests in the same build: `ProtocolFuzzTest` (issue #139) sends random and broken JSON (wrong types, huge numbers, deep nesting, 8 KiB strings, unknown ops, mutated sim messages; fixed seeds) to the protocol decoder and fails on anything but a clean `BAD_ARGS`/`VERSION` error or a hang. The GameTest `twentyRobotsSearchWalkAndCraft` (issue #138) runs 20 robots searching, walking and crafting for 200 ticks and reads `RobotManager.lastTick()` (time in the robot executor and the budgets used) every tick. It fails when a tick uses more than `ACTIONS_PER_TICK`, `SCAN_BLOCKS_PER_TICK` or `PATH_NODES_PER_TICK`, when the robots take more than 4 ms per tick on average (8 percent of a 50 ms tick), or when more than 3 ticks take over 20 ms. With the environment variable `CI=true` (GitHub Actions sets it) both time limits are 2.5 times higher, because shared runners are slower. GameTests share one server, so it measures the robot executor, not the whole server's MSPT; the log line "robot tick cost" shows the numbers.
@@ -94,6 +95,7 @@ The task runs `npm ci` in `e2e/`, then `e2e/editor-suite.mjs`, which starts the 
 - Every block in the toolbox: the visible `blockId`s are read from `target/libs/core/sims.d.ts` and `ns.ts`, and each needs a test program in `e2e/programs/blocks.mjs` (the suite fails when one is missing). All programs together go JavaScript to Blocks to Python to Blocks to JavaScript; it fails on a grey block, on text that comes back different (a lost or changed argument), and on a block the programs do not make.
 - Example programs in MakeCode style (written for this repo, issue #31): the same round trip, then Run in the simulator, and the robot log must match line by line (the standalone relay's fake answers are fixed). Each program is the `blocks` code in `target/docs/examples/<page>.md`, the page the editor's Examples gallery opens; `e2e/programs/examples.mjs` names the pages and holds the robot logs.
 - Pause and forever (issue #215): one program runs with its robot log's time stamps read back. `loops.pause(1000)` must take 950 to 1600 ms while a `control.runInParallel` ticks on, a `forever` loop must repeat next to an empty one (which must not hang the page), and Stop must end the program in the middle of a 3 s pause in parallel code: no line may come after it.
+- Robot log limit (issue #283): a program that logs 1051 lines must leave the newest 1000 in the robot log, in order.
 - Position math (issue #219): one program prints the answers of `distanceTo`, `subtract`, `scale`, `positions.sortByDistance` and `positions.nearest` for known positions (also a `pos` against a `world` position, an empty list and the list `findBounds` answers), and they must be the expected numbers.
 - Examples gallery (issue #216): the cards in `target/docs/examples.md` and `target/docs/_locales/nb/examples.md` must be the tested programs in the same order. On the start page the gallery must show those cards, each must open a project whose JavaScript is its program, the Norwegian titles must show with `?lang=nb`, and no request may go to another host. Screenshots `gallery.png` and `gallery-nb.png`.
 - Go to robot (issue #243): `agent.goToRobot(miner)`, `miner.goToRobot(robots.get(""))` and `miner.getPosition()` must send their ops with the target's name (`""` for agent) and the moving robot's name, and use the standalone relay's answers (true and 0 0 0).
@@ -240,7 +242,7 @@ Robot commands (server side). Every action is covered by GameTests. Step 1A comm
 | `/robot spawn [name]` | Spawn your robot at your feet facing your way, or move it there. Without a name it is your default robot (`agent`); a new named robot needs room under `codeling:max_robots`. Ends the current run. |
 | `/robot list` | Your robots, loaded or not, with positions. |
 | `/robot remove <name>` | Remove a loaded named robot; its items go to your inventory (the rest drop at your feet). |
-| `/robot rename <name> <new>` | Rename a named robot (its queue is cleared). `/robot rename <new>` sets the default robot's name tag only. Name tag items work too (owner and ops). |
+| `/robot rename <name> <new>` | Rename a robot; a named robot's queue is cleared. `agent` is the default robot, also as `/robot rename <new>`; it stays `agent` in programs. Name tag items work too (owner and ops). |
 | `/robot nametag <on\|off> [name]` | Show or hide the name tag of one robot, or of all your loaded robots. |
 | `/robot move <forward\|back\|left\|right\|up\|down> <blocks>` | Queue a move, 1 to 64 blocks, 4 ticks per block. Stops early at a solid block; open doors and trapdoors let it through. |
 | `/robot turn <left\|right>` | Queue a 90 degree turn. |
@@ -267,7 +269,7 @@ Every command that acts on one robot takes an optional robot name as its last wo
 All commands except `spawn`, `stop`, `status` and `inventory` go through the same validator and queue as the browser commands; `come` is built from your position and skips the validator.
 A robot that is killed drops its inventory where it stood. `/robot spawn` in another dimension moves the inventory to the new robot.
 If the old robot was unloaded when you spawned a new one, it keeps its items and drops them where it stood when its chunk loads again (once). Any other stale copy of a robot (an older save, a structure-block copy) is removed without dropping, so items never double.
-Right-click the robot to open its 27 slots as a chest screen (the selected slot has a gold frame). Only the owner and ops can open it; others get "This is not your robot." The screen is the robot's own inventory, so a running program sees every change at once.
+Right-click the robot to open its 27 slots as a chest screen (the selected slot has a gold frame). Only the owner and ops can open it; others get "This is not your robot" above the hotbar. The screen is the robot's own inventory, so a running program sees every change at once.
 
 ## Open in IntelliJ IDEA
 
@@ -283,6 +285,15 @@ Right-click the robot to open its 27 slots as a chest screen (the selected slot 
 
 The npm run configurations and good TypeScript editing in `target/` need IntelliJ IDEA Ultimate (or the JavaScript and TypeScript plugin).
 On Community, use the Gradle configuration above or a terminal.
+
+## Contribute
+
+Bug reports, ideas, texts, translations and code are welcome, in English or Norwegian.
+
+- Something does not work: [report a bug](https://github.com/halisonworks/mod-codeling/issues/new?template=bug_report.yml).
+- You have an idea: [tell us about it](https://github.com/halisonworks/mod-codeling/issues/new?template=feature_request.yml).
+- You found a security problem: report it privately, see [SECURITY.md](SECURITY.md).
+- You want to help: [CONTRIBUTING.md](CONTRIBUTING.md) says how to build, test and open a pull request.
 
 ## Licence
 

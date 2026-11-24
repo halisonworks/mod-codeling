@@ -119,11 +119,15 @@ namespace pxsim {
         log(text: string) {
             const line = document.createElement("div");
             line.textContent = `${new Date().toISOString().substring(11, 23)} ${text}`;
-            document.getElementById("robotlog").appendChild(line);
+            const lines = document.getElementById("robotlog");
+            lines.appendChild(line);
+            if (lines.childElementCount > LOG_LINES) lines.removeChild(lines.firstChild);
         }
     }
 
     const TARGET_ID = "codeling";
+    // The robot log keeps the newest lines only, so a program that runs for hours does not slow the tab down (issue #283).
+    const LOG_LINES = 1000;
     // Version 2 (issue #141): cmd may name one of the player's robots in "robot".
     const PROTOCOL = 2;
     // shortcut: 3 s keeps well inside the server's 10 s heartbeat timeout; read limits.heartbeatTimeoutMs if it ever changes.

@@ -3,6 +3,8 @@ package codeling.gametest;
 import codeling.Codeling;
 import codeling.api.Signals;
 import codeling.McCompat;
+import codeling.Report;
+import codeling.log.Log;
 import codeling.net.Protocol;
 import codeling.net.ServerRelay;
 import codeling.robot.RobotCamera;
@@ -10,6 +12,8 @@ import codeling.robot.RobotManager;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -665,13 +669,66 @@ public class RelayGameTests {
         helper.assertValueEqual(execute(helper, "codeling signal @s qr 2.5", op), 1, "reached");
         helper.assertValueEqual(execute(helper, "codeling signal @s door", op), 0, "a name it does not listen for");
         helper.assertValueEqual(execute(helper, "codeling signal @s qr", op.withEntity(idle)), 0, "no listening program");
-        helper.assertValueEqual(execute(helper, "codeling signal @s \"two words\"", op), 0, "bad name");
+        helper.assertValueEqual(execute(helper, "codeling signal @s \"two words\"", op), -1, "a bad name is a wrong argument: an error, no result");
         helper.assertValueEqual(execute(helper, "codeling signal @s qr 9", b.player().createCommandSourceStack()), -1, "not for a player without operator rights");
         helper.succeedWhen(() -> {
             helper.assertValueEqual(events(b).stream().map(e -> e.get("args").toString()).toList(), List.of("[\"qr\",2.5]"), "events");
             server.getPlayerList().remove(idle);
             b.leave();
         });
+    }
+
+    // Issue #279: with extended logging one command can be followed by its run and id, without the program's words; the
+    // report has the versions and rules and not the player's name. Other tests log too, so each line is looked for
+    // right after it was written. The only test that switches extended logging.
+    @GameTest
+    public void extendedLoggingFollowsACommandAndTheReportHasIt(GameTestHelper helper) throws IOException {
+        Browser b = browser(helper);
+        var server = helper.getLevel().getServer();
+        var op = server.createCommandSourceStack().withSuppressedOutput();
+        long run = b.start();
+        long before = Log.written();
+        b.send(turn(1, run));
+        helper.assertValueEqual(Log.written(), before, "a command is quiet while extended logging is off");
+        helper.assertValueEqual(execute(helper, "codeling server log on 5", b.player().createCommandSourceStack()), -1, "not for a player without operator rights");
+        helper.assertValueEqual(execute(helper, "codeling server log on 5", op), 1, "log on");
+        helper.assertTrue(Log.extended(), "extended logging is on");
+        b.send("{\"v\":2,\"t\":\"cmd\",\"id\":7,\"run\":" + run + ",\"op\":\"agent.say\",\"args\":[\"my secret words\"]}");
+        String step = "run " + run + " command 7";
+        logged(helper, "server: from (player): " + step + " agent.say [(text of 15)]");
+        List<JsonObject> answers = new ArrayList<>();
+        ServerRelay.handle(b.player(), turn(8, run), reply -> {
+            logged(helper, "robot: (player)'s default robot starts TURN (run " + run + " command 8)");
+            logged(helper, "server: to (player): run " + run + " command 8 result");
+            answers.add(JsonParser.parseString(reply).getAsJsonObject());
+        });
+        ServerRelay.handle(b.player(), move(9, run, 1000), reply -> { });
+        logged(helper, "refused: (player)'s program, run " + run + " command 9 agent.move [0, 1000]: OUT_OF_RANGE");
+        helper.succeedWhen(() -> {
+            helper.assertTrue(b.find("result", 7) != null && answers.size() == 1, "answers");
+            helper.assertValueEqual(execute(helper, "codeling server report", op), 1, "report");
+            String report;
+            try {
+                report = Files.readString(server.getServerDirectory().resolve(Report.FILE));
+            } catch (IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
+            for (String line : List.of("Codeling: ", "Minecraft: ", "Fabric Loader: ", "Java: ", "Operating system: ", "Game rules: free_items ", "Extended logging: on")) {
+                helper.assertTrue(report.contains(line), line + " in the report");
+            }
+            helper.assertTrue(!report.contains("secret words") && !report.contains(b.player().getGameProfile().name()), "no words or names in the report");
+            helper.assertValueEqual(execute(helper, "codeling server log off", op), 1, "log off");
+            helper.assertTrue(!Log.extended(), "extended logging is off");
+            b.leave();
+        });
+    }
+
+    private static String turn(long id, long run) {
+        return "{\"v\":2,\"t\":\"cmd\",\"id\":" + id + ",\"run\":" + run + ",\"op\":\"agent.turn\",\"args\":[2]}";
+    }
+
+    private static void logged(GameTestHelper helper, String line) {
+        helper.assertTrue(Log.report().stream().anyMatch(l -> l.contains(line)), line + " in the log");
     }
 
     // The command's result, or -1 when it is refused before it runs (unknown to the source, or a syntax error).

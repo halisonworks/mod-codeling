@@ -160,7 +160,7 @@ public class RobotGameTests {
         });
     }
 
-    // Issues #21 and #22: world block position, and MakeCode yaw (south 0, west 90, north 180, east -90).
+    // Issues #21 and #22: world block position, and MakeCode yaw (south 0, west 90, north -180, east -90).
     @GameTest(maxTicks = 100)
     public void positionAndOrientation(GameTestHelper helper) {
         UUID owner = spawn(helper);
@@ -176,7 +176,7 @@ public class RobotGameTests {
         List<Result> moved = send(helper, owner, "agent.getPosition");
         helper.succeedWhen(() -> {
             helper.assertValueEqual(position, List.of(Result.ok(List.of(start.getX(), start.getY(), start.getZ()))), "position");
-            helper.assertValueEqual(yaw, List.of(List.of(Result.ok(0)), List.of(Result.ok(90)), List.of(Result.ok(180)), List.of(Result.ok(-90))),
+            helper.assertValueEqual(yaw, List.of(List.of(Result.ok(0)), List.of(Result.ok(90)), List.of(Result.ok(-180)), List.of(Result.ok(-90))),
                     "south, west, north, east");
             // facing east, forward is +x
             helper.assertValueEqual(moved, List.of(Result.ok(List.of(start.getX() + 2, start.getY(), start.getZ()))), "position after move");
@@ -401,9 +401,32 @@ public class RobotGameTests {
     /** Absolute positions a claim mod protects: it refuses the FakePlayer's click there, as claim mods do. */
     private static final Set<BlockPos> CLAIMED = ConcurrentHashMap.newKeySet();
 
+    /** Owners whose robots' clicks another mod looks at, and what that mod saw in UseBlockCallback (issue #246). */
+    private static final Set<UUID> WATCHED = ConcurrentHashMap.newKeySet();
+    private static final Set<Use> USES = ConcurrentHashMap.newKeySet();
+
+    private record Use(UUID owner, String name, BlockPos pos) {
+    }
+
     static {
         UseBlockCallback.EVENT.register((player, level, hand, hit) ->
                 player instanceof FakePlayer && CLAIMED.contains(hit.getBlockPos()) ? InteractionResult.FAIL : InteractionResult.PASS);
+        UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (player instanceof FakePlayer && WATCHED.contains(player.getUUID())) {
+                USES.add(new Use(player.getUUID(), player.getGameProfile().name(), hit.getBlockPos().immutable()));
+            }
+            return InteractionResult.PASS;
+        });
+    }
+
+    /** The clicks another mod sees when the robot uses a door, places a block and looks in a chest. */
+    private static Set<Use> uses(GameTestHelper helper, UUID owner, String name) {
+        return Set.of(new Use(owner, name, helper.absolutePos(START.south())), new Use(owner, name, helper.absolutePos(START.above())),
+                new Use(owner, name, helper.absolutePos(START.east())));
+    }
+
+    private static Set<Use> seen(UUID owner) {
+        return USES.stream().filter(use -> use.owner().equals(owner)).collect(java.util.stream.Collectors.toSet());
     }
 
     private static Container container(GameTestHelper helper, BlockPos pos) {
@@ -586,6 +609,33 @@ public class RobotGameTests {
         player.snapTo(Vec3.atCenterOf(helper.absolutePos(START).above(100)));
         player.setGameMode(mode);
         return player;
+    }
+
+    // Issue #246, a contract with other mods (docs/architecture.md, section 3): the robot uses a block as a FakePlayer
+    // with the owner's UUID and the name Codeling[<owner name>], and UseBlockCallback fires with it.
+    @GameTest(maxTicks = 100)
+    public void fakePlayerContractOnlineOwner(GameTestHelper helper) {
+        ServerPlayer player = ownerIn(helper, GameType.SURVIVAL);
+        UUID owner = player.getUUID();
+        WATCHED.add(owner);
+        List<Result> results = protectionOps(helper, owner);
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(results.size(), 4, "results");
+            helper.assertValueEqual(seen(owner), uses(helper, owner, "Codeling[" + player.getGameProfile().name() + "]"), "clicks");
+            helper.getLevel().getServer().getPlayerList().remove(player);
+        });
+    }
+
+    // Issue #246: an owner who is not in the game has no name to show, so it is the first 8 characters of the UUID.
+    @GameTest(maxTicks = 100)
+    public void fakePlayerContractOfflineOwner(GameTestHelper helper) {
+        UUID owner = UUID.randomUUID();
+        WATCHED.add(owner);
+        List<Result> results = protectionOps(helper, owner);
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(results.size(), 4, "results");
+            helper.assertValueEqual(seen(owner), uses(helper, owner, "Codeling[" + owner.toString().substring(0, 8) + "]"), "clicks");
+        });
     }
 
     // Issue #53: the robot of an adventure owner opens doors and containers but places and breaks nothing.
@@ -2094,8 +2144,8 @@ public class RobotGameTests {
         return player;
     }
 
-    private static void allowed(GameTestHelper helper, String refusal, String what) {
-        helper.assertTrue(refusal == null, what + " refused: " + refusal);
+    private static void allowed(GameTestHelper helper, net.minecraft.network.chat.Component refusal, String what) {
+        helper.assertTrue(refusal == null, what + " refused: " + (refusal == null ? "" : refusal.getString()));
     }
 
     // Issue #175: the owner may look through the robot, another player may not; an op may in the default mode.
@@ -2105,7 +2155,7 @@ public class RobotGameTests {
         ServerPlayer other = cameraPlayer(helper);
         RobotEntity robot = RobotManager.robot(spawn(helper, owner.getUUID()));
         var players = helper.getLevel().getServer().getPlayerList();
-        helper.assertValueEqual(RobotCamera.start(other, robot), "This is not your robot.", "a stranger");
+        helper.assertValueEqual(RobotCamera.start(other, robot).getString(), "This is not your robot", "a stranger");
         helper.assertTrue(RobotCamera.viewing(other) == null, "the stranger sees nothing");
         allowed(helper, RobotCamera.start(owner, robot), "the owner");
         helper.assertTrue(RobotCamera.viewing(owner) == robot, "the owner looks through the robot");
@@ -2127,9 +2177,9 @@ public class RobotGameTests {
         var server = helper.getLevel().getServer();
         try {
             GameTestCompat.setCamera(server, RobotCamera.Mode.off);
-            helper.assertValueEqual(RobotCamera.start(owner, robot), "The robot camera is turned off on this server.", "off");
+            helper.assertValueEqual(RobotCamera.start(owner, robot).getString(), "The robot camera is turned off on this server", "off");
             GameTestCompat.setCamera(server, RobotCamera.Mode.ops);
-            helper.assertValueEqual(RobotCamera.start(owner, robot), "Only operators may use the robot camera on this server.", "ops, owner not op");
+            helper.assertValueEqual(RobotCamera.start(owner, robot).getString(), "Only operators may use the robot camera on this server", "ops, owner not op");
             GameTestCompat.op(owner);
             allowed(helper, RobotCamera.start(owner, robot), "ops, owner is op");
             // Permission taken away: the next tick ends the view.
@@ -2151,7 +2201,7 @@ public class RobotGameTests {
         RobotEntity robot = RobotManager.robot(spawn(helper, owner.getUUID()));
         ChunkPos far = new ChunkPos(McCompat.chunkX(robot.chunkPosition()) + 10, McCompat.chunkZ(robot.chunkPosition()));
         owner.setChunkTrackingView(ChunkTrackingView.of(far, 2));
-        helper.assertValueEqual(RobotCamera.start(owner, robot), "Your robot is too far away for the camera.", "out of range");
+        helper.assertValueEqual(RobotCamera.start(owner, robot).getString(), "Your robot is too far away for the camera. Go closer to it", "out of range");
         helper.getLevel().getServer().getPlayerList().remove(owner);
         helper.succeed();
     }
@@ -2174,7 +2224,7 @@ public class RobotGameTests {
         ServerPlayer owner = cameraPlayer(helper);
         ServerPlayer other = cameraPlayer(helper);
         RobotEntity robot = RobotManager.robot(spawn(helper, owner.getUUID()));
-        helper.assertValueEqual(RobotCamera.start(other, robot, true), "This is not your robot.", "a stranger");
+        helper.assertValueEqual(RobotCamera.start(other, robot, true).getString(), "This is not your robot", "a stranger");
         helper.assertTrue(RobotCamera.viewing(other) == null, "the stranger sees nothing");
         allowed(helper, RobotCamera.start(owner, robot, true), "the owner");
         helper.assertTrue(RobotCamera.viewing(owner) == robot && RobotCamera.following(owner), "the owner follows the robot");

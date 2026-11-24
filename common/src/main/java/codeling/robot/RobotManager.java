@@ -2,6 +2,7 @@ package codeling.robot;
 
 import codeling.McCompat;
 import codeling.Codeling;
+import codeling.Messages;
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
 import java.util.ArrayDeque;
@@ -31,6 +32,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -149,17 +151,32 @@ public final class RobotManager {
             return;
         }
         robot.setKey(key);
+        showDefaultName(RobotLinks.get(level.getServer()), robot);
         ServerPlayer player = level.getServer().getPlayerList().getPlayer(owner);
         if (player != null) robot.setOwnerName(player.getGameProfile().name());
         robot.rememberAppearance();
         LOADED.put(key, robot);
-        Codeling.LOG.info("spawn: {} was loaded into the world at {} in {}.", label(level.getServer(), key), fmt(robot.position()), dim(level));
+        Codeling.LOG.detail("spawn: {} was loaded into the world at {} in {}.", label(level.getServer(), key), fmt(robot.position()), dim(level));
+    }
+
+    // Issue #293: the default robot's name is in robots.dat. A robot from a world saved before that has it only as its
+    // tag, which is kept as the name when it is one and no other robot of the owner has it (else it stays only a tag).
+    private static void showDefaultName(RobotLinks links, RobotEntity robot) {
+        RobotLinks.Key key = robot.key();
+        if (!key.name().isEmpty()) return;
+        String name = links.defaultName(key.owner());
+        if (!name.isEmpty()) {
+            robot.showName(name);
+        } else if (robot.getCustomName() != null) {
+            String tag = robot.getCustomName().getString();
+            if (nameProblem(tag) == null && links.sameName(key.owner(), tag) == null) links.setDefaultName(key.owner(), tag);
+        }
     }
 
     // "Player303's robot "Miner"" or "Player303's default robot".
     static String label(MinecraftServer server, RobotLinks.Key key) {
         ServerPlayer p = server.getPlayerList().getPlayer(key.owner());
-        return (p != null ? p.getGameProfile().name() : key.owner().toString()) + "'s "
+        return (p != null ? codeling.log.Log.person(p.getGameProfile().name()) : key.owner().toString()) + "'s "
                 + (key.name().isEmpty() ? "default robot" : "robot \"" + key.name() + "\"");
     }
 
@@ -229,8 +246,7 @@ public final class RobotManager {
         if (robot != null && robot.level() == level) {
             String before = fmt(robot.position());
             robot.snapTo(pos, facing.toYRot(), 0);
-            Codeling.LOG.info("spawn: Moved {} from {} to {}, facing {}, in {}. It now stands at {}.{}", label(level.getServer(), key), before, fmt(pos),
-                    facing.getName(), dim(level), fmt(robot.position()), robot.position().distanceTo(pos) > 0.5 ? " This is NOT where it was asked to go." : "");
+            spawned(level, key, robot, "Moved from " + before, pos, facing);
             return robot;
         }
         RobotEntity old = robot;
@@ -241,6 +257,7 @@ public final class RobotManager {
         if (player != null) robot.setOwnerName(player.getGameProfile().name());
         robot.snapTo(pos, facing.toYRot(), 0);
         RobotLinks links = RobotLinks.get(level.getServer());
+        showDefaultName(links, robot);
         RobotLinks.Appearance previousAppearance = links.appearance(links.robot(key));
         if (old == null) {
             robot.setSkin(previousAppearance.skin());
@@ -261,9 +278,13 @@ public final class RobotManager {
         links.set(key, robot.getUUID());
         robot.rememberAppearance();
         level.addFreshEntity(robot);
-        Codeling.LOG.info("spawn: Created {} at {}, facing {}, in {}. It now stands at {}.{}", label(level.getServer(), key), fmt(pos), facing.getName(),
-                dim(level), fmt(robot.position()), robot.position().distanceTo(pos) > 0.5 ? " This is NOT where it was asked to go." : "");
+        spawned(level, key, robot, "Created", pos, facing);
         return robot;
+    }
+
+    private static void spawned(ServerLevel level, RobotLinks.Key key, RobotEntity robot, String how, Vec3 pos, Direction facing) {
+        Codeling.LOG.detail("spawn: {}: {} to {}, facing {}, in {}.", label(level.getServer(), key), how, fmt(pos), facing.getName(), dim(level));
+        if (robot.position().distanceTo(pos) > 0.5) Codeling.LOG.warn("spawn: {} stands at {}, not at {} where it was put.", label(level.getServer(), key), fmt(robot.position()), fmt(pos));
     }
 
     /**
@@ -271,20 +292,36 @@ public final class RobotManager {
      * the owner already has are always allowed (spawn moves it). A new named robot needs a free name and room under
      * codeling:max_robots, which counts the default robot as one. Lowering the rule never removes robots.
      */
-    public static String spawnRefusal(MinecraftServer server, UUID owner, String name) {
+    public static Component spawnRefusal(MinecraftServer server, UUID owner, String name) {
         RobotLinks links = RobotLinks.get(server);
         if (name.isEmpty() || links.robot(new RobotLinks.Key(owner, name)) != null) return null;
-        String problem = RobotCommand.nameProblem(name);
+        Component problem = nameProblem(name);
         if (problem != null) return problem;
         String same = links.sameName(owner, name);
-        if (same != null) return "You already have a robot called " + same;
+        if (same != null) return Messages.of("message.codeling.name.taken", same);
         int max = Codeling.maxRobots(server);
         if (links.names(owner).size() + 1 < max) return null;
-        return max == 1
-                ? "This world allows one robot per player, so robots cannot have names here (game rule codeling:max_robots is 1). "
-                        + "Use /robot spawn without a name, or ask an operator for /gamerule codeling:max_robots 4"
-                : "This world allows " + max + " robots per player: your default robot and " + (max - 1) + " with a name (game rule "
-                        + "codeling:max_robots is " + max + "). Remove one with /robot remove <name>, or ask an operator to raise the rule";
+        return max == 1 ? Messages.of("commands.codeling.spawn.one", "codeling:max_robots", "/robot spawn")
+                : Messages.of("commands.codeling.spawn.limit", max, max - 1, "codeling:max_robots", "/robot remove");
+    }
+
+    // The same rules as RobotCommand.nameProblem, in the player's language. A new name may not be agent either (issue
+    // #293); that is not in RobotCommand, which also checks commands for robots an older world already has.
+    private static Component nameProblem(String name) {
+        if (name.equalsIgnoreCase(RobotLinks.AGENT)) return Messages.of("message.codeling.name.reserved", name);
+        if (RobotCommand.nameProblem(name) == null) return null;
+        return RobotCommand.reservedName(name) ? Messages.of("message.codeling.name.reserved", name) : Messages.of("message.codeling.name.invalid", RobotCommand.MAX_NAME);
+    }
+
+    /** The name of the block with this code, or null when Codeling has no number for it. */
+    static Component blockName(int code) {
+        String id = BlockIds.toModern(code);
+        return id == null ? null : McCompat.block(Identifier.parse(id)).getName();
+    }
+
+    /** The name of the item with this code. */
+    static Component itemName(int code) {
+        return new ItemStack(item(code)).getHoverName();
     }
 
     /** Queues a validated command for the owner's default robot; {@code done} gets the result on a later tick. */
@@ -294,11 +331,16 @@ public final class RobotManager {
 
     /** Queues a validated command for one of the owner's robots; {@code done} gets the result on a later tick. */
     public static void submit(RobotLinks.Key key, long run, RobotCommand command, Consumer<Result> done) throws RobotException {
+        submit(key, run, -1, command, done);
+    }
+
+    /** As {@link #submit(RobotLinks.Key, long, RobotCommand, Consumer)}; {@code id} is the command's number in the run, for the log. */
+    public static void submit(RobotLinks.Key key, long run, long id, RobotCommand command, Consumer<Result> done) throws RobotException {
         if (!LOADED.containsKey(key)) {
             throw new RobotException(Result.Code.UNLOADED, key.name().isEmpty() ? "robot is not loaded (or not spawned: /robot spawn)"
                     : "robot " + key.name() + " is not loaded (or not spawned: /robot spawn " + key.name() + ", see /robot list)");
         }
-        queue(key).submit(run, command, done);
+        queue(key).submit(run, id, command, done);
     }
 
     /** New editor run for all of the owner's robots: their queues are dropped and the shared run id is new. */
@@ -334,21 +376,24 @@ public final class RobotManager {
     /**
      * Renames one of the owner's robots (issue #151), from /robot rename or a name tag. A named robot changes its
      * name everywhere (robots.get, the commands, the tag) and its queued commands stop; the default robot stays the
-     * default robot (agent in programs) and only shows the new name. Answers why not, or null. Names are unique per owner.
+     * default robot (agent in programs) and only its name for the player and the commands is new. Answers why not, or
+     * null. Names are unique per owner.
      */
-    public static String rename(MinecraftServer server, RobotLinks.Key key, String name) {
+    public static Component rename(MinecraftServer server, RobotLinks.Key key, String name) {
         RobotLinks links = RobotLinks.get(server);
         UUID id = links.robot(key);
-        if (id == null) return key.name().isEmpty() ? "No robot. Use /robot spawn" : "You have no robot called " + key.name();
-        String problem = RobotCommand.nameProblem(name);
+        if (id == null) return Messages.absent(server, key.owner(), key.name());
+        Component problem = nameProblem(name);
         if (problem != null) return problem;
-        String same = links.sameName(key.owner(), name);
-        if (same != null && !same.equals(key.name())) return "You already have a robot called " + same;
+        String same = links.sameName(key.owner(), name, key);
+        if (same != null) return Messages.of("message.codeling.name.taken", same);
         RobotEntity robot = LOADED.get(key);
         if (key.name().isEmpty()) {
-            if (robot == null) return "Robot is not loaded";
-            robot.setCustomName(Component.literal(name));
-            robot.setCustomNameVisible(true);
+            links.setDefaultName(key.owner(), name);
+            if (robot != null) {
+                robot.showName(name);
+                robot.setCustomNameVisible(true);
+            }
             return null;
         }
         RobotLinks.Key renamed = new RobotLinks.Key(key.owner(), name);
@@ -367,13 +412,13 @@ public final class RobotManager {
     /** A vanilla name tag used on a robot (issue #151): the owner or an op renames it, and the tag is used up. */
     static void nameTag(ServerPlayer player, RobotEntity robot, ItemStack stack) {
         if (!mayOpen(player, robot)) {
-            player.sendSystemMessage(Component.literal("This is not your robot."));
+            Messages.actionBar(player, Messages.of("message.codeling.not_yours"));
             return;
         }
         if (robot.key() == null) return; // a stale copy, removed this tick
-        String refusal = rename(player.level().getServer(), robot.key(), stack.get(DataComponents.CUSTOM_NAME).getString());
+        Component refusal = rename(player.level().getServer(), robot.key(), stack.get(DataComponents.CUSTOM_NAME).getString());
         if (refusal != null) {
-            player.sendSystemMessage(Component.literal(refusal));
+            Messages.actionBar(player, refusal);
             return;
         }
         if (!player.hasInfiniteMaterials()) stack.shrink(1);
@@ -384,12 +429,13 @@ public final class RobotManager {
      * or drops at the player's feet when the inventory is full (the way a closed crafting grid gives items back), so
      * nothing is lost. Only a loaded robot: an unloaded one holds the only copy of its items. Answers why not, or null.
      */
-    public static String remove(ServerPlayer player, String name) {
+    public static Component remove(ServerPlayer player, String name) {
         RobotLinks.Key key = new RobotLinks.Key(player.getUUID(), name);
         RobotLinks links = RobotLinks.get(player.level().getServer());
-        if (name.isEmpty() || links.robot(key) == null) return "You have no robot called " + name;
+        if (links.robot(key) == null) return Messages.absent(player.level().getServer(), key.owner(), name);
+        if (name.isEmpty()) return Messages.of("commands.codeling.remove.default");
         RobotEntity robot = LOADED.get(key);
-        if (robot == null) return "Robot " + name + " is not loaded. Go near it, or bring it to you with /robot spawn " + name + ", then remove it";
+        if (robot == null) return Messages.absent(player.level().getServer(), key.owner(), name);
         RobotQueue queue = QUEUES.remove(key);
         if (queue != null) queue.clear(Result.Code.STOPPED, "robot " + name + " was removed");
         for (int i = 0; i < robot.inventory().getContainerSize(); i++) {
@@ -408,7 +454,7 @@ public final class RobotManager {
      */
     public static boolean openInventory(ServerPlayer player, RobotEntity robot) {
         if (!mayOpen(player, robot)) {
-            player.sendSystemMessage(Component.literal("This is not your robot."));
+            Messages.actionBar(player, Messages.of("message.codeling.not_yours"));
             return false;
         }
         player.openMenu(new SimpleMenuProvider((id, inventory, p) -> new RobotMenu(id, inventory, robot), robot.getDisplayName()));
@@ -427,6 +473,16 @@ public final class RobotManager {
     }
 
     private record RunInfo(String name, long nanos) {
+    }
+
+    /** For the report: robots in the loaded world. */
+    public static int loadedCount() {
+        return LOADED.size();
+    }
+
+    /** For the report: programs started from an editor and not ended. */
+    public static int runCount() {
+        return RUN_INFO.size();
     }
 
     private static final Map<UUID, RunInfo> RUN_INFO = new HashMap<>();
@@ -461,7 +517,7 @@ public final class RobotManager {
         for (RobotEntity robot : LOADED.values()) {
             RobotQueue queue = QUEUES.get(robot.key());
             RobotQueue.Entry entry = queue == null ? null : queue.head();
-            if (entry != null) Codeling.LOG.info("pause: Minecraft was paused (or stalled) for {} s; {} was waiting to run {}. It goes on now.",
+            if (entry != null) Codeling.LOG.detail("pause: Minecraft was paused (or stalled) for {} s; {} was waiting to run {}. It goes on now.",
                     String.format(java.util.Locale.ROOT, "%.1f", seconds), label(robot), entry.command.op().name());
         }
     }
@@ -502,6 +558,10 @@ public final class RobotManager {
     // One action step: one block of a move, or a whole other action.
     private static void step(RobotEntity robot, RobotQueue queue, RobotQueue.Entry entry) {
         RobotCommand command = entry.command;
+        if (!entry.started) {
+            entry.started = true;
+            if (Codeling.LOG.detailed()) Codeling.LOG.detail("robot: {} starts {} {}", label(robot), command.op(), entry.id < 0 ? "(a /robot command)" : "(run " + queue.run() + " command " + entry.id + ")");
+        }
         // shortcut: a stop mid-fall leaves the robot in the air until its next sideways move; fine while falls are short.
         if (entry.falling) {
             if (fall(robot)) return;
@@ -574,13 +634,13 @@ public final class RobotManager {
 
     private static void pathStart(RobotEntity robot, RobotQueue.Entry entry, String to) {
         entry.from = robot.blockPosition();
-        Codeling.LOG.info("path: {} starts {} at {} (standing on {}){}.", label(robot), entry.command.op().name(), at(entry.from),
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("path: {} starts {} at {} (standing on {}){}.", label(robot), entry.command.op().name(), at(entry.from),
                 name(robot.level().getBlockState(entry.from.below()).getBlock()), to);
     }
 
     private static void pathEnd(RobotEntity robot, RobotQueue.Entry entry, String why) {
         BlockPos now = robot.blockPosition();
-        Codeling.LOG.info("path: {} {} ended after {} steps at {}, {} blocks from where it started: {}.", label(robot), entry.command.op().name(), entry.step,
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("path: {} {} ended after {} steps at {}, {} blocks from where it started: {}.", label(robot), entry.command.op().name(), entry.step,
                 at(now), entry.from == null ? 0 : entry.from.distManhattan(now), why);
     }
 
@@ -820,7 +880,7 @@ public final class RobotManager {
         Block block = c.g() == 0 ? Blocks.AIR : McCompat.block(Identifier.parse(BlockIds.toModern(c.g())));
         Block floor = c.op() == RobotCommand.Op.MAZE ? McCompat.block(Identifier.parse(BlockIds.toModern(c.h()))) : block;
         boolean free = freeItems(robot);
-        if (fresh) Codeling.LOG.info("build: {} starts {} with {}; {}.", label(robot), c.op().name().toLowerCase(java.util.Locale.ROOT), name(block),
+        if (fresh && Codeling.LOG.detailed()) Codeling.LOG.detail("build: {} starts {} with {}; {}.", label(robot), c.op().name().toLowerCase(java.util.Locale.ROOT), name(block),
                 !free ? "it builds from the robot's inventory (not creative, and game rule codeling:free_items is off)"
                         : Codeling.freeItems(robot.level().getServer()) ? "it builds free of charge because game rule codeling:free_items is on"
                         : "it builds free of charge because the owner is in creative mode");
@@ -870,7 +930,7 @@ public final class RobotManager {
     }
 
     private static void buildEnd(RobotEntity robot, RobotQueue queue, RobotQueue.Entry entry, String why, Result result) {
-        Codeling.LOG.info("build: {} finished {}: changed {} of {} blocks looked at.{}{}", label(robot), entry.command.op().name().toLowerCase(java.util.Locale.ROOT),
+        if (Codeling.LOG.detailed()) Codeling.LOG.detail("build: {} finished {}: changed {} of {} blocks looked at.{}{}", label(robot), entry.command.op().name().toLowerCase(java.util.Locale.ROOT),
                 entry.step, entry.looked, why == null ? "" : " It stopped early: " + why + ".",
                 entry.refused == 0 ? "" : " " + entry.refused + " blocks were refused (a claim or protection, or nothing to place against).");
         queue.finish(result);
@@ -966,7 +1026,7 @@ public final class RobotManager {
         BlockPos target = other.blockPosition();
         if (entry.path == null && Arrays.stream(Direction.values()).map(target::relative)
                 .noneMatch(p -> level.isLoaded(p) && (!blocked(level, p) || opens(level, p)))) {
-            Codeling.LOG.info("path: {} cannot go to {}: no free block next to it at {}.", label(robot), label(other), at(target));
+            Codeling.LOG.detail("path: {} cannot go to {}: no free block next to it at {}.", label(robot), label(other), at(target));
             queue.finish(Result.ok(false, "there is no free block next to " + name));
             return;
         }
@@ -984,7 +1044,6 @@ public final class RobotManager {
         Direction dir = RobotPath.direction(at, path.get(entry.step + 1));
         if (dir.getAxis().isHorizontal()) robot.setYRot(dir.toYRot());
         BlockPos next = at.relative(dir);
-        Codeling.LOG.debug("path: {} step {} to {}", label(robot), entry.step + 1, at(next));
         // Issue #109: a closed door on the path; a claim that refuses the click leaves it shut and the move blocked.
         if (opens(robot.level(), next)) interact(robot, next, dir.getOpposite());
         moveOne(robot, queue, entry, dir, false, blocked);
@@ -1208,7 +1267,7 @@ public final class RobotManager {
         return switch (command.op()) {
             case PLACE -> {
                 boolean placed = place(robot, target, dir.getOpposite());
-                Codeling.LOG.info("build: {} {} {} with agent.place{}.", label(robot), placed ? "placed a block at" : "could NOT place a block at", at(target),
+                if (Codeling.LOG.detailed()) Codeling.LOG.detail("build: {} {} {} with agent.place{}.", label(robot), placed ? "placed a block at" : "could NOT place a block at", at(target),
                         placed ? "" : !(robot.inventory().getItem(robot.selectedSlot() - 1).getItem() instanceof BlockItem) ? ": the selected slot holds no block"
                                 : !state.canBeReplaced() ? ": the target is " + name(state.getBlock()) + ", not empty" : ": a claim or protection refused it");
                 yield Result.ok(placed);
@@ -1554,12 +1613,11 @@ public final class RobotManager {
     }
 
     /**
-     * MakeCode's yaw convention (Bedrock agent): south 0, west 90, north 180, east -90. Java's yaw is the same
-     * except that it says 270 for east, so only east is folded. shortcut: unconfirmed against MakeCode in game (issue #20).
+     * MakeCode's yaw convention (its agent.getOrientation page): south 0, west 90, north -180, east -90, which is Java's
+     * yaw folded to -180 to 180. shortcut: not yet confirmed in Minecraft Education (issue #22).
      */
     public static int orientation(Direction facing) {
-        int yaw = (int) facing.toYRot();
-        return yaw > 180 ? yaw - 360 : yaw;
+        return Mth.wrapDegrees((int) facing.toYRot());
     }
 
     static Direction relative(Direction facing, int sixDirection) {

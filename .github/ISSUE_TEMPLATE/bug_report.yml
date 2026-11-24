@@ -1,0 +1,83 @@
+name: Bug report
+description: Something in Codeling does not work
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for telling us. You can write in English or Norwegian.
+        **Security problem?** Do not write it here. Report it privately, see [SECURITY.md](https://github.com/halisonworks/mod-codeling/blob/develop/SECURITY.md).
+        Everything you write here is public. Leave out real names, email addresses and editor links (they contain a token). If you are a child, ask an adult to help you.
+  - type: input
+    id: codeling
+    attributes:
+      label: Codeling version
+      description: It is in the name of the jar file, and in the mod list.
+      placeholder: 0.0.4
+    validations:
+      required: true
+  - type: input
+    id: minecraft
+    attributes:
+      label: Minecraft version
+      placeholder: "26.3"
+    validations:
+      required: true
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Loader
+      options: ["Fabric", "NeoForge"]
+    validations:
+      required: true
+  - type: input
+    id: loader-version
+    attributes:
+      label: Loader version
+  - type: dropdown
+    id: world
+    attributes:
+      label: Where did it happen?
+      options: ["Singleplayer", "Open to LAN", "Dedicated server", "Editor only, no game"]
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: How was the program written?
+      options: ["Blocks", "JavaScript", "Python", "No program (a command or the game)"]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do?
+      description: Step by step, so we can do the same.
+      placeholder: |
+        1. I typed /robot spawn
+        2. I opened the editor with /codeling
+        3. I pressed Run
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: program
+    attributes:
+      label: The program
+      description: Paste the JavaScript or Python text. For Blocks, switch to JavaScript first.
+      render: text
+  - type: textarea
+    id: log
+    attributes:
+      label: Report
+      description: Type /codeling report in the game and paste the report here (on a server, an operator types /codeling server report and takes logs/codeling-report.txt). Can you make the problem happen again? Type /codeling log on first, then the report has more. Read through it and remove names. Add the line from the robot log in the editor.
+      render: text
+  - type: input
+    id: extra
+    attributes:
+      label: Other mods, browser and operating system

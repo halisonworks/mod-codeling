@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Codeling has only pre-releases so far (0.0.1, 0.0.2 and 0.0.3). The current `develop` branch gets security fixes, and so
+Codeling has only pre-releases so far (0.0.1, 0.0.2, 0.0.3 and 0.0.4). The current `develop` branch gets security fixes, and so
 does the latest release, as follows.
 
 The latest release for each supported Minecraft version (now 26.3, 26.2, 26.1 to 26.1.2, 1.21.1 and 1.21.2 to 1.21.11,
@@ -20,7 +20,7 @@ Please include:
 - the Codeling version, the loader (Fabric or NeoForge) and the Minecraft version,
 - singleplayer or a dedicated server,
 - the steps to reproduce, and what an attacker gains,
-- a proof of concept if you have one, and the relevant lines of the game log (logger `codeling/relay`). Remove the
+- a proof of concept if you have one, and the report from `/codeling report` (type `/codeling log on` first). Remove the
   editor token from anything you send.
 
 ## What to expect

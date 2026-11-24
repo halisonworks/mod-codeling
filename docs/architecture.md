@@ -166,6 +166,21 @@ Basis: pxt's own local-token mechanism.
 - Block broken, redstone and day start events as built (issue #89): Fabric's `PlayerBlockBreakEvents.AFTER` (server side, the block already gone; a break refused in `BEFORE` never gets there) and NeoForge's `BreakBlockEvent` (`BlockEvent.BreakEvent` before 26.1; fired before the block goes, so lowest priority and not when cancelled) both call `Codeling.blockBroken(player, state)`, which never changes or cancels the break. Only a real `ServerPlayer` on the server thread counts, never a FakePlayer: the robot's carries its owner's UUID. `PlayerEvents` queues `event blockBroken` with the block's code when the breaker's current run listens for it. Redstone and the day start need no loader event: on the server tick, only for a current run that subscribed, `PlayerEvents` reads the power at the default robot's own block (`RobotManager.redstonePower`, the same value as `agent.redstonePower`), only while the robot is loaded, and the owner's time of day (`McCompat.dayTime` of the owner's level, modulo 24000). `redstonePowered` goes on a rising edge (0 to more; a robot powered when the program subscribes gives none), `dayStart` when the time of day is lower than on the tick before. All three share the per-player queue of 16 and the one-per-tick pace with chat and death, and end with the run in the same way.
 - Signals as built (issue #249): another mod's `Signals.post` (any thread) puts the signal in a lock-free queue of at most 256 for all players together (`SignalHub`); a full queue answers false and keeps nothing. At the start of each tick `PlayerEvents` takes them all and queues `event signal` with the name and the number for the named player's current run, only when it subscribed to that name; anything else is dropped without a word. `/codeling signal` (op level 2, `EntityArgument.players()`) queues the same event at once and answers with the number of programs it reached. A program's `signals.send(name)` is a player call (`PlayerApi`, same pace and cap); on its tick it asks every listener added with `Signals.onSent`, answers true when one took the name, and false with a message when none listens, none took it, or the same name went less than 20 ticks before for that player. A listener that throws counts as false and is logged once. Signals share the per-player queue of 16 and the one-per-tick pace, and end with the run like the other events.
 
+### The robot's FakePlayer, for other mods (issue #246)
+
+Another mod can recognise a robot and its owner with no dependency on Codeling. This is stable behaviour, checked by GameTests on both loaders; a change is a breaking change and gets a line in `CHANGELOG.md`:
+
+| What | Value |
+|---|---|
+| Type | The loader's own `FakePlayer` (Fabric `net.fabricmc.fabric.api.entity.FakePlayer`, NeoForge `net.neoforged.neoforge.common.util.FakePlayer`) |
+| UUID | The owner's UUID, so `PlayerList.getPlayer(uuid)` gives the owner when they are in the game |
+| Profile name | `Codeling[<owner name>]`. When the owner is not in the game: `Codeling[` and the first 8 characters of the UUID, then `]` |
+
+- Using a block fires the loader's normal event with that FakePlayer: Fabric `UseBlockCallback`, NeoForge `PlayerInteractEvent.RightClickBlock`. So do placing (the position is the one the block goes into) and every container call, also those that only look (`containerCount`, `containerSize`). The tests cover a door or gate, a placed block and a container.
+- The event says the robot clicked, not that something happened. A listener that cancels it stops the action, as for a player.
+- Check the type as well as the UUID: code that looks only at the UUID takes the robot for its owner.
+- The FakePlayer is fetched per action. Do not keep a reference to it.
+
 ### Signals for other mods (issue #249)
 
 A mod that wants to talk with players' programs (a bridge) compiles against `codeling.api.Signals` in the `core` jar: plain Java, no Minecraft types, the same for every Minecraft version and loader. Its whole surface:
@@ -229,7 +244,7 @@ Names and casing follow MakeCode so programs from minecraft.makecode.com paste i
 | `agent.teleport(pos: Position, facing: CompassDirection)` | V-EX, V-TYP | Limited to loaded chunks near the owner. |
 | `agent.getPosition(): Position` | V-HOC | `robot.getPosition()` gives a named robot's position (block since issue #243). |
 | `agent.goToRobot(robot: Robot): boolean`, `robot.goToRobot(other: Robot): boolean` | INF | **Built (issue #243).** Codeling extension; MakeCode's agent reference has no call to move to another agent. Op `agent.goToRobot [name]` (`""` is the default robot), a new op in `cmd`, so no protocol version change (an older server answers `BAD_ARGS` "unknown op"). The server resolves the target by the command's owner and the name only, in the moving robot's queue, then walks like `moveTo` to a free block next to it and faces it. Refusals: `BAD_ARGS` (no such robot; lists the owner's own names), `UNLOADED`, `OUT_OF_RANGE` (another dimension, or the path search cap). |
-| `agent.getOrientation(): number` | V-TYP | Heading in degrees. Docs are inconsistent; the Bedrock yaw convention (0 south, 90 west, -90 east, +-180 north) equals Java `getYRot`. **Confirm in game** before fixing the convention. |
+| `agent.getOrientation(): number` | V-TYP | Heading in degrees. **Built (issue #22).** MakeCode's [reference page](https://minecraft.makecode.com/reference/agent/get-orientation) says 0 south, 90 west, -180 north, -90 east: Java's yaw folded to -180 to 180. Confirm in Minecraft Education. |
 | `agent.setAssist(assist: AgentAssist, on: boolean)` | V-EX, V-TYP | v1 supports `PLACE_ON_MOVE` only. |
 | `agent.place(direction: SixDirection)` | V-HOC | Places from the selected slot. |
 | `agent.destroy(direction: SixDirection)` | V-HOC | Drops go to robot inventory (proposal). Unbreakable blocks stay unbreakable (change from Bedrock). |
@@ -373,8 +388,8 @@ runners (issue #229). So CI does not catch a real slowdown; the maintainer runs 
 1. **Unit tests (JUnit, no Minecraft):** command decoder and validator (argument types, ranges, slot bounds), rate limiter, run-id rules, token compare, Host/Origin checks.
 2. **Fabric GameTest** (`fabric-gametest-api-v1`): robot move/turn/place/destroy/inspect in test structures; blocked movement; protection via FakePlayer; stop/pause; persistence across save and load. Headless in CI.
 3. **Client GameTest** (`fabric-client-gametest-api-v1`, issues #134 and #135, 26.3 only): a real client in a flat singleplayer world with real command packets and payloads, screenshot templates for the speech bubble, the robot from the follow camera and the selected slot, screenshots of the three robot styles and the wave, the robot screen, save and reload; and an end-to-end test that drives the editor in headless Chromium against the running relay (not in a world, stale token, `agent.move`, `/robot stop`). Origin, Host and token checks are JUnit tests (`RelayHardeningTest`). Not part of `build`; CI runs them in the `client-gametest` job on `main` and on demand, under Loom's own `xvfb-run` with Mesa's software Vulkan driver.
-3a. **NeoForge** (issue #187): nine smoke GameTests with NeoForge's `RegisterGameTestsEvent` (spawn, move, place, game rules incl. the enum rule, payload registration, FakePlayer in a claim, an adventure owner, the chat hook, the block break hook), headless in CI in their own job. NeoForge has no client GameTest API, so `:neoforge:<version>:runClientSmoke` starts the client once and checks the mixins and that the relay serves the editor; the owner checks the rest in game.
-3b. **Minecraft 1.21.1** (issue #189): the same 148 Fabric server GameTests and the nine NeoForge smoke GameTests run on 1.21.1, headless in CI. Fabric API for 1.21.1 has no client GameTest API, so `:fabric:1.21.1:runClientSmoke` does what the NeoForge smoke does. The editor suite and the client GameTests run on 26.3 only (the editor is the same for every version).
+3a. **NeoForge** (issue #187): ten smoke GameTests with NeoForge's `RegisterGameTestsEvent` (spawn, move, place, game rules incl. the enum rule, payload registration, FakePlayer in a claim, the FakePlayer contract, an adventure owner, the chat hook, the block break hook), headless in CI in their own job. NeoForge has no client GameTest API, so `:neoforge:<version>:runClientSmoke` starts the client once and checks the mixins and that the relay serves the editor; the owner checks the rest in game.
+3b. **Minecraft 1.21.1** (issue #189): the same 150 Fabric server GameTests and the ten NeoForge smoke GameTests run on 1.21.1, headless in CI. Fabric API for 1.21.1 has no client GameTest API, so `:fabric:1.21.1:runClientSmoke` does what the NeoForge smoke does. The editor suite and the client GameTests run on 26.3 only (the editor is the same for every version).
 4. **Target tests:** pxt compile tests for the API libs, plus blocks/JS/Python round trip of every v1 block.
 5. **Acceptance programs** (Microsoft, MIT): the "Agent Pyramid" example; [castle-builder](https://github.com/microsoft/makecode-minecraft-castle-builder) (agent move/place/teleport/setItem; its `builder`/`shapes` parts cut); [roller-coaster](https://github.com/microsoft/makecode-minecraft-roller-coaster) (`blocks.place/replace/testForBlock`); [pixel-art](https://github.com/microsoft/makecode-minecraft-pixel-art) (`blocks.fill`); the HOC2019 lessons. [mob-events](https://github.com/microsoft/makecode-minecraft-mob-events), [music](https://github.com/microsoft/makecode-minecraft-music) and [space](https://github.com/microsoft/makecode-minecraft-space) rely on `player.execute`, `builder` or `shapes`, so they are v2 tests. A scripted harness drives the WebSocket directly against a GameTest server.
 
@@ -385,6 +400,55 @@ runners (issue #229). So CI does not catch a real slowdown; the maintainer runs 
 ## 11. Languages
 
 English and Norwegian UI. Mod strings: standard `en_us.json` and `nb_no.json` lang files. Editor: pxt knows `nb` and `nn-NO`; the micro:bit target ships both. Coverage measured 2026-11-09: `nb` 1153 keys, `nn-NO` 1106, against 2443 for German, so about half is translated and the rest falls back to English. Our own block and target strings we translate ourselves. Target config: `availableLocales: ["en","nb","nn-NO"]`, `disableLiveTranslations: true` (otherwise a static build downloads from makecode.com), and translations bundled at build time with `pxt staticpkg --locs-src <dir>` ([docs](https://github.com/microsoft/pxt/blob/master/docs/cli/staticpkg.md)). Blockly's own messages are not needed: pxt overrides them with its strings. The licence for reusing the community (Crowdin) translations in a non-Microsoft target is **[UNVERIFIED]**; check it before bundling. **(spike 2026-11-09)** Bundling works: `locales/nb/strings.json` and `webstrings.json` (core) plus `locales/nb/codeling/*.json` (our block and target strings) give a Norwegian UI at `?lang=nb` with no network. Docs pages (the Examples gallery, issue #216) have no bundled translations in pxt: the packaged editor asks for `docs/<page>.md?lang=nb`, and the relay answers with `docs/_locales/nb/<page>.md` when the editor has one.
+
+### Messages to the player
+
+Everything the mod says to a player goes through `codeling.Messages` (issue #278), so it looks and reads like the game's
+own messages. `PlayerMessageTest` fails when other code sends a message itself, or when a key has no text.
+
+| Kind | How it is shown | With |
+|---|---|---|
+| A command did what it should | White, only to the caller; silent when the game rule `sendCommandFeedback` is off | `Messages.success` |
+| An operator's command for the whole server (`/robot stop all`) | White, other operators see it too | `Messages.operatorSuccess` |
+| A command could not do it | Red, the command's result is 0; says what happened and what to do next | `Messages.failure` |
+| A wrong argument | Red with the game's own pointer (`<--[HERE]`); use literals and Brigadier's ranges first | `Messages.argumentError` |
+| A refusal of something done with the mouse | Above the hotbar, as for a locked chest | `Messages.actionBar` |
+| The client's own command (`/codeling`) tells what it did | The game's client system message | `Messages.of` and the chat's client message |
+
+Keys are `commands.codeling.*` for command replies and `message.codeling.*` for the rest, with `%s` arguments and no
+full stop at the end. There are no separate warnings or hints: a refusal carries its own hint. Every message carries its English text as a fallback, because vanilla clients may join. Error
+codes and op names stay in the editor's log and the game log; a player never sees them. The exceptions are text that
+is not Codeling's own: `player.say` and the speech bubble (the program's words) and a robot's name.
+
+### The log
+
+Everything the mod logs goes through `codeling.log.Log` (issue #279). `LogUseTest` fails when other code logs by itself,
+or when a log call is given the editor's address, the token or a program's or player's own words.
+
+| Level | What goes there | With |
+|---|---|---|
+| error | Codeling cannot do something it is there for (the editor server does not start, a file cannot be read) | `Log.error` |
+| warn | Something is wrong and Codeling goes on (an editor with an old link, no world, a listener that fails) | `Log.warn` |
+| info | Start with the versions, stop, the editor connects and disconnects, a program starts and ends, a refused command | `Log.info` |
+| debug | Each step of a command, spawns, paths, builds, the camera. At info, marked `[detail]`, while extended logging is on | `Log.detail` |
+| trace | Not used | |
+
+Loggers: `codeling` (game and client), `codeling/relay` (editor and browser), `codeling/signals` (other mods' listeners).
+
+- **Extended logging** is off by default and never saved. `/codeling log on [minutes]` (client command, this game: in
+  singleplayer both halves) and `/codeling server log on [minutes]` (operators, the server) switch it on for 15 minutes
+  (1 to 60). It also ends after 50,000 lines. The log says when it goes on and off.
+- **One command** can be followed by `run N command M`: `browser ->` (relay), `client: to the server`, `server: from`,
+  `robot: ... starts`, `server: to`, `client: from the server` and `-> browser`.
+- **Repeated lines**: the same line is written 20 times in 10 seconds, then counted (not while extended logging is on).
+- **Never logged**, at any level: the token or a part of it, an editor address with a token, pictures, chat, what a robot
+  says, robot and player names from a message, program source. `Protocol.describe` shows kinds, numbers and lengths only.
+  Player names stand in the lines of a multiplayer server, where an operator must know whose program it was.
+- **The report**: `/codeling report` and `/codeling server report` write `logs/codeling-report.txt` with the versions, Java,
+  operating system, game rules and the newest 500 Codeling lines. Known player names, robot names in log lines, UUIDs
+  and the home folder are taken out. The player reads it through and sends it; nothing is sent by the mod.
+- Size, measured on 2026-11-24 with 20 robots that each run one command per tick for 400 ticks (8000 commands, server side):
+  no lines normally, 26,667 lines of about 128 bytes with extended logging on.
 
 ## 12. Distribution
 

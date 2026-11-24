@@ -2,11 +2,13 @@ package codeling.robot;
 
 import codeling.McCompat;
 import codeling.Codeling;
+import codeling.Messages;
 import codeling.net.RelayPayloads;
 import codeling.platform.Platform;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
@@ -32,53 +34,57 @@ public final class RobotCamera {
     }
 
     public static void playerLeft(ServerPlayer player) {
-        if (VIEWING.remove(player.getUUID()) != null) Codeling.LOG.info("camera: {} stopped looking through a robot: the player left the game.", player.getGameProfile().name());
+        if (VIEWING.remove(player.getUUID()) != null) Codeling.LOG.detail("camera: {} stopped looking through a robot: the player left the game.", player.getGameProfile().name());
     }
 
     public static void serverStopped() {
         VIEWING.clear();
     }
 
-    /** Why {@code player} may not look through {@code robot} now, or null when it is allowed. */
-    public static String refusal(ServerPlayer player, RobotEntity robot) {
+    /** Why the game rule keeps {@code player} from the camera, or null. */
+    static Component ruleRefusal(ServerPlayer player) {
         Mode mode = Codeling.robotCamera(player.level().getServer());
-        if (mode == Mode.off) return "The robot camera is turned off on this server.";
-        if (mode == Mode.ops && !McCompat.isGamemaster(player)) {
-            return "Only operators may use the robot camera on this server.";
-        }
-        if (robot == null || robot.isRemoved()) return "Robot is not loaded (or not spawned: /robot spawn)";
-        if (!RobotManager.mayOpen(player, robot)) return "This is not your robot.";
-        if (robot.level() != player.level()) return "Your robot is in another dimension.";
+        if (mode == Mode.off) return Messages.of("commands.codeling.camera.off");
+        return mode == Mode.ops && !McCompat.isGamemaster(player) ? Messages.of("commands.codeling.camera.ops") : null;
+    }
+
+    /** Why {@code player} may not look through {@code robot} now, or null when it is allowed. */
+    public static Component refusal(ServerPlayer player, RobotEntity robot) {
+        Component rule = ruleRefusal(player);
+        if (rule != null) return rule;
+        if (robot == null || robot.isRemoved()) return Messages.of("commands.codeling.camera.no_robot", Messages.spawnCommand(""));
+        if (!RobotManager.mayOpen(player, robot)) return Messages.of("message.codeling.not_yours");
+        if (robot.level() != player.level()) return Messages.of("commands.codeling.camera.dimension");
         ChunkPos chunk = robot.chunkPosition();
-        if (!player.getChunkTrackingView().contains(McCompat.chunkX(chunk), McCompat.chunkZ(chunk))) return "Your robot is too far away for the camera.";
+        if (!player.getChunkTrackingView().contains(McCompat.chunkX(chunk), McCompat.chunkZ(chunk))) return Messages.of("commands.codeling.camera.too_far");
         return null;
     }
 
     /** Starts the view through the robot's eyes, or returns why not. */
-    public static String start(ServerPlayer player, RobotEntity robot) {
+    public static Component start(ServerPlayer player, RobotEntity robot) {
         return start(player, robot, false);
     }
 
     /** Starts the view through the robot's eyes or, with {@code follow}, from behind it; or returns why not. */
-    public static String start(ServerPlayer player, RobotEntity robot, boolean follow) {
-        String refusal = refusal(player, robot);
+    public static Component start(ServerPlayer player, RobotEntity robot, boolean follow) {
+        Component refusal = refusal(player, robot);
         if (refusal != null) {
-            Codeling.LOG.info("camera: {} could not start the camera: {}", player.getGameProfile().name(), refusal);
+            Codeling.LOG.detail("camera: {} could not start the camera: {}", player.getGameProfile().name(), refusal.getString());
             return refusal;
         }
-        Codeling.LOG.info("camera: {} is now looking {} {}.", player.getGameProfile().name(), follow ? "from behind" : "through the eyes of", RobotManager.label(robot));
+        Codeling.LOG.detail("camera: {} is now looking {} {}.", player.getGameProfile().name(), follow ? "from behind" : "through the eyes of", RobotManager.label(robot));
         VIEWING.put(player.getUUID(), new View(robot, follow));
         send(player, robot.getId(), follow);
         return null;
     }
 
     /** agent.camera: a CameraMode for the player's own default robot; null when done, else why not. */
-    public static String set(ServerPlayer player, int mode) {
+    public static Component set(ServerPlayer player, int mode) {
         return set(player, RobotManager.robot(player.getUUID()), mode);
     }
 
     /** agent.camera for one robot (issue #141), with the same checks; null when done, else why not. */
-    public static String set(ServerPlayer player, RobotEntity robot, int mode) {
+    public static Component set(ServerPlayer player, RobotEntity robot, int mode) {
         if (mode == OFF) {
             stop(player, "the program turned the camera off");
             return null;
@@ -94,7 +100,7 @@ public final class RobotCamera {
     /** As {@link #stop(ServerPlayer)}; {@code why} goes to the log. */
     public static boolean stop(ServerPlayer player, String why) {
         if (VIEWING.remove(player.getUUID()) == null) return false;
-        Codeling.LOG.info("camera: {} stopped looking through a robot: {}.", player.getGameProfile().name(), why);
+        Codeling.LOG.detail("camera: {} stopped looking through a robot: {}.", player.getGameProfile().name(), why);
         send(player, NONE, false);
         return true;
     }
@@ -116,9 +122,9 @@ public final class RobotCamera {
         VIEWING.entrySet().removeIf(e -> {
             ServerPlayer player = server.getPlayerList().getPlayer(e.getKey());
             if (player == null) return true;
-            String refusal = refusal(player, e.getValue().robot());
+            Component refusal = refusal(player, e.getValue().robot());
             if (refusal == null) return false;
-            Codeling.LOG.info("camera: {} stopped looking through a robot: {}", player.getGameProfile().name(), refusal);
+            Codeling.LOG.detail("camera: {} stopped looking through a robot: {}", player.getGameProfile().name(), refusal.getString());
             send(player, NONE, false);
             return true;
         });

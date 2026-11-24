@@ -96,6 +96,7 @@ public final class NeoForgeSmokeGameTests {
         TESTS.put("game_rules_registered", NeoForgeSmokeGameTests::gameRulesRegistered);
         TESTS.put("payload_types_registered", NeoForgeSmokeGameTests::payloadTypesRegistered);
         TESTS.put("fake_player_respects_claims", NeoForgeSmokeGameTests::fakePlayerRespectsClaims);
+        TESTS.put("fake_player_contract", NeoForgeSmokeGameTests::fakePlayerContract);
         TESTS.put("adventure_owner_cannot_build", NeoForgeSmokeGameTests::adventureOwnerCannotBuild);
         TESTS.put("chat_line_for_the_program", NeoForgeSmokeGameTests::chatLineForTheProgram);
         TESTS.put("block_broken_for_the_program", NeoForgeSmokeGameTests::blockBrokenForTheProgram);
@@ -281,6 +282,45 @@ public final class NeoForgeSmokeGameTests {
             helper.assertBlockPresent(Blocks.AIR, START.south());
             helper.assertValueEqual(RobotManager.robot(owner).inventory().getItem(0).getCount(), 5, "stone kept");
             helper.assertTrue(CLICKERS.contains(owner), "the claim mod saw the owner's UUID");
+        });
+    }
+
+    /** Owners whose robots' clicks another mod looks at, and what that mod saw in RightClickBlock (issue #246). */
+    private static final Set<UUID> WATCHED = ConcurrentHashMap.newKeySet();
+    private static final Set<Use> USES = ConcurrentHashMap.newKeySet();
+
+    private record Use(UUID owner, String name, BlockPos pos) {
+    }
+
+    @SubscribeEvent
+    public static void otherMod(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getEntity() instanceof FakePlayer player && WATCHED.contains(player.getUUID())) {
+            USES.add(new Use(player.getUUID(), player.getGameProfile().name(), event.getPos().immutable()));
+        }
+    }
+
+    // Issue #246, a contract with other mods (docs/architecture.md, section 3): the robot uses a block as a FakePlayer
+    // with the owner's UUID and the name Codeling[<owner name>], and RightClickBlock fires with it.
+    private static void fakePlayerContract(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.snapTo(Vec3.atCenterOf(helper.absolutePos(START).above(100)));
+        UUID owner = player.getUUID();
+        WATCHED.add(owner);
+        helper.setBlock(START.south(), Blocks.OAK_FENCE_GATE);
+        helper.setBlock(START.east(), Blocks.BARREL);
+        RobotManager.spawn(helper.getLevel(), owner, Vec3.atBottomCenterOf(helper.absolutePos(START)), Direction.SOUTH);
+        RobotManager.robot(owner).inventory().setItem(0, new ItemStack(Items.STONE, 5));
+        List<Result> use = send(helper, owner, "agent.interact", RobotCommand.FORWARD);
+        List<Result> place = send(helper, owner, "agent.place", RobotCommand.UP);
+        List<Result> size = send(helper, owner, "agent.containerSize", RobotCommand.LEFT);
+        String name = "Codeling[" + player.getGameProfile().name() + "]";
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(List.of(use, place, size), List.of(List.of(Result.ok(true)), List.of(Result.ok(true)),
+                    List.of(Result.ok(27))), "results");
+            Set<Use> seen = USES.stream().filter(u -> u.owner().equals(owner)).collect(java.util.stream.Collectors.toSet());
+            helper.assertValueEqual(seen, Set.of(new Use(owner, name, helper.absolutePos(START.south())),
+                    new Use(owner, name, helper.absolutePos(START.above())), new Use(owner, name, helper.absolutePos(START.east()))), "clicks");
+            helper.getLevel().getServer().getPlayerList().remove(player);
         });
     }
 

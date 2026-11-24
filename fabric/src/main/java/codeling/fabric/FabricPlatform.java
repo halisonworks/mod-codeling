@@ -2,6 +2,8 @@ package codeling.fabric;
 
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 //? if >=1.21.11 {
@@ -11,6 +13,7 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 *///?}
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
@@ -69,6 +72,15 @@ public final class FabricPlatform implements Platform {
         return () -> key;
     }
     *///?}
+
+    @Override
+    public Map<String, String> versions() {
+        Map<String, String> versions = new LinkedHashMap<>();
+        Map.of("codeling", "Codeling", "minecraft", "Minecraft", "fabricloader", "Fabric Loader", "fabric-api", "Fabric API").entrySet().stream().sorted(Map.Entry.comparingByValue())
+                .forEach(e -> FabricLoader.getInstance().getModContainer(e.getKey())
+                        .ifPresent(mod -> versions.put(e.getValue(), mod.getMetadata().getVersion().getFriendlyString())));
+        return versions;
+    }
 
     @Override
     public ServerPlayer fakePlayer(ServerLevel level, GameProfile profile) {

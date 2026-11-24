@@ -6,9 +6,54 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-11-24
+
+The fourth pre-release, for testing.
+
+**Use the same Codeling version on the server and on every client.** Mixing versions (for example a 0.0.3 client
+on a 0.0.4 server) is not supported and has not been tested.
+
+### Added
+
+- Extended logging and a report for bug reports (issue #279): `/codeling log on` writes more to the game's log for 15 minutes
+  (1 to 60), and `/codeling report` writes the versions, the game rules and the newest Codeling lines to
+  `logs/codeling-report.txt`, without known player names, chat or what robots say. Ops have `/codeling server log` and
+  `/codeling server report` for the server.
+
+### Changed
+
+- Codeling is quiet in the game's log in normal play (issue #279): start, stop, the editor's connection, programs that start
+  and end, refused commands and faults. The messages between the editor and the game, what programs say, and the first
+  characters of the editor token are no longer logged.
+- Less work and less memory use per frame when robots are in view (issue #284): the robot's animations are read from the
+  model file once instead of for every frame. They look the same.
+- Messages in the game look and read like Minecraft's own (issue #278): white for done, red for refused, the game's
+  errors for wrong arguments, and above the hotbar when you click a robot that is not yours. The `/robot` commands answer in
+  plain words without internal codes, a missing robot is always explained the same way, and `/robot give`,
+  `/robot skin`, `/robot animation` and `/robot color` suggest what you can write. `/robot status` without a robot and a
+  refused `/codeling signal` name now count as failed commands.
+- `agent.getOrientation()` and `robot.getOrientation()` answer -180 when the robot faces north, as MakeCode's reference
+  says (issue #22). They answered 180, so change a program that compares with 180.
+- The project moved to `github.com/halisonworks/mod-codeling`. The links in the mod list (homepage, sources, issues) and
+  the downloads in `scripts/setup-multimc.ps1` use the new address.
+
+### Fixed
+
+- Your default robot has a name in the `/robot` commands (issue #293): `agent`, and the name you give it with
+  `/robot rename agent Bob` or a name tag. Tab suggests both. Before, only robots with a name could be picked by name.
+  The name is kept when the robot is spawned again while it is not loaded, and no other robot of yours can take it. New
+  robots cannot be called `agent`. `/robot rename Miner` without a new name says what is missing.
+- `/codeling signal` works from the chat of an operator who plays on Fabric with Codeling (issue #279). It answered
+  "Incorrect argument for command".
+- The robot log in the editor keeps its newest 1000 lines (issue #283). Before, it kept every line, and the browser
+  used more and more memory while a program ran.
+
 ## [0.0.3] - 2026-11-12
 
 The third pre-release, for testing.
+
+**Use the same Codeling version on the server and on every client.** Mixing versions (for example a 0.0.2 client
+on a 0.0.3 server) is not supported and has not been tested.
 
 ### Added
 

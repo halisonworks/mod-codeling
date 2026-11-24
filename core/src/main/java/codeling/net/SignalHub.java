@@ -1,13 +1,12 @@
 package codeling.net;
 
 import codeling.api.Signals;
+import codeling.log.Log;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Codeling's side of {@link Signals} (issue #249): the posts waiting for the server thread and the listeners of other
@@ -17,7 +16,7 @@ public final class SignalHub {
     // shortcut: 256 posts per tick for all players together is a guess at "far more than a bridge needs"; raise it if
     // bridges see post answer false.
     public static final int MAX_WAITING = 256;
-    private static final Logger LOG = LoggerFactory.getLogger("codeling/signals");
+    private static final Log LOG = Log.of("codeling/signals");
 
     /** A posted signal waiting for the server thread. */
     public record Post(UUID player, String name, double value) {
@@ -87,7 +86,7 @@ public final class SignalHub {
             try {
                 taken |= r.listener.sent(player, name);
             } catch (RuntimeException | LinkageError e) {
-                if (!r.failed) LOG.warn("A signal listener ({}) failed on signal \"{}\"; further failures of it are not logged.", r.listener.getClass().getName(), name, e);
+                if (!r.failed) LOG.warn("A signal listener ({}) failed; further failures of it are not logged.", r.listener.getClass().getName(), e);
                 r.failed = true;
             }
         }
