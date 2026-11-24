@@ -81,6 +81,11 @@ public final class Messages {
         return name.isEmpty() ? of("entity.codeling.robot") : of("message.codeling.robot.named", name);
     }
 
+    /** As {@link #robot(String)}, with the name the owner gave the default robot, if any (issue #293). */
+    public static Component robot(MinecraftServer server, UUID owner, String name) {
+        return robot(name.isEmpty() ? RobotLinks.get(server).defaultName(owner) : name);
+    }
+
     /** "/robot spawn" or "/robot spawn Miner". */
     public static String spawnCommand(String name) {
         return name.isEmpty() ? "/robot spawn" : "/robot spawn " + name;
@@ -89,7 +94,7 @@ public final class Messages {
     /** Why a robot that is not in the loaded world cannot be used, and what to do; the same words everywhere. */
     public static Component absent(MinecraftServer server, UUID owner, String name) {
         if (RobotLinks.get(server).robot(new RobotLinks.Key(owner, name)) != null) {
-            return of("message.codeling.robot.unloaded", robot(name), spawnCommand(name));
+            return of("message.codeling.robot.unloaded", robot(server, owner, name), spawnCommand(name));
         }
         return name.isEmpty() ? of("message.codeling.robot.none", spawnCommand(name)) : of("message.codeling.robot.unknown", name);
     }

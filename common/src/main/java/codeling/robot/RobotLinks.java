@@ -38,8 +38,13 @@ import net.minecraft.nbt.Tag;
  * SavedData rather than a player attachment: it must be readable when a robot's chunk loads while its owner is offline.
  * Issue #140: an owner may have named robots too. The default robot (empty name) stays in "links" exactly as before,
  * so old worlds load unchanged; named robots go in "named" (owner to name to robot), which older worlds do not have.
+ * Issue #293: the name a player gave the default robot is in "default_names". It is only a name for the player and the
+ * commands: the key of the default robot stays the empty name.
  */
 public final class RobotLinks extends SavedData {
+    /** The default robot's name in the commands, as in programs. */
+    public static final String AGENT = "agent";
+
     /** One robot of one owner; the default robot has the empty name. */
     public record Key(UUID owner, String name) {
     }
@@ -57,6 +62,7 @@ public final class RobotLinks extends SavedData {
     }
 
     private static final Codec<Map<UUID, Appearance>> APPEARANCES = Codec.unboundedMap(UUIDUtil.STRING_CODEC, Appearance.CODEC);
+    private static final Codec<Map<UUID, String>> DEFAULT_NAMES = Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.STRING);
     private static final Codec<Map<UUID, UUID>> LINKS = Codec.unboundedMap(UUIDUtil.STRING_CODEC, UUIDUtil.STRING_CODEC);
     private static final Codec<Map<UUID, Map<String, UUID>>> NAMED =
             Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.unboundedMap(Codec.STRING, UUIDUtil.STRING_CODEC));
@@ -65,10 +71,11 @@ public final class RobotLinks extends SavedData {
                     LINKS.fieldOf("links").forGetter(RobotLinks::defaults),
                     NAMED.optionalFieldOf("named", Map.of()).forGetter(RobotLinks::named),
                     UUIDUtil.STRING_CODEC.listOf().optionalFieldOf("orphans", List.of()).forGetter(l -> List.copyOf(l.orphans)),
-                    APPEARANCES.optionalFieldOf("appearances", Map.of()).forGetter(l -> Map.copyOf(l.appearances))
+                    APPEARANCES.optionalFieldOf("appearances", Map.of()).forGetter(l -> Map.copyOf(l.appearances)),
+                    DEFAULT_NAMES.optionalFieldOf("default_names", Map.of()).forGetter(l -> Map.copyOf(l.defaultNames))
             ).apply(i, RobotLinks::new)),
             // Worlds saved before orphans existed hold the bare map.
-            LINKS.xmap(links -> new RobotLinks(links, Map.of(), List.of(), Map.of()), RobotLinks::defaults));
+            LINKS.xmap(links -> new RobotLinks(links, Map.of(), List.of(), Map.of(), Map.of()), RobotLinks::defaults));
     //? if >=1.21.5 {
     // null DataFixTypes: no data fixer for mod data. Fabric's SavedDataStorageMixin accepts it, and NeoForge patches
     // SavedDataType and SavedDataStorage to skip the fixer when it is null (checked in 26.3.0.102, issue #187).
@@ -97,16 +104,19 @@ public final class RobotLinks extends SavedData {
     private final Map<Key, UUID> robots = new HashMap<>();
     private final Set<UUID> orphans;
     private final Map<UUID, Appearance> appearances;
+    private final Map<UUID, String> defaultNames;
 
     private RobotLinks() {
-        this(Map.of(), Map.of(), List.of(), Map.of());
+        this(Map.of(), Map.of(), List.of(), Map.of(), Map.of());
     }
 
-    private RobotLinks(Map<UUID, UUID> links, Map<UUID, Map<String, UUID>> named, List<UUID> orphans, Map<UUID, Appearance> appearances) {
+    private RobotLinks(Map<UUID, UUID> links, Map<UUID, Map<String, UUID>> named, List<UUID> orphans, Map<UUID, Appearance> appearances,
+                       Map<UUID, String> defaultNames) {
         links.forEach((owner, robot) -> robots.put(new Key(owner, ""), robot));
         named.forEach((owner, names) -> names.forEach((name, robot) -> robots.put(new Key(owner, name), robot)));
         this.orphans = new HashSet<>(orphans);
         this.appearances = new HashMap<>(appearances);
+        this.defaultNames = new HashMap<>(defaultNames);
     }
 
     private Map<UUID, UUID> defaults() {
@@ -191,10 +201,45 @@ public final class RobotLinks extends SavedData {
         return names;
     }
 
+    /** The name the owner gave the default robot, or "" when it has none. */
+    public String defaultName(UUID owner) {
+        return defaultNames.getOrDefault(owner, "");
+    }
+
+    void setDefaultName(UUID owner, String name) {
+        if (!name.equals(defaultNames.put(owner, name))) setDirty();
+    }
+
+    /** What a player can write for each of their robots in a command: agent and its own name for the default robot. */
+    public List<String> commandNames(UUID owner) {
+        List<String> names = new ArrayList<>();
+        if (robot(owner) != null) {
+            names.add(AGENT);
+            if (!defaultName(owner).isEmpty()) names.add(defaultName(owner));
+        }
+        for (String name : names(owner)) if (!names.contains(name)) names.add(name);
+        return names;
+    }
+
+    /**
+     * The robot a player means by {@code name} in a command: "" for the default robot (agent, or its own name), else the
+     * name itself. A named robot goes first, so one called agent in an older world still answers to its name.
+     */
+    public String resolve(UUID owner, String name) {
+        if (robot(new Key(owner, name)) != null) return name;
+        return name.equals(AGENT) || name.equals(defaultName(owner)) ? "" : name;
+    }
+
     /** The owner's name that equals {@code name} apart from upper and lower case, or null: Miner and miner are one name. */
     public String sameName(UUID owner, String name) {
-        for (String n : names(owner)) if (n.equalsIgnoreCase(name)) return n;
-        return null;
+        return sameName(owner, name, null);
+    }
+
+    /** As {@link #sameName(UUID, String)}, without the name of the robot {@code except}: a robot may keep its own name. */
+    String sameName(UUID owner, String name, Key except) {
+        for (String n : names(owner)) if (n.equalsIgnoreCase(name) && !new Key(owner, n).equals(except)) return n;
+        String own = defaultName(owner);
+        return !own.isEmpty() && own.equalsIgnoreCase(name) && !new Key(owner, "").equals(except) ? own : null;
     }
 
     void set(UUID owner, UUID robot) {
