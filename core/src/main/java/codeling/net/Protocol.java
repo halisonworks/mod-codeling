@@ -171,6 +171,51 @@ public final class Protocol {
         return o.toString();
     }
 
+    /** As {@link #describe(JsonObject)} for a message this mod or the server made. */
+    public static String describe(String json) {
+        try {
+            return describe(JsonParser.parseString(json).getAsJsonObject());
+        } catch (RuntimeException e) {
+            return "a message that is not a JSON object";
+        }
+    }
+
+    /**
+     * One message for the log (issue #279): its kind, run, command id, op and numbers. Texts (what a robot says, chat,
+     * names, answers, the hello's token) are never shown, only how long they are.
+     */
+    public static String describe(JsonObject msg) {
+        String type = word(msg.get("t"));
+        StringBuilder s = new StringBuilder();
+        if (msg.has("run")) s.append("run ").append(value(msg.get("run"))).append(' ');
+        if (msg.has("id")) s.append("command ").append(value(msg.get("id"))).append(' ');
+        if (!type.equals("cmd")) s.append(type).append(' ');
+        for (String field : new String[] {"op", "name", "code"}) if (msg.has(field)) s.append(word(msg.get(field))).append(' ');
+        if (msg.has("robot") && type.equals("cmd")) s.append("for a named robot ");
+        for (String field : new String[] {"args", "value"}) if (msg.has(field)) s.append(value(msg.get(field))).append(' ');
+        String text = s.toString().strip();
+        return text.length() > 300 ? text.substring(0, 300) + "..." : text;
+    }
+
+    // A word of the protocol (cmd, agent.move, NO_PERMISSION). A browser can send anything there, so nothing else is shown.
+    private static String word(JsonElement e) {
+        return e instanceof JsonPrimitive p && p.isString() && p.getAsString().matches("[A-Za-z.]{1,40}|[A-Z_]{1,40}") ? p.getAsString() : "?";
+    }
+
+    private static String value(JsonElement e) {
+        if (e instanceof JsonArray array) {
+            List<String> values = new ArrayList<>();
+            // An array inside an array only by its size: a browser could nest them deeper than the stack.
+            for (int i = 0; i < Math.min(array.size(), 20); i++) values.add(array.get(i) instanceof JsonArray a ? "[" + a.size() + " values]" : value(array.get(i)));
+            return "[" + String.join(", ", values) + (array.size() > 20 ? ", and " + (array.size() - 20) + " more" : "") + "]";
+        }
+        if (!(e instanceof JsonPrimitive p)) return "?";
+        if (p.isBoolean()) return p.getAsString();
+        if (p.isString()) return "(text of " + p.getAsString().length() + ")";
+        double d = p.getAsDouble();
+        return d == (long) d ? Long.toString((long) d) : Double.toString(d);
+    }
+
     /** The {@code robot} field: which of the player's robots, "" (or absent) for the default robot. */
     public static String robot(JsonObject msg) throws RobotException {
         if (!msg.has("robot")) return "";

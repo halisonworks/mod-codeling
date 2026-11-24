@@ -1,5 +1,6 @@
 package codeling.relay;
 
+import codeling.log.Log;
 import codeling.net.Protocol;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -477,22 +478,49 @@ class RelayHardeningTest {
         }
     }
 
+    // Issue #279: also with extended logging on, no token, editor address with a token, or text of a program or chat.
     @Test
-    void tokenIsNeverLogged() throws Exception {
+    void tokenAndTextsAreNeverLogged() throws Exception {
         PrintStream saved = System.err; // slf4j-simple (test runtime) logs to the current System.err
         ByteArrayOutputStream log = new ByteArrayOutputStream();
         System.setErr(new PrintStream(log, true, StandardCharsets.UTF_8));
+        Log.extendedOn(1);
         try (Socket s = authed(server)) {
             sendMasked(s, 0x81, "{\"v\":" + Protocol.VERSION + ",\"t\":\"cmd\",\"id\":6,\"run\":1,\"op\":\"agent.move\",\"args\":[0,1]}");
+            readFrame(s.getInputStream());
+            sendMasked(s, 0x81, "{\"v\":" + Protocol.VERSION + ",\"t\":\"cmd\",\"id\":7,\"run\":1,\"robot\":\"Nora\",\"op\":\"agent.say\",\"args\":[\"my secret words\"]}");
+            readFrame(s.getInputStream());
+            server.deliver(Protocol.event("chat", List.of("hemmelig", 1.0, 2.0, 3.0)));
+            readFrame(s.getInputStream());
+            server.deliver(Protocol.control("notice", -1, server.editorUrl()));
             readFrame(s.getInputStream());
             sendMasked(s, 0x81, hello(server)); // a second hello is logged as well
             readFrame(s.getInputStream());
         } finally {
+            Log.extendedOff("the test is over");
             System.setErr(saved);
         }
         String text = log.toString(StandardCharsets.UTF_8);
-        assertTrue(text.contains("token not logged") && text.contains("welcome"), "log captured: " + text);
-        assertFalse(text.contains(token(server)), text);
+        for (String line : List.of("browser -> hello", "welcome", "browser -> run 1 command 6 agent.move [0, 1]", "command 6 result true",
+                "browser -> run 1 command 7 agent.say for a named robot [(text of 15)]", "event chat [(text of 8), 1, 2, 3]")) {
+            assertTrue(text.contains(line), line + " in: " + text);
+        }
+        for (String secret : List.of(token(server), token(server).substring(0, 4) + "...", "local_token", "secret", "hemmelig", "Nora")) {
+            assertFalse(text.contains(secret), secret + " in: " + text);
+        }
+    }
+
+    // Issue #279: without extended logging a program's commands write nothing at info.
+    @Test
+    void commandsAreQuietByDefault() throws Exception {
+        try (Socket s = authed(server)) {
+            long before = Log.written();
+            for (int i = 0; i < 50; i++) {
+                sendMasked(s, 0x81, "{\"v\":" + Protocol.VERSION + ",\"t\":\"cmd\",\"id\":" + i + ",\"run\":1,\"op\":\"agent.move\",\"args\":[0,1]}");
+                readFrame(s.getInputStream());
+            }
+            assertEquals(before, Log.written());
+        }
     }
 
     // Review finding 6: two hellos at once both read the same old session, and one of them was never stopped.

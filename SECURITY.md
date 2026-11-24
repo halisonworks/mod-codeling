@@ -20,7 +20,7 @@ Please include:
 - the Codeling version, the loader (Fabric or NeoForge) and the Minecraft version,
 - singleplayer or a dedicated server,
 - the steps to reproduce, and what an attacker gains,
-- a proof of concept if you have one, and the relevant lines of the game log (logger `codeling/relay`). Remove the
+- a proof of concept if you have one, and the report from `/codeling report` (type `/codeling log on` first). Remove the
   editor token from anything you send.
 
 ## What to expect

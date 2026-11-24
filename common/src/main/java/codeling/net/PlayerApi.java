@@ -57,7 +57,7 @@ final class PlayerApi {
             if (cmd.run() != RobotManager.queue(owner).run()) result = Result.error(Result.Code.STOPPED, "run " + cmd.run() + " is no longer active");
             else if (now == null || now.hasDisconnected()) result = Result.error(Result.Code.UNLOADED, "you are not in the game");
             else result = run(now, c);
-            out.accept(Protocol.reply(cmd.id(), result));
+            ServerRelay.reply(player.getGameProfile().name(), cmd, result, out);
         });
         return true;
     }
@@ -113,7 +113,7 @@ final class PlayerApi {
         sent.put(name, now);
         if (!SignalHub.hasListeners()) return Result.ok(false, SignalHub.nobodyListens(name));
         boolean taken = SignalHub.send(player.getUUID(), name);
-        Codeling.LOG.debug("signals: {}'s program sent \"{}\", {}.", player.getGameProfile().name(), name, taken ? "taken" : "not taken by any listener");
+        Codeling.LOG.detail("signals: {}'s program sent a signal, {}.", player.getGameProfile().name(), taken ? "taken" : "not taken by any listener");
         return taken ? Result.ok(true) : Result.ok(false, "No mod on this server takes the signal \"" + name + "\".");
     }
 
@@ -122,7 +122,6 @@ final class PlayerApi {
     private static Result teleport(ServerPlayer player, BlockPos pos) {
         String name = player.getGameProfile().name();
         if (!McCompat.isSingleplayerOwner(player) && !McCompat.isGamemaster(player)) {
-            Codeling.LOG.info("player: {}'s program may not teleport them: not an operator.", name);
             return Result.error(Result.Code.NO_PERMISSION, "player.teleport needs singleplayer or operator rights");
         }
         ServerLevel level = McCompat.level(player);
@@ -131,7 +130,7 @@ final class PlayerApi {
         }
         player.stopRiding();
         player.teleportTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-        Codeling.LOG.info("player: {}'s program teleported them to x={} y={} z={} in {}.", name, pos.getX(), pos.getY(), pos.getZ(), McCompat.dimension(level).getPath());
+        Codeling.LOG.detail("player: {}'s program teleported them to x={} y={} z={} in {}.", name, pos.getX(), pos.getY(), pos.getZ(), McCompat.dimension(level).getPath());
         return Result.ok(null);
     }
 }
