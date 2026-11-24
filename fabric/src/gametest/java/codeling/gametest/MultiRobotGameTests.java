@@ -168,6 +168,18 @@ public class MultiRobotGameTests {
         helper.succeed();
     }
 
+    // Issue #297: /gamerule turns the pause on lost focus off and on again; the client reads it (RobotClientGameTest).
+    @GameTest(maxTicks = 100)
+    public void pauseOnLostFocusRule(GameTestHelper helper) {
+        var server = helper.getLevel().getServer();
+        helper.assertTrue(Codeling.pauseOnLostFocus(server), "on by default");
+        for (boolean value : new boolean[] {false, true}) {
+            server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "gamerule codeling:pause_on_lost_focus " + value);
+            helper.assertTrue(Codeling.pauseOnLostFocus(server) == value, "set to " + value);
+        }
+        helper.succeed();
+    }
+
     // Rule 3: the default robot and two named ones; a fourth is refused; names are checked and unique per player.
     @GameTest(maxTicks = 100, environment = MORE)
     public void raisedRuleAllowsNamedRobotsUpToTheLimit(GameTestHelper helper) {
