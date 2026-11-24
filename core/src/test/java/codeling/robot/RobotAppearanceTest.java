@@ -41,13 +41,14 @@ class RobotAppearanceTest {
                 "rotation":[{"time":0,"value":[0,0,0]},{"time":1,"value":[10,90,0]}],
                 "position":[{"time":0,"value":[0,0,0]},{"time":1,"value":[0,2,0]}]}}}
                 """).getAsJsonObject();
-        var half = RobotAnimation.sample(clip, "head", 0.5F);
+        var once = new RobotAnimation(clip);
+        var half = once.sample("head", 0.5F);
         assertEquals(45, half.yaw());
         assertEquals(5, half.pitch());
         assertEquals(1, half.y());
-        assertEquals(90, RobotAnimation.sample(clip, "head", 5).yaw());
-        assertEquals(RobotAnimation.Transform.ZERO, RobotAnimation.sample(clip, "missing", 0.5F));
+        assertEquals(90, once.sample("head", 5).yaw());
+        assertEquals(RobotAnimation.Transform.ZERO, once.sample("missing", 0.5F));
         clip.addProperty("loop", true);
-        assertEquals(45, RobotAnimation.sample(clip, "head", 1.5F).yaw());
+        assertEquals(45, new RobotAnimation(clip).sample("head", 1.5F).yaw());
     }
 }
