@@ -649,12 +649,33 @@ These keep the game fast for everyone.
 | "Not in a world" | Open a world first, then press Run again. |
 | "This server does not have Codeling installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
 | The robot does nothing while you are in the browser, and the log says "Minecraft is paused" | The pause menu is open in the game. Go back to the game and close it; the robot goes on by itself. |
+| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. |
 | "Robot is not loaded (or not spawned: /robot spawn)" | Type `/robot spawn`, or walk closer to the robot. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Check the name with `/robot list`. Walk closer to the robot, or type `/robot spawn Miner`. |
 | "This world allows one robot per player" | Robots with names need the game rule `codeling:max_robots` above 1. Ask an op. |
-| `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Codeling. Close it and restart Minecraft. The game log says "Codeling could not start the editor server on port 25580". |
+| `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Codeling. Close it and restart Minecraft. The game log says "Codeling could not start the editor server on port 25580". To find the program on Windows, type `netstat -ano \| findstr 25580` in a command prompt: the last number is its PID in Task Manager (Details). On macOS and Linux, type `lsof -i :25580`. |
+| `/codeling` is an unknown command | Your own game does not have Codeling. Install the same version as the server, for the same loader and Minecraft version. |
+| The server refuses you when you join, and names Codeling | Your own game does not have Codeling. Install it as in the row above. |
+| A firewall or antivirus program asks about Minecraft or Java | Codeling does not need it. The editor is only reachable from your own computer, so never open port 25580 in a firewall or router. Minecraft itself may ask when you open a world to others. |
+| Your programs are gone | They are saved in one browser on one computer. Open the editor in the browser you used before. See [Questions and answers](#questions-and-answers). |
 | The blocks look old after an update | Press Ctrl+F5 in the browser. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, a closed tab or leaving the world stopped it. Press Run again. |
+
+## Questions and answers
+
+**Where does my code run?** In your own browser, on your own computer. The game gets only the commands, such as "move forward".
+On a server, the server checks each command and moves the robot. Your program is never sent to the server.
+
+**Who can control my robot?** Only you can program it. Server ops can open its inventory and stop all robots. See
+[Multiplayer](#multiplayer).
+
+**Where are my programs saved?** In your browser, on your computer, and not in the world. Another browser, another
+computer or a private window does not have them. Clearing the browser's data for the editor's page deletes them. To
+keep a copy, press the save button beside the project's name. You get a `.mkcd` file. "Import" on the editor's home
+screen opens it again.
+
+**Does it work offline?** Yes, when Codeling is installed. The editor comes from the mod and needs no internet. Only
+some links, such as the terms and privacy pages, go to the internet. A server on the internet needs it as usual.
 
 ## Report a problem
 
