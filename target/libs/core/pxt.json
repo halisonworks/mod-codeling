@@ -1,6 +1,6 @@
 {
     "name": "core",
-    "description": "Codeling core library",
+    "description": "Halison Code core library",
     "files": [
         "README.md",
         "pxt-core.d.ts",

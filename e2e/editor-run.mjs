@@ -1,4 +1,4 @@
-// Opens the Codeling editor in headless Chromium, puts a JavaScript program in, presses Run and waits until the
+// Opens the Halison Code editor in headless Chromium, puts a JavaScript program in, presses Run and waits until the
 // simulator's robot log contains a text. Used by EditorEndToEndClientGameTest (issue #135).
 //
 // The editor URL (it holds the session token) comes on stdin, never in argv or the environment, and is never printed.

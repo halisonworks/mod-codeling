@@ -17,6 +17,8 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ### Changed
 
+- The editor's name is Halison Code (issue #356). Your projects are where they were, and project files saved before open as
+  before; new ones are called `halison-code-<name>.mkcd`.
 - Players share each tick equally, whatever number of robots they have (issue #52). Before, a player with 16 robots got 16
   times as much as a player with one.
 

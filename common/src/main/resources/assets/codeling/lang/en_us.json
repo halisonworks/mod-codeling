@@ -89,7 +89,7 @@
   "message.codeling.direction.up": "up",
   "message.codeling.direction.west": "west",
   "message.codeling.editor.copy": "[copy the editor link]",
-  "message.codeling.editor.opening": "Opening the Codeling editor in your browser. If it does not open, %s and paste it into the address bar",
+  "message.codeling.editor.opening": "Opening the Halison Code editor in your browser. If it does not open, %s and paste it into the address bar",
   "message.codeling.name.invalid": "A robot name starts with a letter and has at most %s letters, digits, _ or - (no spaces)",
   "message.codeling.name.reserved": "\"%s\" is a word the /robot commands use, choose another name",
   "message.codeling.name.taken": "You already have a robot called %s",
