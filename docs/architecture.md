@@ -358,23 +358,50 @@ Named signals (issue #249), a Codeling extension; MakeCode has no such category.
 | Programs reading, messaging or moving players (player API, issue #26) | Each call is about the sender only: their position, facing and name, a message to their own chat, a teleport of themselves. `say` is a literal component with no formatting, click or hover events and at most 256 characters, so a program cannot fake a clickable or coloured server message, and it reaches no one else. `teleport` needs the singleplayer host or an op, as `/tp` does, and stays in the owner's dimension inside the world border and the build height. One call per tick per owner, 16 waiting at most. |
 | Programs reading other players' chat, or hiding chat (chat events, issue #27) | A program hears only its owner's own chat lines and death. Only the matched keyword and three numbers reach it, never the line. A line is held back only while its sender has a current run subscribed to its first word (or `*`); everything else is broadcast untouched and never rewritten, and the subscription ends with the run. Keywords are checked on the server (one word, 1 to 32 characters, at most 16), at most 16 events wait per player, and events for a run that is no longer current are dropped. `/codeling chat` needs no permission because it only reaches the caller's own program. `runChatCommand` stays in the simulator. |
 | Other mods and programs talking through signals (issue #249) | A signal is trusted as much as the mod that posts it: the bridge decides which of its events become signals and for which player. Codeling delivers one only to the player it names, only to a current run listening for that name, through the same capped queue as the other events, and tells the bridge nothing about the program. Program text never leaves through signals: `signals.send` carries a validated name only (one word, 1 to 32 characters), only to listeners other mods added on the server, never to another player or back to a program, paced like the player calls and once a second per name. `/codeling signal` needs op level 2. Nothing is opened over HTTP. A listener that throws is caught and logged once, so it breaks neither the tick nor the run. |
-| Griefing with robots | Every place, break, block use and container access goes through a `FakePlayer` with the owner's UUID, so claim mods apply. The robot follows the owner's rules (issue #53): spawn protection and the world border (`Level.mayInteract`, ops pass), adventure mode (no placing or breaking; doors, buttons, levers and containers still work), spectator mode (nothing). An offline owner counts as survival; leaving stops the owner's programs. `/robot stop all` for ops. A robot works at any distance from its owner, in loaded chunks only (issue #200: no range limit in 0.1.0; one can come with the server config, issue #52). A permission mod decides `codeling.robot`, `codeling.build`, `codeling.free_items` and `codeling.teleport` per player (issue #51, `Permission` in common, asked at the relay and on `/robot`); an offline owner gets free items by the gamerule only. Not built yet: rate limits, an undo log. |
+| Griefing with robots | Every place, break, block use and container access goes through a `FakePlayer` with the owner's UUID, so claim mods apply. The robot follows the owner's rules (issue #53): spawn protection and the world border (`Level.mayInteract`, ops pass), adventure mode (no placing or breaking; doors, buttons, levers and containers still work), spectator mode (nothing). An offline owner counts as survival; leaving stops the owner's programs. `/robot stop all` for ops. A robot works at any distance from its owner, in loaded chunks only (issue #200: no range limit in 0.1.0; one can come with the server config, issue #52). A permission mod decides `codeling.robot`, `codeling.build`, `codeling.free_items` and `codeling.teleport` per player (issue #51, `Permission` in common, asked at the relay and on `/robot`); an offline owner gets free items by the gamerule only. Not built yet: an undo log. |
 | Raw command escape hatches (`mobs.execute`, `player.execute`) | Not shipped in v1. If added: op-only, run at the owner's permission level (never server level), logged. |
-| Resource exhaustion | Queue length cap per robot, global actions-per-tick budget, volume cap for `fill`/`replace`, one outstanding command per robot. User code runs on the player's machine. |
+| Resource exhaustion | Queue length per robot, messages per player, budgets and a time limit per tick, shared equally between the players (section 8, issue #52), volume cap for `fill`, one outstanding command per robot. User code runs on the player's machine. |
 | Malformed or oversized messages | Max message size 8 KiB (proposal), schema validation, unknown `op` gives `BAD_ARGS`, protocol version check. Decode errors close the relay session, not the game connection. |
 
-## 8. Performance budget (proposal, to be measured)
+## 8. Performance budget
 
-| Item | Default |
+**Built (issue #52)**, for each server in `config/codeling-server.json`, read when the server starts (`Limits` in core). The
+file is written with the defaults when there is none. A value out of range becomes the nearest allowed, and a file that
+cannot be read is left alone and the defaults are used; both are a warning in the log.
+
+| Setting | Default | Allowed | What |
+|---|---|---|---|
+| `actionsPerTick` | 64 | 1 to 1024 | Robot actions for all players together, one per robot |
+| `millisPerTick` | 10 | 1 to 50 | Robots start nothing more in a tick once they have used this long |
+| `ticksPerBlock` | 4 | 1 to 20 | How long a robot takes for one block of a walk |
+| `scanBlocksPerTick` | 8192 | 64 to 65536 | Blocks looked at by searches, measuring and building |
+| `pathNodesPerTick` | 1024 | 16 to 16384 | Steps of path searches |
+| `buildBlocksPerTick` | 256 | 1 to 4096 | Blocks set or cleared by fill, shapes and maze |
+| `messagesPerTick` | 64 | 4 to 1024 | Messages handled per player; the rest wait in order, at most 256, and what is over that is dropped |
+| `queueLength` | 16 | 1 to 64 | Commands that may wait for one robot, and player calls for one player |
+
+What is over a limit waits for a later tick; only a full queue is refused (`RATE_LIMITED`). The players whose robots have work
+share each tick's budgets and time equally, whatever number of robots they have: each in turn gets an equal part of what is
+left, so what one does not use goes to the next, and who is first changes every tick. One command may take more time than is
+left (it is not stopped halfway), except a build, which goes on in the next tick. There is no limit on the robots of a whole
+server: a robot without a command costs nothing here, and `codeling:max_robots` limits each player.
+
+Measured on a laptop (26.3 on Fabric, 25 November 2026), robot work per tick:
+
+| Load | Mean |
 |---|---|
-| Robots per player | 1 (v1) |
-| Robots per server | 32 |
-| Actions per robot per tick | 1 |
-| Global actions per tick | 64; excess waits |
-| Ticks per moved block | 4 |
-| `fill`/`replace` volume per call | 4096 blocks |
-| Commands per player per second | 40 |
-| Target server cost | under 1 ms per tick with 32 active robots, measured by a GameTest stress run |
+| Searches, the whole scan budget | 0.2 to 0.4 ms |
+| Path search, the whole budget | 0.3 to 1.6 ms |
+| 64 robots that craft | 1.2 to 1.8 ms |
+| 64 robots that place and break | 2 to 8 ms |
+| 64 robots that walk | 0.05 to 0.2 ms |
+| A build, the whole budget | 2 to 7 ms |
+| A build that breaks blocks while thousands of items lie on the ground | 14 to 360 ms without `millisPerTick`, 10 ms with it |
+| One message from a browser | 15 to 70 us, so 64 are 1 to 5 ms |
+
+A player with one robot that searches, beside a player with 16 robots that do the same for 60 seconds: 35 searches alone, 2
+before the equal shares, 17 with them. The earlier target (under 1 ms with 32 robots) is not met by every load; the 10 ms are
+what a server is promised. Cheaper path search and crafting is issue #286.
 
 The stress run is `RobotPerformanceGameTests` (20 robots, 200 ticks). It always fails on what the code controls: the
 per-tick budgets for actions, blocks scanned and path nodes, the commands done and the sticks crafted. It also has two

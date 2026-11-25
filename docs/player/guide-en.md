@@ -719,6 +719,9 @@ These keep the game fast for everyone.
 - Only you and server ops can open your robot's inventory. Others see "This is not your robot" above the hotbar.
 - In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
+- The server's `config/codeling-server.json` says how much robots may do each tick (game, not program, speed). It is made
+  the first time a world or server with Codeling runs, and read when it starts. Players share it equally, whatever number
+  of robots they have; on a busy server a robot may wait a little before it goes on.
 - With a permission mod, such as LuckPerms, the server decides per player: `codeling.robot` (use a robot; everyone from the
   start), `codeling.build` (place, fill, shapes and maze; everyone), `codeling.free_items` (items and building free; creative
   mode or the game rule) and `codeling.teleport` (the player's teleport; ops and the host of a singleplayer world). For

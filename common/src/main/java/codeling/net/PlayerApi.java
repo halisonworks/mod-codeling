@@ -26,7 +26,7 @@ import net.minecraft.world.level.Level;
  * The player API (issue #26): calls about the program's owner, never about another player, and the time and weather of
  * the owner's dimension (issue #87). They need no robot, so they skip the robot queues, but they get the same pace and
  * cap: one call per owner per tick, at most
- * {@link RobotQueue#MAX_LENGTH} waiting, else {@code RATE_LIMITED}. Game mode does not matter: the calls only read
+ * {@link codeling.Limits#queueLength} waiting, else {@code RATE_LIMITED}. Game mode does not matter: the calls only read
  * the owner, tell the owner something, or move the owner as /tp would, so spectator and adventure owners may use them
  * all (teleport still needs the rights below). Server thread only.
  * <p>
@@ -51,7 +51,8 @@ final class PlayerApi {
         MinecraftServer server = player.level().getServer();
         if (cmd.run() != RobotManager.queue(owner).run()) throw new RobotException(Result.Code.STOPPED, "run " + cmd.run() + " is no longer active");
         ArrayDeque<Runnable> waiting = WAITING.computeIfAbsent(owner, o -> new ArrayDeque<>());
-        if (waiting.size() >= RobotQueue.MAX_LENGTH) throw new RobotException(Result.Code.RATE_LIMITED, "too many player calls waiting (" + RobotQueue.MAX_LENGTH + ")");
+        int max = Codeling.limits().queueLength();
+        if (waiting.size() >= max) throw new RobotException(Result.Code.RATE_LIMITED, "too many player calls waiting (" + max + ")");
         waiting.add(() -> {
             Result result;
             ServerPlayer now = server.getPlayerList().getPlayer(owner);

@@ -47,6 +47,7 @@ public final class Report {
             lines.add("Game rules: free_items " + Codeling.freeItems(server) + ", max_robots " + Codeling.maxRobots(server)
                     + ", robot_camera " + Codeling.robotCamera(server)
                     + ", pause_on_lost_focus " + Codeling.pauseOnLostFocus(server));
+            lines.add("Server limits: " + Codeling.limits());
             lines.add("Robots in the loaded world: " + RobotManager.loadedCount() + ", programs running: " + RobotManager.runCount());
         }
         lines.add("Extended logging: " + (Log.extended() ? "on" : "off"));

@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
  * Not thread-safe: only touched on the server thread.
  */
 public final class RobotQueue {
-    // shortcut: proposal, the v1 protocol allows one outstanding command, so this mainly limits /robot spam; tune in step 4.
+    /** Events that may wait for a program, and the default of {@link codeling.Limits#queueLength}: the editor sends one command at a time for each robot, so this mainly limits /robot. */
     public static final int MAX_LENGTH = 16;
 
     private static long lastRun;
@@ -117,12 +117,13 @@ public final class RobotQueue {
     }
 
     public void submit(long run, RobotCommand command, Consumer<Result> done) throws RobotException {
-        submit(run, -1, command, done);
+        submit(run, -1, command, MAX_LENGTH, done);
     }
 
-    void submit(long run, long id, RobotCommand command, Consumer<Result> done) throws RobotException {
+    /** At most {@code max} commands wait (issue #52). */
+    void submit(long run, long id, RobotCommand command, int max, Consumer<Result> done) throws RobotException {
         if (run != this.run.id) throw new RobotException(Result.Code.STOPPED, "run " + run + " is no longer active");
-        if (entries.size() >= MAX_LENGTH) throw new RobotException(Result.Code.RATE_LIMITED, "queue is full (" + MAX_LENGTH + ")");
+        if (entries.size() >= max) throw new RobotException(Result.Code.RATE_LIMITED, "queue is full (" + max + ")");
         entries.add(new Entry(id, command, done));
     }
 

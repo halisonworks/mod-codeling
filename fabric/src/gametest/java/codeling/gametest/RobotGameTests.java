@@ -1,6 +1,7 @@
 package codeling.gametest;
 
 import codeling.Codeling;
+import codeling.Limits;
 import codeling.McCompat;
 import codeling.robot.BlockIds;
 import codeling.robot.ItemIds;
@@ -9,6 +10,7 @@ import codeling.robot.Result;
 import codeling.robot.RobotCommand;
 import codeling.robot.RobotEntity;
 import codeling.robot.RobotException;
+import codeling.robot.RobotLinks;
 import codeling.robot.RobotManager;
 import codeling.robot.RobotMenu;
 import codeling.robot.RobotShapes;
@@ -71,6 +73,12 @@ import net.minecraft.world.phys.Vec3;
 /** Server GameTests for the robot. Positions are relative to the test structure (empty 8x8 by default). */
 public class RobotGameTests {
     private static final BlockPos START = new BlockPos(1, 2, 1);
+
+    // All tests run on one server at the same time, and some expect an answer in a few ticks, so the time limit of issue #52
+    // is out of the way. Set when the tests are found, before the server starts; playersShareTheTickEqually tests it.
+    static {
+        Codeling.setLimits(Limits.DEFAULTS.withMillisPerTick(1000));
+    }
 
     //? if <1.21.5 {
     /*// Before 1.21.5 there are no test environments: the free_items tests form a batch, and the rule is set for it.
@@ -1993,6 +2001,49 @@ public class RobotGameTests {
             helper.assertValueEqual(count(helper, from, to, Blocks.STONE), 2, "stone in the line");
             helper.assertTrue(inv(owner).isEmpty(), "every stone used, no planks given");
             helper.getLevel().getServer().getPlayerList().remove(player);
+        });
+    }
+
+    // Issue #52: a player with one robot gets as much of the search budget as one with eight. And a robot that has used
+    // the tick's time goes on in the next tick, with one block at least. In this environment because its few tests leave
+    // the budgets to this one, and the limits are the whole server's.
+    @GameTest(maxTicks = 400, environment = "codeling-gametest:free_items")
+    public void playersShareTheTickEqually(GameTestHelper helper) {
+        UUID many = UUID.randomUUID(), one = UUID.randomUUID();
+        List<RobotLinks.Key> keys = new ArrayList<>(List.of(new RobotLinks.Key(one, "")));
+        for (int i = 0; i < 8; i++) keys.add(new RobotLinks.Key(many, i == 0 ? "" : "Bot" + i));
+        int[] searches = new int[2];
+        for (RobotLinks.Key key : keys) {
+            BlockPos at = key.owner().equals(one) ? START : START.offset(keys.indexOf(key) % 6, 0, 2 + keys.indexOf(key) / 6);
+            RobotManager.spawn(helper.getLevel(), key, Vec3.atBottomCenterOf(helper.absolutePos(at)), Direction.SOUTH);
+        }
+        int[] tick = {0};
+        helper.onEachTick(() -> {
+            if (tick[0]++ >= 240) return;
+            for (RobotLinks.Key key : keys) {
+                if (RobotManager.robot(key) == null || RobotManager.queue(key).size() > 0) continue;
+                try {
+                    RobotManager.submit(key, RobotManager.queue(key).run(), RobotCommand.parse("agent.findNearest", List.of(BlockIds.byName("EMERALD_ORE"), RobotCommand.MAX_FIND_RADIUS)),
+                            r -> searches[key.owner().equals(one) ? 0 : 1]++);
+                } catch (RobotException e) {
+                    helper.fail("submit refused: " + e.result());
+                }
+            }
+        });
+        helper.runAfterDelay(240, () -> {
+            // 34 ticks for a search alone, about 68 when two players share.
+            helper.assertTrue(searches[0] >= 2, "searches of the one robot: " + searches[0]);
+            RobotManager.stop(one);
+            RobotManager.stop(many);
+            Limits before = Codeling.limits();
+            Codeling.setLimits(before.withMillisPerTick(0));
+            List<Result> fill = send(helper, one, "blocks.fill", fill(helper, stone(), new BlockPos(2, 4, 1), new BlockPos(6, 4, 4), RobotShapes.REPLACE));
+            helper.runAfterDelay(10, () -> {
+                Codeling.setLimits(before);
+                int set = count(helper, new BlockPos(2, 4, 1), new BlockPos(6, 4, 4), Blocks.STONE);
+                helper.assertTrue(set >= 5 && set <= 10, "a block a tick without time: " + set);
+                helper.succeedWhen(() -> helper.assertValueEqual(fill, List.of(Result.ok(20)), "the rest with time"));
+            });
         });
     }
 

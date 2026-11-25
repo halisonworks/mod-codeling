@@ -728,6 +728,9 @@ Grensene holder spillet raskt for alle.
 - Bare du og operatører på serveren kan åpne inventaret til roboten din. Andre får beskjeden "This is not your robot" over hurtiglinjen.
 - I overlevelse samler roboten sine egne ressurser. "robot gi" og `/robot give` virker bare i kreativ modus, eller når verdenen har `/gamerule codeling:free_items true`. Ellers legger du ting i roboten gjennom inventarskjermen dens.
 - Operatører kan stoppe alle roboter med `/robot stop all`.
+- `config/codeling-server.json` på serveren sier hvor mye roboter får gjøre hvert tikk (i spillet, ikke i programmet). Filen
+  blir laget første gang en verden eller server med Codeling kjører, og leses når den starter. Spillerne deler likt, uansett
+  hvor mange roboter de har; på en travel server kan en robot vente litt før den fortsetter.
 - Med en rettighetsmod, som LuckPerms, bestemmer serveren for hver spiller: `codeling.robot` (bruke en robot; alle fra start),
   `codeling.build` (plasser, fyll, former og labyrint; alle), `codeling.free_items` (ting og bygging gratis; kreativ modus
   eller spilleregelen) og `codeling.teleport` (spillerens teleport; operatører og verten i en enspillerverden). For eksempel

@@ -15,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
 *///?}
+import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.gamerules.GameRuleTypeVisitor;
 import net.minecraft.core.registries.BuiltInRegistries;
 //?}
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -196,6 +198,11 @@ public final class NeoForgePlatform implements Platform {
         }
     }
     *///?}
+
+    @Override
+    public Path configDir() {
+        return FMLPaths.CONFIGDIR.get();
+    }
 
     @Override
     public Map<String, String> versions() {

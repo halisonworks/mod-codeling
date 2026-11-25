@@ -11,6 +11,14 @@ Every user-visible change to Codeling is listed here. The format follows
 - Permissions (issue #51): with a permission mod, such as LuckPerms, a server decides per player who may use a robot
   (`codeling.robot`), build with place, fill, shapes and maze (`codeling.build`), get items free (`codeling.free_items`) and
   teleport (`codeling.teleport`). Without one nothing changes.
+- Server limits in `config/codeling-server.json` (issue #52): how much robots may do each tick, how long they may take, and how
+  many messages a player's browser may send. Robots use at most about 10 ms of a tick from the start; before, a build that
+  broke blocks over a pile of items could stop the server for longer.
+
+### Changed
+
+- Players share each tick equally, whatever number of robots they have (issue #52). Before, a player with 16 robots got 16
+  times as much as a player with one.
 
 ### Fixed
 
