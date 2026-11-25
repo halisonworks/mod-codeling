@@ -4,7 +4,7 @@ Date: 24 November 2026. Repository: `halisonworks/mod-codeling`. Planning PR: [#
 
 ## 1. Mission and immediate priorities
 
-Take over the existing project and its issue plan. Stop expanding the backlog speculatively. First reconcile the live repository and issue state, finish the planning PR review, then work towards the reliable 0.1.0 public beta under the current Codeling identity. Implement or verify only genuine gaps. Preserve concurrent maintainer work. Use English (UK spelling for new planning prose), and Norwegian for the Norwegian player guide and localisation. Follow repository text checks.
+Take over the existing project and its issue plan. Stop expanding the backlog speculatively. First reconcile the live repository and issue state, finish the planning PR review, then work towards the reliable 0.1.0 public beta, which is released as Halison Code (owner's decision 2026-11-25). Implement or verify only genuine gaps. Preserve concurrent maintainer work. Use English (UK spelling for new planning prose), and Norwegian for the Norwegian player guide and localisation. Follow repository text checks.
 
 Start by reading [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](../CONTRIBUTING.md), [README.md](../README.md), [architecture.md](architecture.md), [CHANGELOG.md](../CHANGELOG.md), [open-source-readiness.md](open-source-readiness.md), both player guides and [SECURITY.md](../SECURITY.md). Read current issue bodies and linked PRs, not just titles. The old readiness report and early issue descriptions are historical; later evidence may supersede them.
 
@@ -19,7 +19,7 @@ Start by reading [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## 3. Product decisions and boundaries
 
-Halison Code is the name of the mod and the editor ("the Halison Code editor" when the two must be told apart), and Kintro is the robot (owner's decision 2026-11-25, #355). "For Minecraft" is used in descriptions only. Naming clearance (#58) and distribution compliance must be recorded before the names are shown in public. Retain Codeling for the 0.1.0 beta unless the owner changes that decision. Do not rename mod IDs, commands, packages, repository, origin, storage keys or saved entity IDs simply to match branding.
+Halison Code is the name of the mod and the editor ("the Halison Code editor" when the two must be told apart), and Kintro is the robot (owner's decision 2026-11-25, #355). "For Minecraft" is used in descriptions only. The owner decided on 2026-11-25 that 0.1.0 is released with these names and that the register searches (#58) do not hold it up. Distribution compliance (#277) must be recorded before the first download page. Do not rename mod IDs, commands, packages, repository, origin, storage keys or saved entity IDs simply to match branding.
 
 General Minecraft programming is a first-class capability, not all code requires a robot. Kintro is a resource-aware survival automation capability. Establish logical boundaries and capability registration first; a physical split into two JARs, editor repository extraction or a second target needs separate evidence and approval. Preserve existing projects, inventory, robot identity and server authority.
 

@@ -1,5 +1,5 @@
 name: Bug report
-description: Something in Codeling does not work
+description: Something in Halison Code does not work
 labels: ["bug"]
 body:
   - type: markdown
@@ -11,7 +11,7 @@ body:
   - type: input
     id: codeling
     attributes:
-      label: Codeling version
+      label: Halison Code version
       description: It is in the name of the jar file, and in the mod list.
       placeholder: 0.0.5
     validations:

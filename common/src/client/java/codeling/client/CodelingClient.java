@@ -47,10 +47,10 @@ public final class CodelingClient {
         EditorLauncher.deleteAll(EditorLauncher.DIR); // left by a crash
         try {
             relay = new RelayServer(port, new GameLink(client)).start();
-            Codeling.LOG.info("Codeling editor on http://127.0.0.1:{}/", port);
+            Codeling.LOG.info("Halison Code editor on http://127.0.0.1:{}/", port);
         } catch (Exception e) {
             // shortcut: log only; show an in-game error when the port is busy (not done in step 2).
-            Codeling.LOG.error("Codeling could not start the editor server on port {}", port, e);
+            Codeling.LOG.error("Halison Code could not start the editor server on port {}", port, e);
         }
     }
 
@@ -154,7 +154,7 @@ public final class CodelingClient {
             //?} else
             /*EditorLauncher.launch(EditorLauncher.DIR, relay.editorUrl(), Util.getPlatform()::openPath);*/
         } catch (IOException e) {
-            Codeling.LOG.error("Codeling could not write the editor launcher", e); // a path, never the token
+            Codeling.LOG.error("Halison Code could not write the editor launcher", e); // a path, never the token
         }
         show(Messages.of("message.codeling.editor.opening", copy("message.codeling.editor.copy", relay.editorUrl())));
         return 1;
@@ -192,7 +192,7 @@ public final class CodelingClient {
         public String send(String json) {
             if (client.getConnection() == null) return "Not in a world. Open a world in Minecraft, then run the program again.";
             try {
-                if (!ClientPlatform.INSTANCE.canSend(RelayPayloads.ToServer.TYPE)) return "This server does not have Codeling installed.";
+                if (!ClientPlatform.INSTANCE.canSend(RelayPayloads.ToServer.TYPE)) return "This server does not have Halison Code installed.";
             } catch (IllegalStateException e) {
                 return "Not in a world. Open a world in Minecraft, then run the program again.";
             }

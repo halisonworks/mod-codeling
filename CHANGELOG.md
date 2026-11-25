@@ -1,6 +1,6 @@
 # Changelog
 
-Every user-visible change to Codeling is listed here. The format follows
+Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the mod version follows
 [Semantic Versioning](https://semver.org/) (see "Versioning" in [CONTRIBUTING.md](CONTRIBUTING.md)).
 
@@ -19,6 +19,8 @@ Every user-visible change to Codeling is listed here. The format follows
 
 - The editor's name is Halison Code (issue #356). Your projects are where they were, and project files saved before open as
   before; new ones are called `halison-code-<name>.mkcd`.
+- The mod's name is Halison Code and the robot is called Kintro (issues #358 and #359). Worlds, robots, commands, the mod id
+  `codeling` and the jar file names are as before.
 - Players share each tick equally, whatever number of robots they have (issue #52). Before, a player with 16 robots got 16
   times as much as a player with one.
 

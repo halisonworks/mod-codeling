@@ -10,7 +10,7 @@ on:
 permissions:
   contents: read
 
-# Every Minecraft version Codeling builds for (settings.gradle.kts); one Fabric and one NeoForge jar each.
+# Every Minecraft version Halison Code builds for (settings.gradle.kts); one Fabric and one NeoForge jar each.
 env:
   # Maven Central sometimes answers 429 (issue #317): six tries, waiting 2, 4, 8, 16 and 32 seconds. Gradle's default is three tries.
   GRADLE_OPTS: "-Dorg.gradle.internal.repository.max.tentatives=6 -Dorg.gradle.internal.repository.initial.backoff=2000"
@@ -112,5 +112,5 @@ jobs:
           prerelease=""
           case "$VERSION" in 0.*) prerelease="--prerelease" ;; esac
           gh release create "$GITHUB_REF_NAME" --verify-tag $prerelease \
-            --title "Codeling $VERSION" --notes-file "$RUNNER_TEMP/notes.md" \
+            --title "Halison Code $VERSION" --notes-file "$RUNNER_TEMP/notes.md" \
             dist/*.jar dist/SHA256SUMS
