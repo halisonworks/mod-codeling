@@ -24,7 +24,7 @@ public final class StandaloneRelay {
         }
         RelayServer server = new RelayServer(port).start();
         Runtime.getRuntime().addShutdownHook(new Thread(server::close));
-        System.out.println("Codeling relay on http://127.0.0.1:" + port + "/");
+        System.out.println("Halison Code relay on http://127.0.0.1:" + port + "/");
         if (printUrl) System.out.println("EDITOR_URL " + server.editorUrl());
         if (printLauncher) {
             Path launcher = EditorLauncher.launch(EditorLauncher.DIR, server.editorUrl(), path -> { });

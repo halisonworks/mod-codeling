@@ -4,7 +4,7 @@ Status: proposed planning baseline, 24 November 2026. Development baseline: 0.0.
 
 ## Product intent and boundaries
 
-Halison Code is the name of the mod and the editor ("the Halison Code editor" when the two must be told apart), and Kintro is the robot (owner's decision 2026-11-25, #355). "For Minecraft" is used in descriptions only. Clearance must be recorded on #58 before the names are shown in public. The product serves hobby players, learners and creators who want to programme Minecraft worlds, build structures, automate resources and coordinate robots. The editor supports Blocks, JavaScript and Python within actual PXT capabilities. Minecraft world programming must not require a robot where the capability is genuinely independent. Kintro retains survival resources, server authority and explicit robot selection. Use logical module boundaries before deciding on physical packaging. Narratimo Worlds and other targets remain independent optional integrations.
+Halison Code is the name of the mod and the editor ("the Halison Code editor" when the two must be told apart), and Kintro is the robot (owner's decision 2026-11-25, #355). "For Minecraft" is used in descriptions only. The owner decided on 2026-11-25 that 0.1.0 is released with these names and that the register searches (#58) do not hold it up. The product serves hobby players, learners and creators who want to programme Minecraft worlds, build structures, automate resources and coordinate robots. The editor supports Blocks, JavaScript and Python within actual PXT capabilities. Minecraft world programming must not require a robot where the capability is genuinely independent. Kintro retains survival resources, server authority and explicit robot selection. Use logical module boundaries before deciding on physical packaging. Narratimo Worlds and other targets remain independent optional integrations.
 
 ## How to read this plan
 
@@ -73,7 +73,7 @@ Fresh installation, baseline editor connection and supported Blocks/JS/Python ex
 
 ### 0.2.0: Product identity
 
-Reviewed naming evidence and owner decision; approved editor/mod/robot display identity, legacy project and world compatibility, distribution and reversible upgrade path. Future name clearance does not block the existing Codeling beta; if approval is unavailable, retain current identity rather than force a rename.
+Reviewed naming evidence and owner decision; approved editor/mod/robot display identity, legacy project and world compatibility, distribution and reversible upgrade path. The owner approved the names and moved the visible rename to 0.1.0 (2026-11-25).
 
 | Issue | Scope | Title |
 | --- | --- | --- |

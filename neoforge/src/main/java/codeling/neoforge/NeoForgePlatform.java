@@ -207,7 +207,7 @@ public final class NeoForgePlatform implements Platform {
     @Override
     public Map<String, String> versions() {
         Map<String, String> versions = new LinkedHashMap<>();
-        Map.of("codeling", "Codeling", "minecraft", "Minecraft", "neoforge", "NeoForge").entrySet().stream().sorted(Map.Entry.comparingByValue())
+        Map.of("codeling", "Halison Code", "minecraft", "Minecraft", "neoforge", "NeoForge").entrySet().stream().sorted(Map.Entry.comparingByValue())
                 .forEach(e -> ModList.get().getModContainerById(e.getKey())
                         .ifPresent(mod -> versions.put(e.getValue(), mod.getModInfo().getVersion().toString())));
         return versions;
