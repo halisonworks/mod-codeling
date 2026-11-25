@@ -2,6 +2,7 @@ package codeling.net;
 
 import codeling.platform.Platform;
 import codeling.Codeling;
+import codeling.Permission;
 import codeling.log.Log;
 import codeling.robot.Positions;
 import codeling.robot.Result;
@@ -74,7 +75,11 @@ public final class ServerRelay {
                     Protocol.Cmd cmd = Protocol.cmd(msg);
                     SESSIONS.touch(owner, cmd.run(), now);
                     RobotLinks.Key key = new RobotLinks.Key(owner, cmd.robot());
-                    if (toWorld(player, cmd, out) || camera(player, key, cmd, out) || PlayerApi.submit(player, cmd, out)) return;
+                    if (toWorld(player, cmd, out) || PlayerApi.submit(player, cmd, out)) return;
+                    // Issue #51: the rest needs a robot.
+                    require(player, Permission.ROBOT);
+                    if (cmd.command().isBuilding()) require(player, Permission.BUILD);
+                    if (camera(player, key, cmd, out)) return;
                     RobotManager.submit(key, cmd.run(), cmd.id(), cmd.command(), result -> reply(name, cmd, result, out));
                 }
                 default -> throw new RobotException(Result.Code.BAD_ARGS, "unknown message type " + Protocol.type(msg));
@@ -83,6 +88,10 @@ public final class ServerRelay {
             if (e.code != Result.Code.STOPPED) Codeling.LOG.info("refused: {}'s program, {}: {}", name, Protocol.describe(json), e.code);
             out.accept(Protocol.error(id, e.code, e.getMessage()));
         }
+    }
+
+    private static void require(ServerPlayer player, Permission permission) throws RobotException {
+        if (!permission.allows(player)) throw new RobotException(Result.Code.NO_PERMISSION, "this server does not let you do that (permission " + permission.node() + ")");
     }
 
     /** The answer to one command. A refusal is logged; the message is not, it may hold the program's own words. */

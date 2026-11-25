@@ -60,6 +60,12 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("loader_version").get()}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_api_version").toString()}")
     implementation(project(":core"))
+    // Permissions (issue #51): part of Fabric API from 26.1.2. Before that an optional mod, not in our jar; the dev runs
+    // have it, so the GameTests check it.
+    findProperty("permissions_api_version")?.let {
+        modCompileOnly("me.lucko:fabric-permissions-api:$it") { isTransitive = false }
+        add("modLocalRuntime", "me.lucko:fabric-permissions-api:$it") { (this as ModuleDependency).isTransitive = false }
+    }
 
     testImplementation(sourceSets["client"].output)
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")

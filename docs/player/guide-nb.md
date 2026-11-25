@@ -204,7 +204,7 @@ Feilkodene et program kan fange:
 | Kode | Hvorfor |
 |---|---|
 | `BAD_ARGS` | Kommandoen eller en verdi er ugyldig, for eksempel en ting som ikke finnes i denne Minecraft-versjonen. |
-| `NO_PERMISSION` | Du har ikke lov her, for eksempel "robot gi" uten kreativ modus, eller robotkameraet når serveren har slått det av. |
+| `NO_PERMISSION` | Du har ikke lov her, for eksempel "robot gi" uten kreativ modus, robotkameraet når serveren har slått det av, eller noe serveren ikke lar deg gjøre (meldingen sier hvilken rettighet det er). |
 | `RATE_LIMITED` | Roboten har for mange kommandoer som venter. |
 | `PROTECTED` | Satt av til beskyttede områder. I dag svarer spillet false i stedet (handlingen gjorde ingenting). |
 | `UNLOADED` | Roboten eller blokken er i en del av verden som ikke er lastet, eller roboten er ikke laget. |
@@ -303,7 +303,7 @@ Roboten blir stående og ser bare. En posisjon eller et hjørne du gir, må vær
 | robot ledig i plass (plass) | `agent.getItemSpace(1)` | Hvor mange flere som får plass. |
 | robot ledige plasser | `agent.freeSlots()` | Hvor mange av de 27 plassene som er tomme. |
 | robot er inventaret fullt | `agent.isInventoryFull()` | Sann hvis ingen plass er tom. En stabel som ikke er full, kan fortsatt ta flere av samme ting. |
-| robot gi (ting) antall (antall) i plass (plass) | `agent.setItem(Item.Stone, 64, 1)` | Gir roboten ting. Bare i kreativ modus eller med spilleregelen `codeling:free_items`. |
+| robot gi (ting) antall (antall) i plass (plass) | `agent.setItem(Item.Stone, 64, 1)` | Gir roboten ting. Bare i kreativ modus, med spilleregelen `codeling:free_items`, eller når serveren lar deg. |
 | robot samle alt | `agent.collectAll()` | Plukker opp ting rett ved siden av seg. En ting som nettopp ble sluppet, kan plukkes opp etter et øyeblikk (et halvt sekund for det roboten selv slapp), og aldri en som er holdt av til en annen spiller. |
 | robot slipp (retning) fra plass (plass) antall (antall) | `agent.drop(SixDirection.Back, 1, 10)` | Slipper noen ting. |
 | robot slipp alt (retning) | `agent.dropAll(SixDirection.Back)` | Slipper alt. |
@@ -354,7 +354,7 @@ posisjon kan leses, og ingen andre kan flyttes.
 | kjør chatkommando (tekst) | `player.runChatCommand("jump 10")` | Kjører din egen "når chatkommando"-kode for det nøkkelordet, som om du hadde skrevet det. Den sender ingenting til chatten eller spillet. |
 
 Spillmodus betyr ikke noe for disse blokkene: i tilskuer- eller eventyrmodus kan du fortsatt bruke alle (teleporter
-krever fortsatt enspiller eller operatør).
+krever fortsatt enspiller, operatør eller rettigheten).
 
 #### Reager på chat og død
 
@@ -667,7 +667,7 @@ standardroboten din.
 | `/robot inspect <retning> [navn]` | Viser nummeret til blokken. |
 | `/robot detect <retning> [navn]` | Sann hvis en blokk står i veien. |
 | `/robot slot <1-27> [navn]` | Velger en plass. |
-| `/robot give <blokk> <antall> [plass] [navn]` | Gir ting, for eksempel `/robot give oak_planks 64`. Bare i kreativ modus eller med spilleregelen `codeling:free_items`. |
+| `/robot give <blokk> <antall> [plass] [navn]` | Gir ting, for eksempel `/robot give oak_planks 64`. Bare i kreativ modus, med spilleregelen `codeling:free_items`, eller når serveren lar deg. |
 | `/robot inventory [navn]` | Åpner robotens inventar hvis du står nær. Ellers lister den tingene. |
 | `/robot collect [navn]` | Plukker opp ting ved siden av seg. |
 | `/robot drop <retning> [navn]` | Slipper alt. |
@@ -728,7 +728,11 @@ Grensene holder spillet raskt for alle.
 - Bare du og operatører på serveren kan åpne inventaret til roboten din. Andre får beskjeden "This is not your robot" over hurtiglinjen.
 - I overlevelse samler roboten sine egne ressurser. "robot gi" og `/robot give` virker bare i kreativ modus, eller når verdenen har `/gamerule codeling:free_items true`. Ellers legger du ting i roboten gjennom inventarskjermen dens.
 - Operatører kan stoppe alle roboter med `/robot stop all`.
-- `player.say` i et program går bare til spilleren som kjører det, og `player.teleport` virker på en server bare for operatører.
+- Med en rettighetsmod, som LuckPerms, bestemmer serveren for hver spiller: `codeling.robot` (bruke en robot; alle fra start),
+  `codeling.build` (plasser, fyll, former og labyrint; alle), `codeling.free_items` (ting og bygging gratis; kreativ modus
+  eller spilleregelen) og `codeling.teleport` (spillerens teleport; operatører og verten i en enspillerverden). For eksempel
+  `/lp user <spiller> permission set codeling.build false`. Uten `codeling.robot` er `/robot` en ukjent kommando.
+- `player.say` i et program går bare til spilleren som kjører det, og `player.teleport` virker på en server bare for operatører, eller spillere serveren lar gjøre det.
 - Et program hører bare chatkommandoene, døden og de ødelagte blokkene til sin egen spiller, redstonesignalet til sin
   egen robot og dagen i sin egen spillers verden, aldri noe om en annen spiller. En chattelinje holdes bare tilbake
   fra chatten mens programmet ditt kjører og lytter etter det første ordet i den.

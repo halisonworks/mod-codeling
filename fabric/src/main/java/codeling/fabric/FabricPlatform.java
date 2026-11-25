@@ -1,5 +1,6 @@
 package codeling.fabric;
 
+import codeling.Permission;
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
 import java.util.LinkedHashMap;
@@ -100,5 +101,31 @@ public final class FabricPlatform implements Platform {
     @Override
     public void send(ServerPlayer player, CustomPacketPayload payload) {
         ServerPlayNetworking.send(player, payload);
+    }
+
+    // Fabric API has permissions from 26.1.2 on. Before that most mods use fabric-permissions-api, which permission mods
+    // carry with them, so Codeling does not need to. Both are optional: an older Fabric API does not have the module.
+    //? if >=26.1 {
+    private static final boolean PERMISSIONS = FabricLoader.getInstance().isModLoaded("fabric-permission-api-v1");
+    //?} else
+    /*private static final boolean PERMISSIONS = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");*/
+
+    @Override
+    public boolean allows(ServerPlayer player, Permission permission) {
+        boolean byDefault = permission.byDefault(player);
+        return PERMISSIONS ? FabricPermissions.check(player, permission, byDefault) : byDefault;
+    }
+
+    /** A class of its own, so nothing of the optional API is loaded when it is not there. */
+    private static final class FabricPermissions {
+        // fabric-permissions-api gets the command source, not the player: it makes the source of a player with a method
+        // that changed in 1.21.2, so the wrong build of it would fail.
+        static boolean check(ServerPlayer player, Permission permission, boolean byDefault) {
+            //? if >=26.1 {
+            return ((net.fabricmc.fabric.api.permission.v1.PermissionContextOwner) player)
+                    .checkPermission(Identifier.fromNamespaceAndPath(codeling.Codeling.MOD_ID, permission.path()), byDefault);
+            //?} else
+            /*return me.lucko.fabric.api.permissions.v0.Permissions.check(player.createCommandSourceStack(), permission.node(), byDefault);*/
+        }
     }
 }

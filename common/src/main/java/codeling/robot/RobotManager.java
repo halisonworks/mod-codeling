@@ -3,6 +3,7 @@ package codeling.robot;
 import codeling.McCompat;
 import codeling.Codeling;
 import codeling.Messages;
+import codeling.Permission;
 import codeling.mixin.ItemEntityAccessor;
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
@@ -890,9 +891,9 @@ public final class RobotManager {
         Block floor = c.op() == RobotCommand.Op.MAZE ? McCompat.block(Identifier.parse(BlockIds.toModern(c.h()))) : block;
         boolean free = freeItems(robot);
         if (fresh && Codeling.LOG.detailed()) Codeling.LOG.detail("build: {} starts {} with {}; {}.", label(robot), c.op().name().toLowerCase(java.util.Locale.ROOT), name(block),
-                !free ? "it builds from the robot's inventory (not creative, and game rule codeling:free_items is off)"
+                !free ? "it builds from the robot's inventory (the owner does not get items free)"
                         : Codeling.freeItems(robot.level().getServer()) ? "it builds free of charge because game rule codeling:free_items is on"
-                        : "it builds free of charge because the owner is in creative mode");
+                        : "it builds free of charge because the owner is in creative mode or has the permission codeling.free_items");
         boolean overwrite = c.op() != RobotCommand.Op.FILL || c.h() != RobotShapes.KEEP;
         for (; buildLeft > 0 && scanLeft > 0 && entry.scan.hasNext(); scanLeft--) {
             BlockPos pos = entry.scan.next().immutable();
@@ -926,7 +927,7 @@ public final class RobotManager {
                 String why = entry.step == 0 ? "I have no " + missing + " in my inventory."
                         : "I ran out of " + missing + " after " + entry.step + (entry.step == 1 ? " block." : " blocks.");
                 robot.say(why);
-                buildEnd(robot, queue, entry, "the robot has no " + name(target) + " in its inventory (survival, and game rule codeling:free_items is off)", Result.ok(entry.step, why));
+                buildEnd(robot, queue, entry, "the robot has no " + name(target) + " in its inventory (the owner does not get items free)", Result.ok(entry.step, why));
                 return;
             }
             ItemStack stack = free ? new ItemStack(target.asItem()) : robot.inventory().getItem(slot);
@@ -1198,7 +1199,7 @@ public final class RobotManager {
                 return Result.ok(stack.isEmpty() ? 64 : stack.getMaxStackSize() - stack.getCount());
             }
             case SET_ITEM -> {
-                if (!freeItems(robot)) return Result.error(Result.Code.NO_PERMISSION, "setItem needs creative mode or the gamerule codeling:free_items");
+                if (!freeItems(robot)) return Result.error(Result.Code.NO_PERMISSION, "setItem needs creative mode, the gamerule codeling:free_items or the permission codeling.free_items");
                 ItemStack stack = new ItemStack(command.a() == 0 ? Items.AIR : item(command.a()));
                 stack.setCount(Math.min(command.b(), stack.getMaxStackSize()));
                 inv.setItem(command.c() - 1, stack);
@@ -1617,13 +1618,13 @@ public final class RobotManager {
 
     /**
      * In survival the robot gathers its own resources. setItem and building without items are allowed only when the
-     * owner is online and in creative, or when the world's gamerule codeling:free_items is true.
+     * owner is online and in creative, or when the world's gamerule codeling:free_items is true, unless the server's
+     * permission mod says otherwise ({@link Permission#FREE_ITEMS}).
      */
     private static boolean freeItems(RobotEntity robot) {
         MinecraftServer server = robot.level().getServer();
-        if (Codeling.freeItems(server)) return true;
         ServerPlayer owner = server.getPlayerList().getPlayer(robot.owner());
-        return owner != null && owner.isCreative();
+        return owner == null ? Codeling.freeItems(server) : Permission.FREE_ITEMS.allows(owner);
     }
 
     /**
