@@ -633,6 +633,8 @@ speech bubble takes the place of its tag.
 
 ## Chat commands
 
+All commands and game rules are also in [one list](../commands.md).
+
 A robot name at the end of a command (shown as `[name]`) picks one of your robots. Without it the command is for
 your default robot.
 
@@ -708,6 +710,8 @@ These keep the game fast for everyone.
 - The program runs in your browser. If you close the tab or leave the world, the program stops. After 10 seconds without contact the game stops the robot.
 
 ## Multiplayer
+
+If you run a server, read the [server admin guide](../server-admin.md) (in English).
 
 - The server needs Halison Code for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Halison Code too.
 - Use the same Halison Code version on the server and on every client. Mixing versions is not supported and has not been tested.
