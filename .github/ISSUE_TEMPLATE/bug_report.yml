@@ -13,7 +13,7 @@ body:
     attributes:
       label: Halison Code version
       description: It is in the name of the jar file, and in the mod list.
-      placeholder: 0.0.5
+      placeholder: 0.0.6
     validations:
       required: true
   - type: input
