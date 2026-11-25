@@ -1,0 +1,248 @@
+{
+ "about": "Issue #357: what a browser holds after three projects were saved in the editor of the released 0.0.5, their project files (mkcd), and what they show and log there. The ids in it were changed to halisoncode with the rename (issue #422). Later editors must open it.",
+ "projects": [
+  {
+   "name": "Wall in Blocks",
+   "view": "blocks",
+   "log": [
+    "connected as standalone",
+    "run 0 started",
+    "setItem 4 64 1: true",
+    "setSlot 1: true",
+    "place 1: true",
+    "move 0 1: done",
+    "place 1: true",
+    "move 0 1: done",
+    "detect 0 0: true",
+    "say Blocked: true",
+    "say: 2",
+    "Miner: move 4 2: done",
+    "say: blocks end"
+   ],
+   "blocks": [
+    "function_definition",
+    "argument_reporter_number",
+    "controls_repeat_ext",
+    "argument_reporter_number",
+    "agent_place",
+    "agent_move",
+    "math_number_minmax",
+    "player_on_chat",
+    "text",
+    "argument_reporter_number",
+    "argument_reporter_number",
+    "argument_reporter_number",
+    "function_call",
+    "argument_reporter_number",
+    "pxt-on-start",
+    "variables_set",
+    "robots_get",
+    "text",
+    "agent_set_item",
+    "halisoncode_block",
+    "math_number_minmax",
+    "math_number_minmax",
+    "agent_set_slot",
+    "math_number_minmax",
+    "function_call",
+    "math_number",
+    "controls_if",
+    "agent_detect",
+    "agent_say",
+    "text",
+    "variables_set",
+    "lists_create_with",
+    "text",
+    "text",
+    "console_say",
+    "text_join",
+    "lists_length",
+    "variables_get",
+    "robot_move",
+    "variables_get",
+    "math_number_minmax",
+    "console_say",
+    "text"
+   ],
+   "mkcd": {
+    "file": "halison-code-Wall-in-Blocks.mkcd",
+    "base64": "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"
+   },
+   "code": "function wall (length: number) {\n    for (let index = 0; index < length; index++) {\n        agent.place(SixDirection.Back)\n        agent.move(SixDirection.Forward, 1)\n    }\n}\nplayer.onChat(\"wall\", function (num1, num2, num3) {\n    wall(num1)\n})\nlet miner = robots.get(\"Miner\")\nagent.setItem(Block.Cobblestone, 64, 1)\nagent.setSlot(1)\nwall(2)\nif (agent.detect(AgentDetection.Block, SixDirection.Forward)) {\n    agent.say(\"Blocked\")\n}\nlet names = [\"a\", \"b\"]\nconsole.log(\"\" + names.length)\nminer.move(SixDirection.Up, 2)\nconsole.log(\"blocks end\")\n"
+  },
+  {
+   "name": "Counter in JavaScript",
+   "view": "javascript",
+   "log": [
+    "connected as standalone",
+    "run 0 started",
+    "move 0 6: done",
+    "say: javascript end"
+   ],
+   "text": "class Counter {\n    private n: number\n    constructor() {\n        this.n = 0\n    }\n    add(by: number): number {\n        this.n += by\n        return this.n\n    }\n}\n// Kept: a comment, a class and æøå.\nconst counter = new Counter()\nfor (const step of [1, 2, 3]) {\n    counter.add(step)\n}\nagent.move(SixDirection.Forward, counter.add(0))\nconsole.log(\"javascript end\")\n",
+   "mkcd": {
+    "file": "halison-code-Counter-in-JavaScript.mkcd",
+    "base64": "XQAAgABgBgAAAAAAAAA9goAXHC4MqgeNHgoIMpsTCTurzyZquKQOb1TCv3qwm1gUEW+TH1wDwRa/qjKgV30F5AFhCKSjIGZf6jdx40jmvJyWm+k6vMB9Ubqz+GUiWZtoF0Qbr8ntH8Xrg2uBJZyyJ+H81+xW5TmrEFpW6sxJvunPUAwfO9xKNYXb9zoJc8VjK8fhPTisnYHH0LDUQbKRvefnYLlT1nlx2R4B5tfpDbASEBTKFaj9LqDDofejTFbHEfSd5H0MaRTRzJw+Lmq8LNAZP7Cy92SSwHMzr1FxM6WSdOePHMInoIGW+yXb6T6QXnbmEc+OE/I/Mf8R7NnhsYHKF7BNngVgLxi7e1dGsvsp9PyV0rqBMcw9aJ0+Am3OSlWAONwkGigWvv7AHRCpDSIAInz7Kii/0aq9BgiHGvqPEijw3tN4fzGlA3h3cIZN3SLwTaV7kxJ7aRwLh+Oj6UNJc+h1a9yReoWHDl7Zhje4TqItyxxo79RqOyNJhb6vIxO9r8XSa0dp3cQTzXTHBwBYtm9LwjyrjdVvkRE2J2ZxW7B1Q2ksZJ/NX6VyxlGY8XdNXe1gz6CLioFUeloLNcwYxfMpzB0jhUHpXC1ZKFhkeV+OZ9BXQI3SfemBTQOJm3Wm1Y4KV1hLYJHmqYrXMzUffwVTB2qxhsq1dJ0TOI2gXxvhv/PIFA/utRMhxDRfgu6UTMfasVpZVmObt1uzQneSf+OCF+ISkBMhyVvTR5WCqhgWT0rLu/cOB8lR0dtCkchY6n4V4wJhUlhqxtBg96h9m5e989i3NwCoBDPk4gi+eJl1mt0bu/DRWiSqYcejkAFywKmEeaLY/Ae88pAunTii/kFTdMxUGJRhHR5X1dznpQH7JQStx5h/Ziv6HSS5As3VFW/HlGdZZDRG7T/feiCXvIgyvk59D6/iUULE4vEDQBBaEP+pilt6"
+   },
+   "code": "class Counter {\n    private n: number\n    constructor() {\n        this.n = 0\n    }\n    add(by: number): number {\n        this.n += by\n        return this.n\n    }\n}\n// Kept: a comment, a class and æøå.\nconst counter = new Counter()\nfor (const step of [1, 2, 3]) {\n    counter.add(step)\n}\nagent.move(SixDirection.Forward, counter.add(0))\nconsole.log(\"javascript end\")\n"
+  },
+  {
+   "name": "Stairs in Python",
+   "view": "python",
+   "log": [
+    "connected as standalone",
+    "run 0 started",
+    "setItem 1 64 1: true",
+    "move 4 1: done",
+    "move 0 1: done",
+    "place 5: true",
+    "move 4 1: done",
+    "move 0 1: done",
+    "place 5: true",
+    "say: python end"
+   ],
+   "text": "def stairs(steps: number):\n    for index in range(steps):\n        agent.move(SixDirection.UP, 1)\n        agent.move(SixDirection.FORWARD, 1)\n        agent.place(SixDirection.DOWN)\nagent.set_item(Block.STONE, 64, 1)\nstairs(2)\nprint(\"python end\")\n",
+   "mkcd": {
+    "file": "halison-code-Stairs-in-Python.mkcd",
+    "base64": "XQAAgACuCAAAAAAAAAA9goAXHC4MqgeNHgoIMpsTCTurzyZquKQOb1TCv3qwm1gUEW+TH1wDwRa/qjKgV30F5AFhCKSjIGZf6jdx40jmvJyWm+k6vMB9Ubqz+GUiWZtoF0Qbr8ntH8Xrg2uBJZyyJ+H81+xW5TmrEFpW6sxJvunPUAwfO9xKNYXb9zoJc8VjK8fhPTisnYHH0LDUQbKRvefnYLlT1nlx2R4B5tfpDbASEBTKFaj9LqDDofejTFbHEfSd5H0MaRTRzJw+Lo0HT8ZWehjnXBAjZaSp6OBUiil7ARVKs84btuHtcwBBdzpyWF/WDf85aNu82cQVjlWJJ2T9otZqmnR6EyZ9QIrz6e/fKCyP4jm5Ybk4bVLWWZs8BsD2OzoKM1K4KstmBxUoXIvhjxRypbrlnjWSKRX1M8C5i51BeppUGNasCNhmZyqsjPxtaev5Fo225/rGOsiFrcyOAr9ESqSnLtSCotppT9z/u0MFbs+f2Je036KZR8Gcu/qIVCT1XEo7mIYam+UvrdAvlBvDFTn0VicUHI8u2aJkcKWJSzISbAyK9osg58vPuWVLcBwndzpbj7mk0D6UQ9pzt6up8u6RbfuYYZZ09c5N12PhIaQdSG5h9mzY7TE2VdMQAzz3paCws95CvITntua4sFcoZ2Ee0PdetX2Dr9XOi2VrzSlTHwTM3YQrOmckvZO050KZXIkrey4b5p1UYSsROFsTEtnw8cQPJS8ZKJkzyNU7dyUPSXbhRhBURn+f1PIVD7HdXGuafS0lKCXDPZ9QnILJ5AjmJrtL3pg4QugOkFlE4Hw/72uH9Y9NCmeATxEAvJuqETsjA0FEqObqnObtOZak68NyXowen6pdG6IHPmubcPdsRLwYTaYJbRTd5kXuG5tTwlEAoVLM5DCRoKyT391OcdJ2llvX5q6qSwajsJzX8B/XJ4M56v7L5OsYYlonXy2KPq+qzQW/+SIBcIBJnumYFqYTXdvk3YZIo8jiA2LKDCKIQJYBUlPtRYw3C6QWuq8nJ+1fxUHakLSkbCz09MHMCgzheT7WvMMd8gABJxgu1qNG4+jaRvC6bjmayM6DhJ+D4lDlF4x87kCLbZAqVUXUPbsFYR6Ynx4ccpzFqdFl1l//p+14gA=="
+   },
+   "code": "def stairs(steps: number):\n    for index in range(steps):\n        agent.move(SixDirection.UP, 1)\n        agent.move(SixDirection.FORWARD, 1)\n        agent.place(SixDirection.DOWN)\nagent.set_item(Block.STONE, 64, 1)\nstairs(2)\nprint(\"python end\")\n"
+  }
+ ],
+ "indexedDB": [
+  {
+   "name": "__pxt_idb_workspace_halisoncode___default",
+   "version": 1,
+   "stores": [
+    {
+     "name": "github",
+     "autoIncrement": false,
+     "keyPath": "id",
+     "records": [],
+     "indexes": []
+    },
+    {
+     "name": "headers",
+     "autoIncrement": false,
+     "keyPath": "id",
+     "records": [
+      {
+       "value": {
+        "name": "Wall in Blocks",
+        "meta": {},
+        "editor": "blocksprj",
+        "pubId": "",
+        "pubCurrent": false,
+        "target": "halisoncode",
+        "targetVersion": "0.0.2",
+        "id": "1965a095-9fb0-453f-a730-d092610e72b6",
+        "recentUse": 1795606325,
+        "modificationTime": 1795606325,
+        "path": "Untitled",
+        "cloudCurrent": false,
+        "saveId": null,
+        "githubCurrent": false
+       }
+      },
+      {
+       "value": {
+        "name": "Stairs in Python",
+        "meta": {},
+        "editor": "pyprj",
+        "pubId": "",
+        "pubCurrent": false,
+        "target": "halisoncode",
+        "targetVersion": "0.0.2",
+        "id": "8c97604c-fd7a-4293-f763-c651bfb6bb80",
+        "recentUse": 1795606345,
+        "modificationTime": 1795606345,
+        "path": "Untitled-3",
+        "cloudCurrent": false,
+        "saveId": null,
+        "githubCurrent": false
+       }
+      },
+      {
+       "value": {
+        "name": "Counter in JavaScript",
+        "meta": {},
+        "editor": "tsprj",
+        "pubId": "",
+        "pubCurrent": false,
+        "target": "halisoncode",
+        "targetVersion": "0.0.2",
+        "id": "c32330d3-6287-49ad-3af7-c78f26cf339c",
+        "recentUse": 1795606334,
+        "modificationTime": 1795606334,
+        "path": "Untitled-2",
+        "cloudCurrent": false,
+        "saveId": null,
+        "githubCurrent": false
+       }
+      }
+     ],
+     "indexes": []
+    },
+    {
+     "name": "hostcache",
+     "autoIncrement": false,
+     "keyPath": "id",
+     "records": [],
+     "indexes": []
+    },
+    {
+     "name": "script",
+     "autoIncrement": false,
+     "keyPath": "id",
+     "records": [],
+     "indexes": []
+    },
+    {
+     "name": "texts",
+     "autoIncrement": false,
+     "keyPath": "id",
+     "records": [
+      {
+       "value": {
+        "id": "1965a095-9fb0-453f-a730-d092610e72b6",
+        "files": {
+         "README.md": "\n",
+         "main.blocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><variables><variable id=\"[a{rJFjy{_3[7=Z1!iBK\">miner</variable><variable id=\"[tFp$Xtd.{;{KJs{K+[j\">names</variable></variables><block type=\"pxt-on-start\" x=\"20\" y=\"20\"><statement name=\"HANDLER\"><block type=\"variables_set\"><field name=\"VAR\" id=\"[a{rJFjy{_3[7=Z1!iBK\">miner</field><value name=\"VALUE\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow><block type=\"robots_get\"><value name=\"name\"><shadow type=\"text\"><field name=\"TEXT\">Miner</field></shadow></value></block></value><next><block type=\"agent_set_item\"><value name=\"blockOrItem\"><shadow type=\"halisoncode_item\"><field name=\"item\">Item.Coal</field></shadow><block type=\"halisoncode_block\"><field name=\"block\">Block.Cobblestone</field></block></value><value name=\"count\"><shadow type=\"math_number_minmax\"><mutation min=\"1\" max=\"64\" label=\"Count\" precision=\"0\"></mutation><field name=\"SLIDER\">64</field></shadow></value><value name=\"slot\"><shadow type=\"math_number_minmax\"><mutation min=\"1\" max=\"27\" label=\"Slot\" precision=\"0\"></mutation><field name=\"SLIDER\">1</field></shadow></value><next><block type=\"agent_set_slot\"><value name=\"slot\"><shadow type=\"math_number_minmax\"><mutation min=\"1\" max=\"27\" label=\"Slot\" precision=\"0\"></mutation><field name=\"SLIDER\">1</field></shadow></value><next><block type=\"function_call\"><mutation name=\"wall\" functionid=\"?o`J1ZbxQg9mD*p/`(AL\"><arg name=\"length\" id=\"4mfcfeyofpzm7whr54uno\" type=\"number\"></arg></mutation><value name=\"4mfcfeyofpzm7whr54uno\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><next><block type=\"controls_if\"><value name=\"IF0\"><shadow type=\"logic_boolean\"><field name=\"BOOL\">TRUE</field></shadow><block type=\"agent_detect\"><field name=\"kind\">AgentDetection.Block</field><field name=\"direction\">SixDirection.Forward</field></block></value><statement name=\"DO0\"><block type=\"agent_say\"><value name=\"text\"><shadow type=\"text\"><field name=\"TEXT\">Blocked</field></shadow></value></block></statement><next><block type=\"variables_set\"><field name=\"VAR\" id=\"[tFp$Xtd.{;{KJs{K+[j\">names</field><value name=\"VALUE\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow><block type=\"lists_create_with\"><mutation items=\"2\" horizontalafter=\"3\"></mutation><value name=\"ADD0\"><shadow type=\"text\"><field name=\"TEXT\">a</field></shadow></value><value name=\"ADD1\"><shadow type=\"text\"><field name=\"TEXT\">b</field></shadow></value></block></value><next><block type=\"console_say\"><value name=\"text\"><block type=\"text_join\"><mutation items=\"1\"></mutation><value name=\"ADD0\"><shadow type=\"text\"><field name=\"TEXT\"></field></shadow><block type=\"lists_length\"><value name=\"VALUE\"><block type=\"variables_get\"><field name=\"VAR\" id=\"[tFp$Xtd.{;{KJs{K+[j\">names</field></block></value></block></value></block></value><next><block type=\"robot_move\"><field name=\"direction\">SixDirection.Up</field><value name=\"robot\"><shadow type=\"robots_get\"></shadow><block type=\"variables_get\"><field name=\"VAR\" id=\"[a{rJFjy{_3[7=Z1!iBK\">miner</field></block></value><value name=\"steps\"><shadow type=\"math_number_minmax\"><mutation min=\"1\" max=\"64\" label=\"Steps\" precision=\"0\"></mutation><field name=\"SLIDER\">2</field></shadow></value><next><block type=\"console_say\"><value name=\"text\"><shadow type=\"text\"><field name=\"TEXT\">blocks end</field></shadow></value></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"player_on_chat\" x=\"569\" y=\"20\"><mutation xmlns=\"http://www.w3.org/1999/xhtml\" numargs=\"3\"></mutation><value name=\"command\"><shadow type=\"text\"><field name=\"TEXT\">wall</field></shadow></value><value name=\"HANDLER_DRAG_PARAM_num1\"><block type=\"argument_reporter_number\" deletable=\"false\"><field name=\"VALUE\">num1</field></block></value><value name=\"HANDLER_DRAG_PARAM_num2\"><block type=\"argument_reporter_number\" deletable=\"false\"><field name=\"VALUE\">num2</field></block></value><value name=\"HANDLER_DRAG_PARAM_num3\"><block type=\"argument_reporter_number\" deletable=\"false\"><field name=\"VALUE\">num3</field></block></value><statement name=\"HANDLER\"><block type=\"function_call\"><mutation name=\"wall\" functionid=\"?o`J1ZbxQg9mD*p/`(AL\"><arg name=\"length\" id=\"4mfcfeyofpzm7whr54uno\" type=\"number\"></arg></mutation><value name=\"4mfcfeyofpzm7whr54uno\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow><block type=\"argument_reporter_number\"><field name=\"VALUE\">num1</field></block></value></block></statement></block><block type=\"function_definition\" x=\"20\" y=\"673\"><mutation name=\"wall\" functionid=\"?o`J1ZbxQg9mD*p/`(AL\"><arg name=\"length\" id=\"4mfcfeyofpzm7whr54uno\" type=\"number\"></arg></mutation><field name=\"function_name\">wall</field><value name=\"4mfcfeyofpzm7whr54uno\"><block type=\"argument_reporter_number\" deletable=\"false\"><field name=\"VALUE\">length</field></block></value><statement name=\"STACK\"><block type=\"controls_repeat_ext\"><value name=\"TIMES\"><shadow type=\"math_whole_number\"><field name=\"NUM\">0</field></shadow><block type=\"argument_reporter_number\"><field name=\"VALUE\">length</field></block></value><statement name=\"DO\"><block type=\"agent_place\"><field name=\"direction\">SixDirection.Back</field><next><block type=\"agent_move\"><field name=\"direction\">SixDirection.Forward</field><value name=\"steps\"><shadow type=\"math_number_minmax\"><mutation min=\"1\" max=\"64\" label=\"Steps\" precision=\"0\"></mutation><field name=\"SLIDER\">1</field></shadow></value></block></next></block></statement></block></statement></block></xml>",
+         "main.ts": "player.onChat(\"wall\", function (num1, num2, num3) {\n    wall(num1)\n})\nfunction wall (length: number) {\n    for (let index = 0; index < length; index++) {\n        agent.place(SixDirection.Back)\n        agent.move(SixDirection.Forward, 1)\n    }\n}\nlet miner = robots.get(\"Miner\")\nagent.setItem(Block.Cobblestone, 64, 1)\nagent.setSlot(1)\nwall(2)\nif (agent.detect(AgentDetection.Block, SixDirection.Forward)) {\n    agent.say(\"Blocked\")\n}\nlet names = [\"a\", \"b\"]\nconsole.log(\"\" + names.length)\nminer.move(SixDirection.Up, 2)\nconsole.log(\"blocks end\")\n",
+         "pxt.json": "{\n    \"name\": \"Wall in Blocks\",\n    \"description\": \"\",\n    \"dependencies\": {\n        \"core\": \"*\"\n    },\n    \"files\": [\n        \"main.blocks\",\n        \"main.ts\",\n        \"README.md\"\n    ],\n    \"preferredEditor\": \"blocksprj\"\n}\n"
+        },
+        "_rev": null
+       }
+      },
+      {
+       "value": {
+        "id": "8c97604c-fd7a-4293-f763-c651bfb6bb80",
+        "files": {
+         "README.md": "\n",
+         "main.blocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><variables><variable id=\"yypB)tm=Ogp+:]uz:H)G\">x</variable></variables><block type=\"pxt-on-start\" x=\"20\" y=\"20\"><statement name=\"HANDLER\"><block type=\"variables_set\"><field name=\"VAR\" id=\"yypB)tm=Ogp+:]uz:H)G\">x</field><value name=\"VALUE\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value></block></statement></block></xml>",
+         "main.ts": "function stairs(steps: number) {\n    for (let index = 0; index < steps; index++) {\n        agent.move(SixDirection.Up, 1)\n        agent.move(SixDirection.Forward, 1)\n        agent.place(SixDirection.Down)\n    }\n}\n\nagent.setItem(Block.Stone, 64, 1)\nstairs(2)\nconsole.log(\"python end\")\n",
+         "pxt.json": "{\n    \"name\": \"Stairs in Python\",\n    \"description\": \"\",\n    \"dependencies\": {\n        \"core\": \"*\"\n    },\n    \"files\": [\n        \"main.blocks\",\n        \"main.ts\",\n        \"README.md\",\n        \"main.py\"\n    ],\n    \"preferredEditor\": \"pyprj\"\n}\n",
+         "main.py": "def stairs(steps: number):\n    for index in range(steps):\n        agent.move(SixDirection.UP, 1)\n        agent.move(SixDirection.FORWARD, 1)\n        agent.place(SixDirection.DOWN)\nagent.set_item(Block.STONE, 64, 1)\nstairs(2)\nprint(\"python end\")\n"
+        },
+        "_rev": null
+       }
+      },
+      {
+       "value": {
+        "id": "c32330d3-6287-49ad-3af7-c78f26cf339c",
+        "files": {
+         "README.md": "\n",
+         "main.blocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><variables></variables></xml>",
+         "main.ts": "class Counter {\n    private n: number\n    constructor() {\n        this.n = 0\n    }\n    add(by: number): number {\n        this.n += by\n        return this.n\n    }\n}\n// Kept: a comment, a class and æøå.\nconst counter = new Counter()\nfor (const step of [1, 2, 3]) {\n    counter.add(step)\n}\nagent.move(SixDirection.Forward, counter.add(0))\nconsole.log(\"javascript end\")\n",
+         "pxt.json": "{\n    \"name\": \"Counter in JavaScript\",\n    \"description\": \"\",\n    \"dependencies\": {\n        \"core\": \"*\"\n    },\n    \"files\": [\n        \"main.blocks\",\n        \"main.ts\",\n        \"README.md\"\n    ],\n    \"preferredEditor\": \"tsprj\"\n}\n"
+        },
+        "_rev": null
+       }
+      }
+     ],
+     "indexes": []
+    }
+   ]
+  }
+ ]
+}

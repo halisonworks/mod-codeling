@@ -33,7 +33,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     // BlockEnumTest and ItemEnumTest read (and regenerate) these editor files.
-    inputs.files("../target/libs/core/blocks.d.ts", "../target/libs/core/items.d.ts", "../target/locales/nb/codeling/core-strings.json")
+    inputs.files("../target/libs/core/blocks.d.ts", "../target/libs/core/items.d.ts", "../target/locales/nb/halisoncode/core-strings.json")
 }
 
 val checkPureImports = tasks.register("checkPureImports") {
@@ -58,7 +58,7 @@ tasks.named<JavaCompile>("compileCompatJava") { options.release = 17 }
 val compatEditor = tasks.register<Sync>("compatEditor") {
     // The entry page and the top-level scripts and styles are enough to prove serving; the full editor is 50 MB.
     from(rootProject.layout.projectDirectory.dir("target/built/packaged")) { include("index.html", "*.js", "*.css") }
-    into(layout.buildDirectory.dir("compat-editor/codeling-editor"))
+    into(layout.buildDirectory.dir("compat-editor/halisoncode-editor"))
     doLast { if (!destinationDir.resolve("index.html").exists()) throw GradleException("Build the editor first: cd target && npm run staticpkg") }
 }
 val relayCompatTest = tasks.register("relayCompatTest") {
@@ -77,7 +77,7 @@ for ((java, libs) in mapOf(17 to listOf("2.10", "2.0.1", "25593"), 21 to listOf(
         description = "The relay on Java $java, Gson ${libs[0]}, SLF4J ${libs[1]}, no Netty"
         dependsOn(compatEditor)
         classpath = files(sourceSets.main.get().output, compat.output, layout.buildDirectory.dir("compat-editor"), runtime)
-        mainClass = "codeling.relay.RelayCompatCheck"
+        mainClass = "halisoncode.relay.RelayCompatCheck"
         args(libs[2])
         javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(java) }
     }

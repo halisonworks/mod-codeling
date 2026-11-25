@@ -10,7 +10,7 @@ Microsoft MakeCode is a Microsoft product. Halison Code uses Microsoft's open-so
 
 ## pxt (Microsoft MakeCode toolkit)
 
-The browser editor is built with pxt-core (version 13.3.1, https://github.com/microsoft/pxt) and is bundled in the mod jar under `codeling-editor/`.
+The browser editor is built with pxt-core (version 13.3.1, https://github.com/microsoft/pxt) and is bundled in the mod jar under `halisoncode-editor/`.
 
 ```
 The MIT License (MIT)
@@ -45,7 +45,7 @@ Full text: [target/LICENSE-pxt-sample.txt](target/LICENSE-pxt-sample.txt).
 
 ## Libraries inside the packaged editor
 
-The static editor in the jar (`codeling-editor/`, built from `target/built/packaged`) contains code from the libraries
+The static editor in the jar (`halisoncode-editor/`, built from `target/built/packaged`) contains code from the libraries
 below, each under its own licence. The list was made on 2026-11-11 for pxt-core 13.3.1 from:
 
 - the licence headers in the files under `target/built/packaged` (the files `gradle/loader.gradle.kts` excludes from
@@ -63,7 +63,7 @@ says otherwise.
 
 ### Files copied as they are
 
-| Path in `codeling-editor/` | Component | Version | Licence | Copyright |
+| Path in `halisoncode-editor/` | Component | Version | Licence | Copyright |
 |---|---|---|---|---|
 | `blockly/`, `blockly.css`, Blockly code in `main.js` | Blockly | 13.1.1 | Apache-2.0 | Copyright Google LLC |
 | `vs/` | Monaco editor | 0.24.0 | MIT | Copyright (c) 2016 - present Microsoft Corporation |

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "codeling",
+  "id": "halisoncode",
   "version": "${version}",
   "name": "Halison Code",
   "description": "Program Kintro, a robot, with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.",
@@ -13,12 +13,12 @@
   },
   "environment": "*",
   "entrypoints": {
-    "main": ["codeling.fabric.CodelingFabric"],
-    "client": ["codeling.fabric.client.CodelingFabricClient"]
+    "main": ["halisoncode.fabric.HalisonCodeFabric"],
+    "client": ["halisoncode.fabric.client.HalisonCodeFabricClient"]
   },
   "mixins": [
-    "codeling-common.mixins.json",
-    { "config": "codeling.mixins.json", "environment": "client" }
+    "halisoncode-common.mixins.json",
+    { "config": "halisoncode.mixins.json", "environment": "client" }
   ],
   "depends": {
     "fabricloader": ">=0.20.1",

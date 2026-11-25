@@ -18,7 +18,7 @@ stonecutter active "26.3"
 val npm = if (System.getProperty("os.name").lowercase().contains("win")) "npm.cmd" else "npm"
 
 tasks.register<Exec>("buildEditor") {
-    group = "codeling"
+    group = "halisoncode"
     description = "npm ci + pxt buildtarget + pxt staticpkg in target/ (output: target/built/packaged)"
     workingDir = file("target")
     commandLine("cmd", "/c", "$npm ci && $npm run build && $npm run staticpkg")

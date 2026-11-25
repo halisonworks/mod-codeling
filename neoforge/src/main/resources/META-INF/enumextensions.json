@@ -2,9 +2,9 @@
   "entries": [
     {
       "enum": "net/minecraft/world/level/gamerules/GameRuleType",
-      "name": "CODELING_ENUM",
+      "name": "HALISONCODE_ENUM",
       "constructor": "(Ljava/lang/String;)V",
-      "parameters": ["codeling:enum"]
+      "parameters": ["halisoncode:enum"]
     }
   ]
 }

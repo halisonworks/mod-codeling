@@ -1,4 +1,4 @@
-# Claude Code handover: Codeling / Halison Code
+# Claude Code handover: Halison Code
 
 Date: 24 November 2026. Repository: `halisonworks/mod-codeling`. Planning PR: [#411](https://github.com/halisonworks/mod-codeling/pull/411), merged to `develop` on 25 November 2026. This is a maintainer handover, not permission to merge, publish, rename or change security policy.
 
@@ -44,7 +44,7 @@ Use #57 as release gate and the 0.1.0 rows in ROADMAP as the scope register. Sta
 
 P0 #1/#3 first; P1 safety and distribution checks may run in parallel. Optional #7/#9 conveniences, #56 noncritical stale links, #79/#81/#82 feedback, #285 measurement and #297 pause rule do not automatically block beta. Any actual critical safety, data-loss or core-function defect blocks release irrespective of original scope.
 
-Evidence already reported: #133 whole-chain automation, #138 load test, #139 fuzzing, #191 token command-line protection, #197 release rehearsal, #267 private vulnerability reporting, #283 bounded editor log, #293 default robot naming, #326 Fabric connection documentation and #371/#381 NeoForge connection fix. These are regression inputs. A modded client joining a server without Codeling was tried again after #381 with the released 0.0.5: it joins on both loaders; on NeoForge the editor is also told that the server lacks Codeling (the editor message was not tried again on Fabric, which #381 does not change). Two-player isolation is reported separately on #55: programs at once, also with the same robot name, spawn protection, stop and leaving, on 26.3 for both loaders, driven by a script on one machine in offline mode. Claims are reported for Open Parties and Claims 0.33.0 on both loaders. The comments and the checklist on #55 state what was not tried.
+Evidence already reported: #133 whole-chain automation, #138 load test, #139 fuzzing, #191 token command-line protection, #197 release rehearsal, #267 private vulnerability reporting, #283 bounded editor log, #293 default robot naming, #326 Fabric connection documentation and #371/#381 NeoForge connection fix. These are regression inputs. A modded client joining a server without Halison Code was tried again after #381 with the released 0.0.5: it joins on both loaders; on NeoForge the editor is also told that the server lacks Halison Code (the editor message was not tried again on Fabric, which #381 does not change). Two-player isolation is reported separately on #55: programs at once, also with the same robot name, spawn protection, stop and leaving, on 26.3 for both loaders, driven by a script on one machine in offline mode. Claims are reported for Open Parties and Claims 0.33.0 on both loaders. The comments and the checklist on #55 state what was not tried.
 
 ## 5. Architecture and test workflow
 

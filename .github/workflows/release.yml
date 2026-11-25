@@ -97,7 +97,7 @@ jobs:
           mkdir dist
           for loader in fabric neoforge; do
             for mc in $MC_VERSIONS; do
-              cp "$loader/versions/$mc/build/libs/codeling-$loader-$mc-$VERSION.jar" dist/
+              cp "$loader/versions/$mc/build/libs/halisoncode-$loader-$mc-$VERSION.jar" dist/
             done
           done
           cd dist

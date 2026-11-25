@@ -5,35 +5,35 @@ license = "MIT"
 issueTrackerURL = "https://github.com/halisonworks/mod-codeling/issues"
 
 [[mods]]
-modId = "codeling"
+modId = "halisoncode"
 version = "${version}"
 displayName = "Halison Code"
 authors = "Tor Einar Enne"
 displayURL = "https://github.com/halisonworks/mod-codeling"
 description = '''Program Kintro, a robot, with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.'''
-# 26.x: adds the enum game rule type (codeling:robot_camera); see NeoForgePlatform.enumRule. Empty on 1.21.1.
+# 26.x: adds the enum game rule type (halisoncode:robot_camera); see NeoForgePlatform.enumRule. Empty on 1.21.1.
 ${enum_extensions}
 
 # Common's mixin configs (both sides, and client only), the same files Fabric loads.
 [[mixins]]
-config = "codeling-common.mixins.json"
+config = "halisoncode-common.mixins.json"
 
 [[mixins]]
-config = "codeling.mixins.json"
+config = "halisoncode.mixins.json"
 
 # Common's access transformer, also applied to the compile classpath by ModDevGradle (build.gradle.kts).
 [[accessTransformers]]
 file = "META-INF/accesstransformer.cfg"
 ${extra_access_transformers}
 
-[[dependencies.codeling]]
+[[dependencies.halisoncode]]
 modId = "neoforge"
 type = "required"
 versionRange = "${neoforge_range}"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.codeling]]
+[[dependencies.halisoncode]]
 modId = "minecraft"
 type = "required"
 versionRange = "${minecraft_range}"

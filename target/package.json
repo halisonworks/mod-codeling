@@ -1,8 +1,8 @@
 {
-  "name": "codeling-target",
+  "name": "halisoncode-target",
   "version": "0.0.2",
   "private": true,
-  "description": "Codeling editor: a pxt target for programming a Minecraft robot",
+  "description": "Halison Code editor: a pxt target for programming a Minecraft robot",
   "license": "MIT",
   "files": [
     "README.md",

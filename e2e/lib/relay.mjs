@@ -1,7 +1,7 @@
-// Starts the standalone relay (codeling.relay.StandaloneRelay, no Minecraft) for the editor suite and hands back the
-// editor URL and the path of the launcher page that /codeling opens (issue #191, the path holds no token). The URL holds
+// Starts the standalone relay (halisoncode.relay.StandaloneRelay, no Minecraft) for the editor suite and hands back the
+// editor URL and the path of the launcher page that /halisoncode opens (issue #191, the path holds no token). The URL holds
 // the session token: it is read from the relay's stdout inside this process and never printed, logged or written
-// anywhere. `./gradlew :fabric:editorTest` sets CODELING_JAVA and CODELING_RELAY_CLASSPATH.
+// anywhere. `./gradlew :fabric:editorTest` sets HALISONCODE_JAVA and HALISONCODE_RELAY_CLASSPATH.
 import { spawn } from "node:child_process";
 import { rmSync } from "node:fs";
 import { dirname } from "node:path";
@@ -10,10 +10,10 @@ import { createInterface } from "node:readline";
 export const URL_PATTERN = /http:\/\/127\.0\.0\.1:\d+\/#local_token=[A-Za-z0-9_-]+/;
 
 export async function startRelay(port) {
-    const java = process.env.CODELING_JAVA;
-    const classpath = process.env.CODELING_RELAY_CLASSPATH;
-    if (!java || !classpath) throw new Error("CODELING_JAVA or CODELING_RELAY_CLASSPATH missing: run ./gradlew :fabric:editorTest");
-    const child = spawn(java, ["-cp", classpath, "codeling.relay.StandaloneRelay", String(port), "--print-url", "--print-launcher", "--log"],
+    const java = process.env.HALISONCODE_JAVA;
+    const classpath = process.env.HALISONCODE_RELAY_CLASSPATH;
+    if (!java || !classpath) throw new Error("HALISONCODE_JAVA or HALISONCODE_RELAY_CLASSPATH missing: run ./gradlew :fabric:editorTest");
+    const child = spawn(java, ["-cp", classpath, "halisoncode.relay.StandaloneRelay", String(port), "--print-url", "--print-launcher", "--log"],
         { stdio: ["ignore", "pipe", "pipe"] });
     // With --log the relay logs each message it relays (never the token or a text); keep the tail for a failure report only.
     const tail = [];
