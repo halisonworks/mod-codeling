@@ -1,5 +1,6 @@
 package codeling.gametest;
 
+import codeling.Codeling;
 import codeling.robot.BlockIds;
 import codeling.robot.ItemIds;
 import codeling.robot.Result;
@@ -123,12 +124,12 @@ public class RobotPerformanceGameTests {
         helper.runAfterDelay(TICKS, () -> {
             over[0] = true;
             owners.forEach(RobotManager::stop);
-            int maxPath = RobotManager.PATH_NODES_PER_TICK + 4 * helper.getLevel().getHeight();
+            int maxPath = Codeling.limits().pathNodesPerTick() + 4 * helper.getLevel().getHeight();
             long total = 0, max = 0;
             int slow = 0, scanned = 0, nodes = 0;
             for (RobotManager.TickCost c : costs) {
-                helper.assertTrue(c.actions() <= RobotManager.ACTIONS_PER_TICK, "actions per tick " + c);
-                helper.assertTrue(c.scanned() <= RobotManager.SCAN_BLOCKS_PER_TICK, "scan budget " + c);
+                helper.assertTrue(c.actions() <= Codeling.limits().actionsPerTick(), "actions per tick " + c);
+                helper.assertTrue(c.scanned() <= Codeling.limits().scanBlocksPerTick(), "scan budget " + c);
                 helper.assertTrue(c.pathNodes() <= maxPath, "path budget " + c);
                 total += c.nanos();
                 max = Math.max(max, c.nanos());
