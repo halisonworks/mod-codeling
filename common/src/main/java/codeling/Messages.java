@@ -76,7 +76,7 @@ public final class Messages {
         return all;
     }
 
-    /** "Robot" or "Robot Miner". */
+    /** "Kintro" or "Robot Miner". */
     public static Component robot(String name) {
         return name.isEmpty() ? of("entity.codeling.robot") : of("message.codeling.robot.named", name);
     }

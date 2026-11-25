@@ -83,7 +83,7 @@ public final class FabricPlatform implements Platform {
     @Override
     public Map<String, String> versions() {
         Map<String, String> versions = new LinkedHashMap<>();
-        Map.of("codeling", "Codeling", "minecraft", "Minecraft", "fabricloader", "Fabric Loader", "fabric-api", "Fabric API").entrySet().stream().sorted(Map.Entry.comparingByValue())
+        Map.of("codeling", "Halison Code", "minecraft", "Minecraft", "fabricloader", "Fabric Loader", "fabric-api", "Fabric API").entrySet().stream().sorted(Map.Entry.comparingByValue())
                 .forEach(e -> FabricLoader.getInstance().getModContainer(e.getKey())
                         .ifPresent(mod -> versions.put(e.getValue(), mod.getMetadata().getVersion().getFriendlyString())));
         return versions;

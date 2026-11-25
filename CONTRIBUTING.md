@@ -1,6 +1,6 @@
-# Contributing to Codeling
+# Contributing to Halison Code
 
-Thanks for helping. This page says how to build, run and test Codeling, and what a pull request needs.
+Thanks for helping. This page says how to build, run and test Halison Code, and what a pull request needs.
 The [README](README.md) has the details on each part; this page links to it instead of repeating it.
 
 ## Ways to contribute
@@ -27,7 +27,7 @@ other people's chat.
    the protocol, the editor API or saved data needs an agreed plan first.
 3. Fork the repository, and continue with [Branches and pull requests](#branches-and-pull-requests).
 
-Codeling is a volunteer project, so an answer can take some days. Everyone who takes part follows the
+Halison Code is a volunteer project, so an answer can take some days. Everyone who takes part follows the
 [code of conduct](CODE_OF_CONDUCT.md).
 
 ### How issues are organised
@@ -205,11 +205,11 @@ A change to how old Blocks files load needs a patch rule in `target/editor/exten
 
 ## Branding and licences
 
-- Codeling is not affiliated with Mojang, Microsoft or the MakeCode team. Never put "MakeCode", "Minecraft" or "Agent" in a product name, logo or mod name. API names that match MakeCode for paste compatibility (`agent.move`, the Agent category) are fine.
+- Halison Code is not affiliated with Mojang, Microsoft or the MakeCode team. Never put "MakeCode", "Minecraft" or "Agent" in a product name, logo or mod name. API names that match MakeCode for paste compatibility (`agent.move`, the Agent category) are fine.
 - Never add Microsoft assets: logos, icons, screenshots or images from MakeCode. Screenshots of MakeCode are a private reference and are gitignored.
 - Never copy MakeCode typings, comments or enum lists from GPL sources (for example the Education Edition typings in BrandonFOSSedu/MinecraftEDUtutorials, GPL-3.0) into this MIT repo. Read them for names only and write our own declarations.
 - Keep `target/docfiles/apptracking.html`: it removes Microsoft telemetry from the static editor. The editor must make no external requests.
-- The editor suite checks the branding ("Codeling" in the header, no "MakeCode" or "Microsoft"). After a pxt upgrade, check the `main.js` patches in `gradle/loader.gradle.kts`; the build fails when a pattern is not found.
+- The editor suite checks the branding ("Halison Code" in the header, no "MakeCode" or "Microsoft"). After a pxt upgrade, check the `main.js` patches in `gradle/loader.gradle.kts`; the build fails when a pattern is not found.
 - A new bundled dependency needs its licence in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Contributions are under the MIT licence ([LICENSE](LICENSE)).
 
 ## Secrets

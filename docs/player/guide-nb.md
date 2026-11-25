@@ -1,18 +1,20 @@
-# Codeling: veiledning for spillere
+# Halison Code: veiledning for spillere
 
 English: [guide-en.md](guide-en.md)
 
-Codeling er en mod for Minecraft Java Edition. Du får en liten robot i verdenen din.
+Halison Code er en mod for Minecraft Java Edition. Du får en liten robot, Kintro, i verdenen din.
 Du programmerer den i nettleseren med blokker, JavaScript eller Python.
 Hver blokk du kjører, får roboten til å gjøre én ting i spillet.
 
-Codeling er ikke laget av Microsoft, Mojang eller MakeCode-teamet. Se [Ansvarsfraskrivelse](#ansvarsfraskrivelse).
+Til og med versjon 0.0.5 het moden Codeling. Verdenene, robotene og prosjektene dine er de samme, og kommandoene også.
+
+Halison Code er ikke laget av Microsoft, Mojang eller MakeCode-teamet. Se [Ansvarsfraskrivelse](#ansvarsfraskrivelse).
 
 ## Dette trenger du
 
 - Minecraft Java Edition, versjon 1.21.1 til 1.21.11 eller 26.1 til 26.3, på en datamaskin (Windows, macOS eller Linux).
 - En modlaster: Fabric Loader 0.20.1 eller nyere med Fabric API for Minecraft-versjonen din, eller den nyeste NeoForge for Minecraft-versjonen din (26.3.0.102 eller nyere for 26.3, 21.1.265 eller nyere for 1.21.1).
-- Codeling-filen for modlasteren og Minecraft-versjonen din (en `.jar`-fil). Navnet sier hvilken det er:
+- Halison Code-filen for modlasteren og Minecraft-versjonen din (en `.jar`-fil). Navnet sier hvilken det er:
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
@@ -39,7 +41,7 @@ På eldre Minecraft-versjoner viser redigereren også blokker og gjenstander som
 3. Kjør det. Velg "Client", Minecraft-versjon 26.3, og trykk "Install".
 4. Åpne Minecraft Launcher én gang og start den nye profilen "fabric-loader-26.3". Lukk spillet igjen. Da lages mappa `mods`.
 5. Last ned Fabric API for 26.3 fra https://modrinth.com/mod/fabric-api.
-6. Legg `.jar`-filen til Fabric API og `.jar`-filen til Codeling i mappa `mods`:
+6. Legg `.jar`-filen til Fabric API og `.jar`-filen til Halison Code i mappa `mods`:
    - Windows: trykk Win+R, skriv `%appdata%\.minecraft\mods` og trykk Enter.
    - macOS: `~/Library/Application Support/minecraft/mods`
    - Linux: `~/.minecraft/mods`
@@ -58,9 +60,9 @@ Bruk disse stegene i stedet hvis du spiller med NeoForge. NeoForge trenger ikke 
 
 ## Åpne editoren
 
-1. Åpne en verden (enspiller, eller en server som har Codeling, se [Flerspiller](#flerspiller)).
+1. Åpne en verden (enspiller, eller en server som har Halison Code, se [Flerspiller](#flerspiller)).
 2. Trykk T for å åpne chatten. Skriv `/codeling` og trykk Enter.
-3. Nettleseren åpner Codeling-editoren. Lenken virker bare på denne maskinen, og bare til du lukker Minecraft.
+3. Nettleseren åpner Halison Code-editoren. Lenken virker bare på denne maskinen, og bare til du lukker Minecraft.
 4. Mens et program kjører, fortsetter spillet når du klikker i nettleseren. Åpner du pausemenyen (Escape), går spillet på pause og roboten venter: loggen under simulatoren sier "Minecraft is paused. Go back to the game and close the menu." Lukk menyen, så fortsetter roboten.
 
 Editoren kan vise norsk. Robotblokkene har norske navn. Noen få andre tekster er fortsatt på engelsk.
@@ -684,7 +686,7 @@ Du kan også høyreklikke på roboten for å åpne inventaret.
 
 ### Robotkamera
 
-`/robot camera` viser verden gjennom robotens øyne. Du kan også gi kameraet en tast: under Alternativer, Kontroller, Tastebindinger finner du "Robot camera" under Codeling (den har ingen tast fra start). Samme tast, `/robot camera` eller `/robot camera off` tar deg tilbake. Escape åpner pausemenyen (så du kan bytte til editoren) og lar kameraet stå på.
+`/robot camera` viser verden gjennom robotens øyne. Du kan også gi kameraet en tast: under Alternativer, Kontroller, Tastebindinger finner du "Robot camera" under Halison Code (den har ingen tast fra start). Samme tast, `/robot camera` eller `/robot camera off` tar deg tilbake. Escape åpner pausemenyen (så du kan bytte til editoren) og lar kameraet stå på.
 
 Mens du ser gjennom roboten, står kroppen din stille der den er. Øverst til venstre står "Robot camera" og navnet på roboten. Kameraet virker bare når roboten er i samme dimensjon og så nær at spillet ditt har lastet den delen av verdenen. Det slutter av seg selv når roboten fjernes, kommer for langt unna eller bytter dimensjon.
 
@@ -719,8 +721,8 @@ Grensene holder spillet raskt for alle.
 
 ## Flerspiller
 
-- Serveren trenger Codeling for sin modlaster (Fabric Loader og Fabric API, eller NeoForge). Alle som blir med på serveren, trenger samme modlaster og Codeling også.
-- Bruk samme Codeling-versjon på serveren og hos alle spillerne. Å blande versjoner er ikke støttet og ikke testet.
+- Serveren trenger Halison Code for sin modlaster (Fabric Loader og Fabric API, eller NeoForge). Alle som blir med på serveren, trenger samme modlaster og Halison Code også.
+- Bruk samme Halison Code-versjon på serveren og hos alle spillerne. Å blande versjoner er ikke støttet og ikke testet.
 - Bare du kan programmere roboten din. Ingen andre kan sende den kommandoer. Det gjelder roboter med navn også: et
   navn velger alltid bare en av dine egne roboter.
 - `/gamerule codeling:max_robots <1-16>` bestemmer hvor mange roboter hver spiller kan ha (1, standard, er én robot
@@ -729,7 +731,7 @@ Grensene holder spillet raskt for alle.
 - I overlevelse samler roboten sine egne ressurser. "robot gi" og `/robot give` virker bare i kreativ modus, eller når verdenen har `/gamerule codeling:free_items true`. Ellers legger du ting i roboten gjennom inventarskjermen dens.
 - Operatører kan stoppe alle roboter med `/robot stop all`.
 - `config/codeling-server.json` på serveren sier hvor mye roboter får gjøre hvert tikk (i spillet, ikke i programmet). Filen
-  blir laget første gang en verden eller server med Codeling kjører, og leses når den starter. Spillerne deler likt, uansett
+  blir laget første gang en verden eller server med Halison Code kjører, og leses når den starter. Spillerne deler likt, uansett
   hvor mange roboter de har; på en travel server kan en robot vente litt før den fortsetter.
 - Med en rettighetsmod, som LuckPerms, bestemmer serveren for hver spiller: `codeling.robot` (bruke en robot; alle fra start),
   `codeling.build` (plasser, fyll, former og labyrint; alle), `codeling.free_items` (ting og bygging gratis; kreativ modus
@@ -755,16 +757,16 @@ Feilmeldingene er på engelsk.
 |---|---|
 | "Editor link expired" | Minecraft er startet på nytt siden du åpnet fanen. Skriv `/codeling` igjen. |
 | "Not in a world" | Åpne en verden først, og trykk Kjør igjen. |
-| "This server does not have Codeling installed" | Serveren mangler moden. Spør den som eier serveren, eller spill i enspiller. |
+| "This server does not have Halison Code installed" | Serveren mangler moden. Spør den som eier serveren, eller spill i enspiller. |
 | Roboten gjør ingenting mens du er i nettleseren, og loggen sier "Minecraft is paused" | Pausemenyen er åpen i spillet. Gå tilbake til spillet og lukk den; roboten fortsetter av seg selv. |
 | Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. Eller slå det av for denne verdenen med `/gamerule codeling:pause_on_lost_focus false` (operatører, så juks må være på). |
-| "Robot is not loaded (or not spawned: /robot spawn)" | Skriv `/robot spawn`, eller gå nærmere roboten. |
+| "Kintro is not loaded. Go near it, or use /robot spawn to bring it to you" | Skriv `/robot spawn`, eller gå nærmere roboten. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Sjekk navnet med `/robot list`. Gå nærmere roboten, eller skriv `/robot spawn Miner`. |
 | "This world allows one robot per player" | Roboter med navn trenger spillregelen `codeling:max_robots` over 1. Spør en operatør. |
-| `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Codeling. Lukk den og start Minecraft på nytt. I spillets logg står det "Codeling could not start the editor server on port 25580". Slik finner du programmet på Windows: skriv `netstat -ano \| findstr 25580` i et kommandovindu. Det siste tallet er PID-en i Oppgavebehandling (Detaljer). På macOS og Linux skriver du `lsof -i :25580`. |
-| `/codeling` er en ukjent kommando | Ditt eget spill har ikke Codeling. Installer samme versjon som serveren, for samme modlaster og Minecraft-versjon. |
-| Serveren avviser deg når du blir med, og nevner Codeling | Ditt eget spill har ikke Codeling. Installer det som i raden over. |
-| En brannmur eller et antivirusprogram spør om Minecraft eller Java | Codeling trenger det ikke. Editoren kan bare nås fra din egen datamaskin, så åpne aldri port 25580 i en brannmur eller ruter. Minecraft selv kan spørre når du åpner en verden for andre. |
+| `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Halison Code. Lukk den og start Minecraft på nytt. I spillets logg står det "Halison Code could not start the editor server on port 25580". Slik finner du programmet på Windows: skriv `netstat -ano \| findstr 25580` i et kommandovindu. Det siste tallet er PID-en i Oppgavebehandling (Detaljer). På macOS og Linux skriver du `lsof -i :25580`. |
+| `/codeling` er en ukjent kommando | Ditt eget spill har ikke Halison Code. Installer samme versjon som serveren, for samme modlaster og Minecraft-versjon. |
+| Serveren avviser deg når du blir med, og nevner Halison Code | Ditt eget spill har ikke Halison Code. Installer det som i raden over. |
+| En brannmur eller et antivirusprogram spør om Minecraft eller Java | Halison Code trenger det ikke. Editoren kan bare nås fra din egen datamaskin, så åpne aldri port 25580 i en brannmur eller ruter. Minecraft selv kan spørre når du åpner en verden for andre. |
 | Programmene dine er borte | De lagres i én nettleser på én datamaskin. Åpne editoren i nettleseren du brukte før. Se [Spørsmål og svar](#spørsmål-og-svar). |
 | Blokkene ser gamle ut etter en oppdatering | Trykk Ctrl+F5 i nettleseren. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, en lukket fane eller at du forlot verdenen stoppet det. Trykk Kjør igjen. |
@@ -782,25 +784,25 @@ datamaskin eller et privat vindu har dem ikke. Sletter du nettleserens data for 
 kopi, trykker du på lagre-knappen ved siden av prosjektnavnet. Da får du en `.mkcd`-fil. «Hent inn» på editorens
 hjemskjerm åpner den igjen.
 
-**Virker det uten nett?** Ja, når Codeling er installert. Editoren følger med moden og trenger ikke internett. Bare noen
+**Virker det uten nett?** Ja, når Halison Code er installert. Editoren følger med moden og trenger ikke internett. Bare noen
 lenker, for eksempel til vilkår og personvern, går til internett. En server på internett trenger nett som vanlig.
 
 ## Meld fra om et problem
 
-1. Skriv `/codeling log on`. Da skriver Codeling mer i spillets logg i 15 minutter. Det slår seg av selv.
+1. Skriv `/codeling log on`. Da skriver Halison Code mer i spillets logg i 15 minutter. Det slår seg av selv.
 2. Gjør det som gikk galt en gang til.
 3. Skriv `/codeling report` og klikk «[copy the report]». Rapporten ligger også i `logs/codeling-report.txt`.
-4. Les gjennom den. Codeling utelater spillernavn, robotnavn, chat og det roboter sier der den kjenner dem. Fjern resten
+4. Les gjennom den. Halison Code utelater spillernavn, robotnavn, chat og det roboter sier der den kjenner dem. Fjern resten
    du ikke vil at andre skal se.
 5. Lim den inn i [en feilmelding](https://github.com/halisonworks/mod-codeling/issues/new/choose). Det du skriver der, er offentlig.
    Er du barn, be en voksen om hjelp.
 
-På en server andre eier, gjør eieren det samme med `/codeling server log on` og `/codeling server report`. Codeling
+På en server andre eier, gjør eieren det samme med `/codeling server log on` og `/codeling server report`. Halison Code
 sender aldri noe av seg selv.
 
 ## Ansvarsfraskrivelse
 
-Codeling er et fanprosjekt. Det har ingen tilknytning til og er ikke godkjent av Microsoft, Mojang eller Microsoft MakeCode-teamet.
+Halison Code er et fanprosjekt. Det har ingen tilknytning til og er ikke godkjent av Microsoft, Mojang eller Microsoft MakeCode-teamet.
 Minecraft er et varemerke som tilhører Mojang Synergies AB (Microsoft).
 Editoren er bygd med pxt, Microsofts verktøysett for MakeCode med åpen kildekode, som har MIT-lisens.
-Codeling har selv MIT-lisens. Detaljer og lisenstekster: [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md) og [LICENSE](../../LICENSE).
+Halison Code har selv MIT-lisens. Detaljer og lisenstekster: [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md) og [LICENSE](../../LICENSE).

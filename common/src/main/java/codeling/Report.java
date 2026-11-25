@@ -33,8 +33,8 @@ public final class Report {
     }
 
     static String text(MinecraftServer server, String where, String... more) {
-        List<String> lines = new ArrayList<>(List.of("Codeling report",
-                "Read through this before you send it. Player names, robot names and ids are left out where Codeling knows them.", "",
+        List<String> lines = new ArrayList<>(List.of("Halison Code report",
+                "Read through this before you send it. Player names, robot names and ids are left out where Halison Code knows them.", "",
                 "Time: " + Instant.now().truncatedTo(ChronoUnit.SECONDS)));
         Platform.INSTANCE.versions().forEach((name, version) -> lines.add(name + ": " + version));
         lines.add("Java: " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
@@ -52,7 +52,7 @@ public final class Report {
         }
         lines.add("Extended logging: " + (Log.extended() ? "on" : "off"));
         lines.add("");
-        lines.add("The newest Codeling log lines:");
+        lines.add("The newest Halison Code log lines:");
         lines.addAll(Log.report());
         return String.join("\n", lines) + "\n";
     }

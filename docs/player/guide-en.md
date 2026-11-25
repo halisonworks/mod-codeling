@@ -1,18 +1,20 @@
-# Codeling player guide
+# Halison Code player guide
 
 Norsk: [guide-nb.md](guide-nb.md)
 
-Codeling is a mod for Minecraft Java Edition. You get a small robot in your world.
+Halison Code is a mod for Minecraft Java Edition. You get a small robot, Kintro, in your world.
 You program it in your web browser with blocks, JavaScript or Python.
 Each block you run makes the robot do one thing in the game.
 
-Codeling is not made by Microsoft, Mojang or the MakeCode team. See [Disclaimer](#disclaimer).
+Up to version 0.0.5 the mod was called Codeling. Your worlds, robots and projects are the same, and so are the commands.
+
+Halison Code is not made by Microsoft, Mojang or the MakeCode team. See [Disclaimer](#disclaimer).
 
 ## What you need
 
 - Minecraft Java Edition, version 1.21.1 to 1.21.11 or 26.1 to 26.3, on a computer (Windows, macOS or Linux).
 - A mod loader: Fabric Loader 0.20.1 or newer with Fabric API for your Minecraft version, or the newest NeoForge for your Minecraft version (26.3.0.102 or newer for 26.3, 21.1.265 or newer for 1.21.1).
-- The Codeling mod file for your loader and Minecraft version (a `.jar` file). The name says which one it is:
+- The Halison Code mod file for your loader and Minecraft version (a `.jar` file). The name says which one it is:
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
@@ -39,7 +41,7 @@ On older Minecraft versions the editor still lists blocks and items that came la
 3. Run the installer. Pick "Client", Minecraft version 26.3, and press "Install".
 4. Open the Minecraft Launcher once and start the new "fabric-loader-26.3" profile. Close the game again. This creates the `mods` folder.
 5. Download Fabric API for 26.3 from https://modrinth.com/mod/fabric-api.
-6. Put the Fabric API `.jar` file and the Codeling `.jar` file in the `mods` folder:
+6. Put the Fabric API `.jar` file and the Halison Code `.jar` file in the `mods` folder:
    - Windows: press Win+R, type `%appdata%\.minecraft\mods` and press Enter.
    - macOS: `~/Library/Application Support/minecraft/mods`
    - Linux: `~/.minecraft/mods`
@@ -58,9 +60,9 @@ Use these steps instead if you play with NeoForge. NeoForge needs no Fabric API.
 
 ## Open the editor
 
-1. Open a world (singleplayer, or a server that has Codeling, see [Multiplayer](#multiplayer)).
+1. Open a world (singleplayer, or a server that has Halison Code, see [Multiplayer](#multiplayer)).
 2. Press T to open chat. Type `/codeling` and press Enter.
-3. Your browser opens the Codeling editor. The link only works on this computer, and only until you close Minecraft.
+3. Your browser opens the Halison Code editor. The link only works on this computer, and only until you close Minecraft.
 4. While a program runs, the game keeps going when you click on the browser. If you open the pause menu (Escape), the game pauses and the robot waits: the log under the simulator says "Minecraft is paused. Go back to the game and close the menu." Close the menu and the robot goes on.
 
 ## Spawn the robot
@@ -672,7 +674,7 @@ You can also right-click the robot to open its inventory.
 
 ### Robot camera
 
-`/robot camera` shows the world through your robot's eyes. You can also give it a key: in Options, Controls, Key Binds, find "Robot camera" under Codeling (it has no key at first). The same key, `/robot camera` or `/robot camera off` takes you back. Escape opens the pause menu (so you can switch to the editor) and leaves the camera on.
+`/robot camera` shows the world through your robot's eyes. You can also give it a key: in Options, Controls, Key Binds, find "Robot camera" under Halison Code (it has no key at first). The same key, `/robot camera` or `/robot camera off` takes you back. Escape opens the pause menu (so you can switch to the editor) and leaves the camera on.
 
 While you look through the robot, your own body stays where it is and does not move. The top left corner shows "Robot camera" and the robot's name. The camera only works while the robot is in the same dimension and close enough that your game has its part of the world loaded. It ends by itself when the robot is removed, goes too far away or changes dimension.
 
@@ -707,8 +709,8 @@ These keep the game fast for everyone.
 
 ## Multiplayer
 
-- The server needs Codeling for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Codeling too.
-- Use the same Codeling version on the server and on every client. Mixing versions is not supported and has not been tested.
+- The server needs Halison Code for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Halison Code too.
+- Use the same Halison Code version on the server and on every client. Mixing versions is not supported and has not been tested.
 - Only you can program your robot. Nobody else can send it commands. This goes for robots with a name too: a name
   only ever picks one of your own robots.
 - `/gamerule codeling:max_robots <1-16>` sets how many robots each player may have (1, the default, is one robot
@@ -720,7 +722,7 @@ These keep the game fast for everyone.
 - In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
 - The server's `config/codeling-server.json` says how much robots may do each tick (game, not program, speed). It is made
-  the first time a world or server with Codeling runs, and read when it starts. Players share it equally, whatever number
+  the first time a world or server with Halison Code runs, and read when it starts. Players share it equally, whatever number
   of robots they have; on a busy server a robot may wait a little before it goes on.
 - With a permission mod, such as LuckPerms, the server decides per player: `codeling.robot` (use a robot; everyone from the
   start), `codeling.build` (place, fill, shapes and maze; everyone), `codeling.free_items` (items and building free; creative
@@ -741,16 +743,16 @@ These keep the game fast for everyone.
 |---|---|
 | "Editor link expired" | Minecraft was restarted after you opened the tab. Type `/codeling` again. |
 | "Not in a world" | Open a world first, then press Run again. |
-| "This server does not have Codeling installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
+| "This server does not have Halison Code installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
 | The robot does nothing while you are in the browser, and the log says "Minecraft is paused" | The pause menu is open in the game. Go back to the game and close it; the robot goes on by itself. |
 | The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. Or turn it off for this world with `/gamerule codeling:pause_on_lost_focus false` (ops, so cheats must be on). |
-| "Robot is not loaded (or not spawned: /robot spawn)" | Type `/robot spawn`, or walk closer to the robot. |
+| "Kintro is not loaded. Go near it, or use /robot spawn to bring it to you" | Type `/robot spawn`, or walk closer to the robot. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Check the name with `/robot list`. Walk closer to the robot, or type `/robot spawn Miner`. |
 | "This world allows one robot per player" | Robots with names need the game rule `codeling:max_robots` above 1. Ask an op. |
-| `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Codeling. Close it and restart Minecraft. The game log says "Codeling could not start the editor server on port 25580". To find the program on Windows, type `netstat -ano \| findstr 25580` in a command prompt: the last number is its PID in Task Manager (Details). On macOS and Linux, type `lsof -i :25580`. |
-| `/codeling` is an unknown command | Your own game does not have Codeling. Install the same version as the server, for the same loader and Minecraft version. |
-| The server refuses you when you join, and names Codeling | Your own game does not have Codeling. Install it as in the row above. |
-| A firewall or antivirus program asks about Minecraft or Java | Codeling does not need it. The editor is only reachable from your own computer, so never open port 25580 in a firewall or router. Minecraft itself may ask when you open a world to others. |
+| `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Halison Code. Close it and restart Minecraft. The game log says "Halison Code could not start the editor server on port 25580". To find the program on Windows, type `netstat -ano \| findstr 25580` in a command prompt: the last number is its PID in Task Manager (Details). On macOS and Linux, type `lsof -i :25580`. |
+| `/codeling` is an unknown command | Your own game does not have Halison Code. Install the same version as the server, for the same loader and Minecraft version. |
+| The server refuses you when you join, and names Halison Code | Your own game does not have Halison Code. Install it as in the row above. |
+| A firewall or antivirus program asks about Minecraft or Java | Halison Code does not need it. The editor is only reachable from your own computer, so never open port 25580 in a firewall or router. Minecraft itself may ask when you open a world to others. |
 | Your programs are gone | They are saved in one browser on one computer. Open the editor in the browser you used before. See [Questions and answers](#questions-and-answers). |
 | The blocks look old after an update | Press Ctrl+F5 in the browser. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, a closed tab or leaving the world stopped it. Press Run again. |
@@ -768,25 +770,25 @@ computer or a private window does not have them. Clearing the browser's data for
 keep a copy, press the save button beside the project's name. You get a `.mkcd` file. "Import" on the editor's home
 screen opens it again.
 
-**Does it work offline?** Yes, when Codeling is installed. The editor comes from the mod and needs no internet. Only
+**Does it work offline?** Yes, when Halison Code is installed. The editor comes from the mod and needs no internet. Only
 some links, such as the terms and privacy pages, go to the internet. A server on the internet needs it as usual.
 
 ## Report a problem
 
-1. Type `/codeling log on`. Codeling then writes more to the game's log for 15 minutes. It goes off by itself.
+1. Type `/codeling log on`. Halison Code then writes more to the game's log for 15 minutes. It goes off by itself.
 2. Do again what went wrong.
 3. Type `/codeling report` and click "[copy the report]". The report is also in `logs/codeling-report.txt`.
-4. Read through it. Codeling leaves out player names, robot names, chat and what robots say where it knows them. Remove
+4. Read through it. Halison Code leaves out player names, robot names, chat and what robots say where it knows them. Remove
    the rest you do not want others to see.
 5. Paste it in [a bug report](https://github.com/halisonworks/mod-codeling/issues/new/choose). What you write there is public.
    If you are a child, ask an adult to help you.
 
-On somebody else's server, the owner does the same with `/codeling server log on` and `/codeling server report`. Codeling
+On somebody else's server, the owner does the same with `/codeling server log on` and `/codeling server report`. Halison Code
 never sends anything by itself.
 
 ## Disclaimer
 
-Codeling is a fan project. It is not affiliated with or endorsed by Microsoft, Mojang or the Microsoft MakeCode team.
+Halison Code is a fan project. It is not affiliated with or endorsed by Microsoft, Mojang or the Microsoft MakeCode team.
 Minecraft is a trademark of Mojang Synergies AB (Microsoft).
 The editor is built with pxt, Microsoft's open-source MakeCode toolkit, which is MIT-licensed.
-Codeling itself is MIT-licensed. Details and licence texts: [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md) and [LICENSE](../../LICENSE).
+Halison Code itself is MIT-licensed. Details and licence texts: [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md) and [LICENSE](../../LICENSE).

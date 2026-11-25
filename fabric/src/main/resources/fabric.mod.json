@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "id": "codeling",
   "version": "${version}",
-  "name": "Codeling",
-  "description": "Program a robot with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.",
+  "name": "Halison Code",
+  "description": "Program Kintro, a robot, with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.",
   "authors": ["Tor Einar Enne"],
   "license": "MIT",
   "contact": {
