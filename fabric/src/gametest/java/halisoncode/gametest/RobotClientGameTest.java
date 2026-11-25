@@ -77,7 +77,7 @@ public class RobotClientGameTest implements FabricClientGameTest {
             context.getInput().lookAt(robotAt);
             context.waitTicks(5);
             context.takeScreenshot("robot-speech-bubble-full");
-            assertShows(context, "robot-speech-bubble", 185, 28, 480, 44);
+            assertShows(context, "robot-speech-bubble", 128, 28, 592, 44);
 
             // Robot camera (issue #176): /robot camera looks through the robot's eyes, the player's body stays put.
             command(context, world, "robot camera");
