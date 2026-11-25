@@ -1,12 +1,12 @@
 # Third-party notices
 
-Codeling itself is MIT-licensed, see [LICENSE](LICENSE).
+Halison Code itself is MIT-licensed, see [LICENSE](LICENSE).
 
 ## Trademarks and affiliation
 
-Codeling is not affiliated with, endorsed by or sponsored by Microsoft, Mojang or the Microsoft MakeCode team.
+Halison Code is not affiliated with, endorsed by or sponsored by Microsoft, Mojang or the Microsoft MakeCode team.
 Minecraft is a trademark of Mojang Synergies AB, a Microsoft company.
-Microsoft MakeCode is a Microsoft product. Codeling uses Microsoft's open-source pxt toolkit, which Microsoft publishes under the MIT licence.
+Microsoft MakeCode is a Microsoft product. Halison Code uses Microsoft's open-source pxt toolkit, which Microsoft publishes under the MIT licence.
 
 ## pxt (Microsoft MakeCode toolkit)
 
@@ -79,7 +79,7 @@ says otherwise.
 | `gifjs/` | gif.js | 0.2.0 | MIT | Copyright (c) 2013-2018 Johan Nordberg |
 | `pdf-lib/` | pdf-lib | 1.17.1 (from pxt's ThirdPartyNotice at v13.3.1; the file is not identical to the npm build) | MIT | Copyright (c) 2019 Andrew Dillon |
 | `zip.js/` | zip.js | 2.4.20 (pxt-core dependency) | BSD-3-Clause | Copyright (c) 2022 Gildas Lormeau |
-| `pxtapp.js`, `pxtembed.js`, `pxtworker.js`, `pxtrcdeps.js` | DOMPurify | 3.4.17 | Apache-2.0 or MPL-2.0 (Codeling uses it under Apache-2.0) | Copyright Cure53 and other contributors |
+| `pxtapp.js`, `pxtembed.js`, `pxtworker.js`, `pxtrcdeps.js` | DOMPurify | 3.4.17 | Apache-2.0 or MPL-2.0 (Halison Code uses it under Apache-2.0) | Copyright Cure53 and other contributors |
 | `pxtapp.js`, `pxtembed.js`, `pxtworker.js` | LZMA-JS | 2.3.2 (pxt-core dependency) | MIT | Copyright (c) 2016 Nathan Rugg |
 | `pxtapp.js`, `pxtembed.js`, `pxtworker.js`, `pxtrcdeps.js` | regenerator-runtime, as a Babel helper | cannot be confirmed (the helper carries no version) | MIT | Copyright (c) 2014-present, Facebook, Inc. (file header) |
 | `main.js`, `pxtworker.js` | Fuse.js | 3.2.0 | Apache-2.0 | Copyright (c) 2012-2017 Kirollos Risk |
@@ -191,7 +191,7 @@ Where several versions are listed, browserify bundles a copy of each.
 | sanitize-html-react | 1.13.0 | MIT | Copyright (c) 2013, 2014, 2015 P'unk Avenue LLC |
 | scheduler | 0.20.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
 | set-function-length | 1.2.2 | MIT | Copyright (c) Jordan Harband and contributors |
-| spark-md5 | 3.0.2 | WTFPL or MIT (Codeling uses it under MIT) | Copyright (C) 2015 André Cruz <amdfcruz@gmail.com> |
+| spark-md5 | 3.0.2 | WTFPL or MIT (Halison Code uses it under MIT) | Copyright (C) 2015 André Cruz <amdfcruz@gmail.com> |
 | stream-browserify (`stream`) | 3.0.0 | MIT | Copyright (c) James Halliday |
 | string_decoder | 0.10.31, 1.1.1 and 1.3.0 | MIT | Copyright Joyent, Inc. and other Node contributors.; Copyright Node.js contributors. |
 | sublevel-pouchdb | 7.3.1 | Apache-2.0 | no copyright line in the package |
@@ -506,4 +506,4 @@ Fabric Loader and Fabric API are not bundled; players install them separately. B
 
 ## NeoForge
 
-NeoForge is not bundled; players install it separately. It is LGPL-2.1, and Codeling only links against it.
+NeoForge is not bundled; players install it separately. It is LGPL-2.1, and Halison Code only links against it.

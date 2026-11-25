@@ -10,9 +10,9 @@ This text was drafted with generative AI. See "Rules of the sites".
 
 | Field | Value |
 |---|---|
-| Title | Codeling |
-| Summary (English) | Program a robot in your world with blocks, JavaScript or Python, in an editor in your browser. |
-| Summary (Norwegian) | Programmer en robot i verdenen din med blokker, JavaScript eller Python, i en editor i nettleseren. |
+| Title | Halison Code |
+| Summary (English) | Program Kintro, a robot in your world, with blocks, JavaScript or Python, in an editor in your browser. |
+| Summary (Norwegian) | Programmer Kintro, en robot i verdenen din, med blokker, JavaScript eller Python, i en editor i nettleseren. |
 | Licence | MIT |
 | Environment | Client and server |
 | Loaders | Fabric, NeoForge |
@@ -26,7 +26,7 @@ This text was drafted with generative AI. See "Rules of the sites".
 
 > This is a pre-release, for testing. Make a backup of worlds you care about.
 
-Codeling puts a small robot in your world. You program it in your web browser, with blocks you drag together or with
+Halison Code puts a small robot, Kintro, in your world. You program it in your web browser, with blocks you drag together or with
 JavaScript or Python. Press Run, and the robot does it in the game.
 
 **What the robot can do**
@@ -41,19 +41,19 @@ JavaScript or Python. Press Run, and the robot does it in the game.
 **Where your code runs**
 
 The editor comes with the mod and opens in the browser on your own computer. It needs no account and works without
-internet. Codeling collects nothing and sends nothing by itself. Your program runs in your browser. On a server, only
+internet. Halison Code collects nothing and sends nothing by itself. Your program runs in your browser. On a server, only
 the robot's commands are sent to it, and the server checks each one.
 
 **Install**
 
 1. Install Fabric Loader and Fabric API, or NeoForge, for your Minecraft version.
-2. Put the Codeling file for that loader and version in the `mods` folder.
+2. Put the Halison Code file for that loader and version in the `mods` folder.
 3. Start the game, open a world, and type `/robot spawn` and then `/codeling` in the chat.
 
 **Good to know**
 
 - Minecraft Java Edition 1.21.1 to 1.21.11 and 26.1 to 26.3. The file name says which versions each file is for.
-- On a server, the server and everybody who joins need Codeling, and all need the same version of it.
+- On a server, the server and everybody who joins need Halison Code, and all need the same version of it.
 - Only you can program your robot. It follows your own rules on the server, such as protected areas.
 - The game commands and messages are in English. The editor's own blocks are also in Norwegian.
 
@@ -70,7 +70,7 @@ same licence.
 
 > Dette er en forhåndsutgivelse, til testing. Ta en sikkerhetskopi av verdener du er glad i.
 
-Codeling setter en liten robot inn i verdenen din. Du programmerer den i nettleseren, med blokker du drar sammen,
+Halison Code setter en liten robot, Kintro, inn i verdenen din. Du programmerer den i nettleseren, med blokker du drar sammen,
 eller med JavaScript eller Python. Trykk på Kjør, så gjør roboten det i spillet.
 
 **Dette kan roboten**
@@ -85,19 +85,19 @@ eller med JavaScript eller Python. Trykk på Kjør, så gjør roboten det i spil
 **Her kjører koden din**
 
 Editoren følger med modden og åpnes i nettleseren på din egen maskin. Den trenger ingen konto og virker uten
-internett. Codeling samler ikke inn noe og sender ikke noe på egen hånd. Programmet ditt kjører i nettleseren. På en
+internett. Halison Code samler ikke inn noe og sender ikke noe på egen hånd. Programmet ditt kjører i nettleseren. På en
 server sendes bare kommandoene til roboten, og serveren sjekker hver av dem.
 
 **Installer**
 
 1. Installer Fabric Loader og Fabric API, eller NeoForge, for din versjon av Minecraft.
-2. Legg Codeling-filen for den loaderen og versjonen i mappen `mods`.
+2. Legg Halison Code-filen for den loaderen og versjonen i mappen `mods`.
 3. Start spillet, åpne en verden, og skriv `/robot spawn` og så `/codeling` i chatten.
 
 **Greit å vite**
 
 - Minecraft Java Edition 1.21.1 til 1.21.11 og 26.1 til 26.3. Filnavnet sier hvilke versjoner hver fil er for.
-- På en server må både serveren og alle som blir med, ha Codeling, og alle må ha samme versjon.
+- På en server må både serveren og alle som blir med, ha Halison Code, og alle må ha samme versjon.
 - Bare du kan programmere roboten din. Den følger dine egne regler på serveren, for eksempel vernede områder.
 - Kommandoer og meldinger i spillet er på engelsk. Blokkene i editoren finnes også på norsk.
 

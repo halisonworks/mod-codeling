@@ -110,7 +110,7 @@ public class MultiRobotGameTests {
         says(helper, all, run(player, "robot move forward 1"), "You have no robot. Use /robot spawn to get one");
         says(helper, all, run(player, "robot status"), "You have no robot. Use /robot spawn to get one");
         says(helper, all, run(player, "robot status Miner"), "You have no robot called Miner");
-        says(helper, all, run(player, "robot spawn"), "Robot spawned, facing ");
+        says(helper, all, run(player, "robot spawn"), "Kintro spawned, facing ");
         RobotManager.robot(player.getUUID()).snapTo(Vec3.atBottomCenterOf(helper.absolutePos(START)));
         says(helper, all, run(player, "robot move forward 0"), "must not be less than 1");
         says(helper, all, run(player, "robot move forward 65"), "must not be more than 64");
@@ -128,12 +128,12 @@ public class MultiRobotGameTests {
         List<String> turn = run(player, "robot turn left");
         List<String> move = run(player, "robot move up 1");
         helper.succeedWhen(() -> {
-            says(helper, all, give, "Gave Robot 5 [Stone] in slot 3");
-            says(helper, all, place, "Robot could not place a block (forward)");
+            says(helper, all, give, "Gave Kintro 5 [Stone] in slot 3");
+            says(helper, all, place, "Kintro could not place a block (forward)");
             says(helper, all, detect, "No block in the way (up)");
             says(helper, all, inspect, "The block (up) is Air");
-            says(helper, all, turn, "Robot turned left");
-            says(helper, all, move, "Robot moved up, blocks: 1");
+            says(helper, all, turn, "Kintro turned left");
+            says(helper, all, move, "Kintro moved up, blocks: 1");
             for (String text : all) {
                 helper.assertTrue(!text.matches("(?s).*(agent\\.|\\bok (true|false|null)|[A-Z]+_[A-Z]+|UNLOADED|STOPPED).*"), "internal code in: " + text);
             }

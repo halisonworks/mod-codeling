@@ -7,10 +7,10 @@ issueTrackerURL = "https://github.com/halisonworks/mod-codeling/issues"
 [[mods]]
 modId = "codeling"
 version = "${version}"
-displayName = "Codeling"
+displayName = "Halison Code"
 authors = "Tor Einar Enne"
 displayURL = "https://github.com/halisonworks/mod-codeling"
-description = '''Program a robot with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.'''
+description = '''Program Kintro, a robot, with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.'''
 # 26.x: adds the enum game rule type (codeling:robot_camera); see NeoForgePlatform.enumRule. Empty on 1.21.1.
 ${enum_extensions}
 
