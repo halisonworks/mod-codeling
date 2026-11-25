@@ -6,6 +6,10 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+## [0.0.6] - 2026-11-26
+
+The sixth pre-release, for testing. Codeling is now called Halison Code.
+
 **Update the server and every client at the same time.** A 0.0.5 client cannot join a server with this version, and a client
 with this version cannot join a 0.0.5 server (tested on Minecraft 26.3, Fabric and NeoForge). The game then says that
 there are unknown registry entries or keys, not that the mod must be updated.
