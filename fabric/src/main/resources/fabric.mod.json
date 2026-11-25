@@ -7,9 +7,9 @@
   "authors": ["Tor Einar Enne"],
   "license": "MIT",
   "contact": {
-    "homepage": "https://github.com/halisonworks/mod-codeling",
-    "sources": "https://github.com/halisonworks/mod-codeling",
-    "issues": "https://github.com/halisonworks/mod-codeling/issues"
+    "homepage": "https://github.com/halisonworks/mod-halisoncode",
+    "sources": "https://github.com/halisonworks/mod-halisoncode",
+    "issues": "https://github.com/halisonworks/mod-halisoncode/issues"
   },
   "environment": "*",
   "entrypoints": {

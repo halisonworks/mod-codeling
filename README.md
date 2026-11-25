@@ -304,8 +304,8 @@ On Community, use the Gradle configuration above or a terminal.
 
 Bug reports, ideas, texts, translations and code are welcome, in English or Norwegian.
 
-- Something does not work: [report a bug](https://github.com/halisonworks/mod-codeling/issues/new?template=bug_report.yml).
-- You have an idea: [tell us about it](https://github.com/halisonworks/mod-codeling/issues/new?template=feature_request.yml).
+- Something does not work: [report a bug](https://github.com/halisonworks/mod-halisoncode/issues/new?template=bug_report.yml).
+- You have an idea: [tell us about it](https://github.com/halisonworks/mod-halisoncode/issues/new?template=feature_request.yml).
 - You found a security problem: report it privately, see [SECURITY.md](SECURITY.md).
 - You want to help: [CONTRIBUTING.md](CONTRIBUTING.md) says how to build, test and open a pull request.
 

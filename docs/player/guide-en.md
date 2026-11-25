@@ -780,7 +780,7 @@ some links, such as the terms and privacy pages, go to the internet. A server on
 3. Type `/halisoncode report` and click "[copy the report]". The report is also in `logs/halisoncode-report.txt`.
 4. Read through it. Halison Code leaves out player names, robot names, chat and what robots say where it knows them. Remove
    the rest you do not want others to see.
-5. Paste it in [a bug report](https://github.com/halisonworks/mod-codeling/issues/new/choose). What you write there is public.
+5. Paste it in [a bug report](https://github.com/halisonworks/mod-halisoncode/issues/new/choose). What you write there is public.
    If you are a child, ask an adult to help you.
 
 On somebody else's server, the owner does the same with `/halisoncode server log on` and `/halisoncode server report`. Halison Code
