@@ -17,6 +17,8 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ### Changed
 
+- When another program uses the editor's port, `/halisoncode` says so and what to do, and tries the same port again (issue #8).
+  Before, it did nothing.
 - Codeling is now Halison Code, and the robot is called Kintro (issues #356, #359 and #422). The mod id is `halisoncode`, the
   editor opens with `/halisoncode`, and the entity is `halisoncode:kintro`. Game rules, permissions, the server config
   (`config/halisoncode-server.json`), jar files and the robot's player name (`HalisonCode[<owner>]`) follow. `/robot` is as before.

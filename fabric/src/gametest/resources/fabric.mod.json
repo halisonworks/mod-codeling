@@ -9,7 +9,8 @@
   "entrypoints": {
     "fabric-gametest": ["halisoncode.gametest.RobotGameTests", "halisoncode.gametest.RelayGameTests", "halisoncode.gametest.RobotPerformanceGameTests",
       "halisoncode.gametest.MultiRobotGameTests", "halisoncode.gametest.SavedRobotGameTests"],
-    "fabric-client-gametest": ["halisoncode.gametest.RobotClientGameTest", "halisoncode.gametest.EditorEndToEndClientGameTest"],
+    "fabric-client-gametest": ["halisoncode.gametest.RobotClientGameTest", "halisoncode.gametest.EditorEndToEndClientGameTest",
+      "halisoncode.gametest.EditorPortClientGameTest"],
     "client": ["halisoncode.gametest.FabricClientSmoke"]
   },
   "mixins": ["halisoncode-gametest.mixins.json"],
