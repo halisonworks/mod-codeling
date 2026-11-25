@@ -13,7 +13,7 @@ documentation are in English, except the Norwegian player guide and block texts.
 | Report a bug | [Open a bug report](https://github.com/halisonworks/mod-codeling/issues/new?template=bug_report.yml). Look in the troubleshooting table of the player guide ([English](docs/player/guide-en.md#troubleshooting), [norsk](docs/player/guide-nb.md)) and in the open issues first. |
 | Suggest an idea | [Open an idea](https://github.com/halisonworks/mod-codeling/issues/new?template=feature_request.yml). Say what you want to do and why it is useful or fun; a solution is welcome but not needed. |
 | Report a security problem | Never in a public issue. See [SECURITY.md](SECURITY.md). |
-| Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/codeling/`. |
+| Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/halisoncode/`. |
 | Share an example program | Open an idea with the program in it. |
 | Fix a bug or build a feature | See below. |
 
@@ -76,7 +76,7 @@ cd ..
 | Dedicated server | `./gradlew :fabric:26.3:runServer` or `./gradlew :neoforge:26.3:runServer` (same with `1.21.1`) |
 | Editor dev server (pxt) | `npm run serve` in `target/` |
 
-In game: `/robot spawn`, then `/codeling` opens the editor. More: [README, Run in Minecraft](README.md#run-in-minecraft).
+In game: `/robot spawn`, then `/halisoncode` opens the editor. More: [README, Run in Minecraft](README.md#run-in-minecraft).
 
 ## Tests
 
@@ -147,7 +147,7 @@ Three version numbers change independently of each other:
 | Version | Where | Bump it when |
 |---|---|---|
 | Mod version (SemVer) | `mod_version` in `gradle.properties` | Every release. Major for a change that breaks saved programs, `robots.dat` or an older client or server; minor for new blocks, commands or game rules; patch for fixes only. While it is `0.x`, a minor bump may also break things. |
-| Protocol version | `Protocol.VERSION` in `core/src/main/java/codeling/net/Protocol.java` | When the shape of a relay message changes (see step 3 of "Adding a robot op and its block"). A new op inside `cmd` needs no bump. An editor with another version gets the VERSION error and is asked to reload. |
+| Protocol version | `Protocol.VERSION` in `core/src/main/java/halisoncode/net/Protocol.java` | When the shape of a relay message changes (see step 3 of "Adding a robot op and its block"). A new op inside `cmd` needs no bump. An editor with another version gets the VERSION error and is asked to reload. |
 | Editor version | `version` in `target/package.json` (and `target/package-lock.json`) | When old Blocks files need an upgrade rule in `target/editor/extension.ts`. pxt passes the version a project was saved with to that rule. |
 
 Every user-visible change gets a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md), in the same pull
@@ -174,7 +174,7 @@ Maintainers only. `.github/workflows/release.yml` does the build and the upload.
 - `.editorconfig`: UTF-8, LF line endings, a final newline, no trailing spaces, 4 spaces in Java and Kotlin, 2 spaces in TypeScript, JavaScript, JSON, HTML, CSS, LESS, YAML and Markdown. `.bat` files are CRLF.
 - `target/sim/api.ts`, `target/libs/core/ns.ts` and `target/libs/core/enums.d.ts` must stay LF; `check-text.sh` fails on CRLF there.
 - No em dash (U+2014) anywhere in tracked text, code comments included. Rewrite the sentence with a full stop, comma, colon or brackets. `check-text.sh` fails on it.
-- `core/` stays free of Minecraft and loader imports, and `common/` free of loader imports (`checkPureImports`, `checkCommonImports`). Loader code goes behind `codeling.platform.Platform` or `ClientPlatform`.
+- `core/` stays free of Minecraft and loader imports, and `common/` free of loader imports (`checkPureImports`, `checkCommonImports`). Loader code goes behind `halisoncode.platform.Platform` or `ClientPlatform`.
 - Comments say why, not what.
 - A deliberate shortcut with a known limit gets a comment in this form, so it can be found later:
 
@@ -188,18 +188,18 @@ Maintainers only. `.github/workflows/release.yml` does the build and the upload.
 
 A new op touches every layer. Follow an existing one end to end; `agent.freeSlots` is a small example (`git grep -n freeSlots`).
 
-1. **Validator** (`core/src/main/java/codeling/robot/RobotCommand.java`): add the `Op` value and a `case` for the op string (`"agent.yourOp"`) that checks the argument count, types and ranges. Rejections are `BAD_ARGS` or `OUT_OF_RANGE`.
-2. **Server** (`common/src/main/java/codeling/robot/RobotManager.java`): run the op on the tick and return a `Result`. Use the robot's FakePlayer for anything that changes the world, so claim mods apply. Reads that scan many blocks use the shared per-tick budgets.
-3. **Protocol**: an op is a string inside the `cmd` message, so a new op needs no protocol change. If you change the message shape, bump `Protocol.VERSION` in `core/src/main/java/codeling/net/Protocol.java` and update the table in [docs/architecture.md](docs/architecture.md), "Message protocol".
-4. **Standalone relay** (`core/src/main/java/codeling/relay/RelayServer.java`): add a fixed fake answer if `true` is wrong for the op, so the editor and the editor suite work without Minecraft.
+1. **Validator** (`core/src/main/java/halisoncode/robot/RobotCommand.java`): add the `Op` value and a `case` for the op string (`"agent.yourOp"`) that checks the argument count, types and ranges. Rejections are `BAD_ARGS` or `OUT_OF_RANGE`.
+2. **Server** (`common/src/main/java/halisoncode/robot/RobotManager.java`): run the op on the tick and return a `Result`. Use the robot's FakePlayer for anything that changes the world, so claim mods apply. Reads that scan many blocks use the shared per-tick budgets.
+3. **Protocol**: an op is a string inside the `cmd` message, so a new op needs no protocol change. If you change the message shape, bump `Protocol.VERSION` in `core/src/main/java/halisoncode/net/Protocol.java` and update the table in [docs/architecture.md](docs/architecture.md), "Message protocol".
+4. **Standalone relay** (`core/src/main/java/halisoncode/relay/RelayServer.java`): add a fixed fake answer if `true` is wrong for the op, so the editor and the editor suite work without Minecraft.
 5. **Editor API** (`target/sim/api.ts`): a `xxxAsync` function that calls `call("agent.yourOp", [...])`, with `//% blockId=... block="..."` annotations. Add the method to the `Robot` class too if named robots should have it. Run `npm run build` twice and commit the regenerated `target/libs/core/sims.d.ts`. pxt binds block-string slots by parameter order, so keep the words and the parameters in the same order.
 6. **Tests**:
-   - `core/src/test/java/codeling/net/ProtocolTest.java` (and the op list in `ProtocolFuzzTest.java`),
-   - rejections in `fabric/src/test/java/codeling/robot/RobotCommandTest.java`,
-   - a GameTest in `fabric/src/gametest/java/codeling/gametest/RobotGameTests.java`,
+   - `core/src/test/java/halisoncode/net/ProtocolTest.java` (and the op list in `ProtocolFuzzTest.java`),
+   - rejections in `fabric/src/test/java/halisoncode/robot/RobotCommandTest.java`,
+   - a GameTest in `fabric/src/gametest/java/halisoncode/gametest/RobotGameTests.java`,
    - one line in `e2e/programs/blocks.mjs` keyed by the `blockId`, written the way the editor formats it, with values that differ from the block's defaults. The editor suite fails when a visible block has no line.
-7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/codeling/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/codeling/lang/en_us.json`, and code sends them with `codeling.Messages` (the kinds are in [docs/architecture.md](docs/architecture.md), "Messages to the player"; `PlayerMessageTest` fails otherwise).
-8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/codeling/robot/RobotCommands.java` and in the same tables.
+7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/halisoncode/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/halisoncode/lang/en_us.json`, and code sends them with `halisoncode.Messages` (the kinds are in [docs/architecture.md](docs/architecture.md), "Messages to the player"; `PlayerMessageTest` fails otherwise).
+8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/halisoncode/robot/RobotCommands.java` and in the same tables.
 
 A change to how old Blocks files load needs a patch rule in `target/editor/extension.ts`, a version bump in `target/package.json` and `target/package-lock.json`, and a fixture in `e2e/fixtures/`.
 
@@ -216,5 +216,5 @@ A change to how old Blocks files load needs a patch rule in `target/editor/exten
 
 - Never commit usernames, passwords, API keys, tokens or private keys, not even local dev values.
 - Configuration that needs a secret reads it from the environment or a `.env` file (gitignored); only an `.env.example` with empty placeholders is checked in. Release tokens and signing keys belong in GitHub Actions secrets.
-- Log with `codeling.log.Log` only, and follow [docs/architecture.md](docs/architecture.md), "The log" (`LogUseTest` fails otherwise).
-- The editor token is made at runtime with `SecureRandom` and must never be logged or written to a file. Keep it out of process arguments and environment variables too: `/codeling` opens a one-time launcher file that only the user can read, never the URL itself (`EditorLauncher`, issue #191).
+- Log with `halisoncode.log.Log` only, and follow [docs/architecture.md](docs/architecture.md), "The log" (`LogUseTest` fails otherwise).
+- The editor token is made at runtime with `SecureRandom` and must never be logged or written to a file. Keep it out of process arguments and environment variables too: `/halisoncode` opens a one-time launcher file that only the user can read, never the URL itself (`EditorLauncher`, issue #191).

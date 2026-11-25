@@ -1,4 +1,4 @@
-// Generated from core/src/main/java/codeling/robot/BlockIds.java by BlockEnumTest. Do not edit.
+// Generated from core/src/main/java/halisoncode/robot/BlockIds.java by BlockEnumTest. Do not edit.
 // Values are id | data << 16 (architecture section 5, Block ids); names are ours.
 declare const enum Block {
     //% block="air" blockIdentity=blocks.block

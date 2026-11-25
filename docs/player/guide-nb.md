@@ -6,7 +6,7 @@ Halison Code er en mod for Minecraft Java Edition. Du får en liten robot, Kintr
 Du programmerer den i nettleseren med blokker, JavaScript eller Python.
 Hver blokk du kjører, får roboten til å gjøre én ting i spillet.
 
-Til og med versjon 0.0.5 het moden Codeling. Verdenene, robotene og prosjektene dine er de samme, og kommandoene også.
+Til og med versjon 0.0.5 het moden Codeling. Roboter, tingene deres, innstillinger og prosjekter i editoren derfra blir ikke med over: tøm robotene først, og kopier JavaScript-koden i programmene dine til en tekstfil (gamle prosjektfiler kan ikke importeres).
 
 Halison Code er ikke laget av Microsoft, Mojang eller MakeCode-teamet. Se [Ansvarsfraskrivelse](#ansvarsfraskrivelse).
 
@@ -18,16 +18,16 @@ Halison Code er ikke laget av Microsoft, Mojang eller MakeCode-teamet. Se [Ansva
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
-  | 26.3 | `codeling-fabric-26.3-...jar` | `codeling-neoforge-26.3-...jar` |
-  | 26.2 | `codeling-fabric-26.2-...jar` | `codeling-neoforge-26.2-...jar` |
-  | 26.1 til 26.1.2 | `codeling-fabric-26.1.2-...jar` | `codeling-neoforge-26.1.2-...jar` |
-  | 1.21.11 | `codeling-fabric-1.21.11-...jar` | `codeling-neoforge-1.21.11-...jar` |
-  | 1.21.9 til 1.21.10 | `codeling-fabric-1.21.10-...jar` | `codeling-neoforge-1.21.10-...jar` |
-  | 1.21.6 til 1.21.8 | `codeling-fabric-1.21.8-...jar` | `codeling-neoforge-1.21.8-...jar` |
-  | 1.21.5 | `codeling-fabric-1.21.5-...jar` | `codeling-neoforge-1.21.5-...jar` |
-  | 1.21.4 | `codeling-fabric-1.21.4-...jar` | `codeling-neoforge-1.21.4-...jar` |
-  | 1.21.2 til 1.21.3 | `codeling-fabric-1.21.3-...jar` | `codeling-neoforge-1.21.3-...jar` |
-  | 1.21.1 | `codeling-fabric-1.21.1-...jar` | `codeling-neoforge-1.21.1-...jar` |
+  | 26.3 | `halisoncode-fabric-26.3-...jar` | `halisoncode-neoforge-26.3-...jar` |
+  | 26.2 | `halisoncode-fabric-26.2-...jar` | `halisoncode-neoforge-26.2-...jar` |
+  | 26.1 til 26.1.2 | `halisoncode-fabric-26.1.2-...jar` | `halisoncode-neoforge-26.1.2-...jar` |
+  | 1.21.11 | `halisoncode-fabric-1.21.11-...jar` | `halisoncode-neoforge-1.21.11-...jar` |
+  | 1.21.9 til 1.21.10 | `halisoncode-fabric-1.21.10-...jar` | `halisoncode-neoforge-1.21.10-...jar` |
+  | 1.21.6 til 1.21.8 | `halisoncode-fabric-1.21.8-...jar` | `halisoncode-neoforge-1.21.8-...jar` |
+  | 1.21.5 | `halisoncode-fabric-1.21.5-...jar` | `halisoncode-neoforge-1.21.5-...jar` |
+  | 1.21.4 | `halisoncode-fabric-1.21.4-...jar` | `halisoncode-neoforge-1.21.4-...jar` |
+  | 1.21.2 til 1.21.3 | `halisoncode-fabric-1.21.3-...jar` | `halisoncode-neoforge-1.21.3-...jar` |
+  | 1.21.1 | `halisoncode-fabric-1.21.1-...jar` | `halisoncode-neoforge-1.21.1-...jar` |
 - En nettleser (Chrome, Edge eller Firefox).
 
 En forelder kan gjøre installasjonen. Den tar omtrent ti minutter. Stegene under sier 26.3; på en annen versjon velger du den i installasjonsprogrammene og bruker filene for den.
@@ -55,13 +55,13 @@ Bruk disse stegene i stedet hvis du spiller med NeoForge. NeoForge trenger ikke 
 2. Gå til https://neoforged.net/ og last ned NeoForge-installasjonsprogrammet for Minecraft 26.3.
 3. Kjør det. Velg "Install client" og trykk "Proceed".
 4. Åpne Minecraft Launcher én gang og start den nye NeoForge-profilen. Lukk spillet igjen. Da lages mappa `mods`.
-5. Legg filen `codeling-neoforge-26.3-...jar` i mappa `mods` (samme mapper som i steg 6 over).
+5. Legg filen `halisoncode-neoforge-26.3-...jar` i mappa `mods` (samme mapper som i steg 6 over).
 6. Start Minecraft med NeoForge-profilen.
 
 ## Åpne editoren
 
 1. Åpne en verden (enspiller, eller en server som har Halison Code, se [Flerspiller](#flerspiller)).
-2. Trykk T for å åpne chatten. Skriv `/codeling` og trykk Enter.
+2. Trykk T for å åpne chatten. Skriv `/halisoncode` og trykk Enter.
 3. Nettleseren åpner Halison Code-editoren. Lenken virker bare på denne maskinen, og bare til du lukker Minecraft.
 4. Mens et program kjører, fortsetter spillet når du klikker i nettleseren. Åpner du pausemenyen (Escape), går spillet på pause og roboten venter: loggen under simulatoren sier "Minecraft is paused. Go back to the game and close the menu." Lukk menyen, så fortsetter roboten.
 
@@ -305,7 +305,7 @@ Roboten blir stående og ser bare. En posisjon eller et hjørne du gir, må vær
 | robot ledig i plass (plass) | `agent.getItemSpace(1)` | Hvor mange flere som får plass. |
 | robot ledige plasser | `agent.freeSlots()` | Hvor mange av de 27 plassene som er tomme. |
 | robot er inventaret fullt | `agent.isInventoryFull()` | Sann hvis ingen plass er tom. En stabel som ikke er full, kan fortsatt ta flere av samme ting. |
-| robot gi (ting) antall (antall) i plass (plass) | `agent.setItem(Item.Stone, 64, 1)` | Gir roboten ting. Bare i kreativ modus, med spilleregelen `codeling:free_items`, eller når serveren lar deg. |
+| robot gi (ting) antall (antall) i plass (plass) | `agent.setItem(Item.Stone, 64, 1)` | Gir roboten ting. Bare i kreativ modus, med spilleregelen `halisoncode:free_items`, eller når serveren lar deg. |
 | robot samle alt | `agent.collectAll()` | Plukker opp ting rett ved siden av seg. En ting som nettopp ble sluppet, kan plukkes opp etter et øyeblikk (et halvt sekund for det roboten selv slapp), og aldri en som er holdt av til en annen spiller. |
 | robot slipp (retning) fra plass (plass) antall (antall) | `agent.drop(SixDirection.Back, 1, 10)` | Slipper noen ting. |
 | robot slipp alt (retning) | `agent.dropAll(SixDirection.Back)` | Slipper alt. |
@@ -376,7 +376,7 @@ player.onChat("jump", function (num1, num2, num3) {
 - En linje som begynner med nøkkelordet ditt, vises ikke i chatten; den går bare til programmet ditt. Alle andre
   linjer sendes som vanlig. Linjer fra andre spillere når aldri programmet ditt, og programmet ditt ser aldri ordene
   i en linje, bare nøkkelordet og tallene.
-- Har serveren en chatteutvidelse som tar chattelinjene først, skriver du `/codeling chat jump 10` i stedet.
+- Har serveren en chatteutvidelse som tar chattelinjene først, skriver du `/halisoncode chat jump 10` i stedet.
 - Et program med "når chatkommando" eller "når spilleren dør" fortsetter å kjøre etter siste linje, så det kan
   reagere. Trykk på stoppknappen i editoren, eller skriv `/robot stop`, for å avslutte det. Da vises chattelinjene
   dine som vanlig igjen.
@@ -433,7 +433,7 @@ while (gameplay.timeOfDay() < 12000) {
 
 Et signal er et navn, som `qr-forest` eller `lamp-red`. En annen mod på serveren kan sende et til deg, for eksempel
 når du skanner en QR-kode ved en post i et museum eller når et sjekkpunkt, og programmet ditt kan sende et til de
-andre modene, for eksempel for å slå på en lampe. En operatør kan sende et med `/codeling signal` (se
+andre modene, for eksempel for å slå på en lampe. En operatør kan sende et med `/halisoncode signal` (se
 "Chattekommandoer" under), slik at en kommandoblokk eller et kart kan sende signaler uten noen annen mod.
 
 | Blokk | JavaScript | Hva den gjør |
@@ -494,7 +494,7 @@ signals.send("lamp-red")
 | bygger linje fra merke med (blokk), bygger fyll fra merke med (blokk) (hvordan) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Bygger fra merket til byggeren. |
 | bygger plasser (blokk), bygger posisjon | `builder.place(Block.Torch)` | Plasserer en blokk der byggeren er, eller sier hvor den er. |
 
-Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."); i kreativ modus, eller med spilleregelen `codeling:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
+Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
 
 Kategorien Konsoll har "si (tekst)" (`console.log("tekst")`). Den skriver i loggen under simulatoren.
 
@@ -518,9 +518,9 @@ Roboten holder venstre hånd på veggen til den går ut av utgangen på sørside
 
 ## Flere roboter
 
-En verden kan la hver spiller ha mer enn én robot. Spillregelen `codeling:max_robots` sier hvor mange (1 til 16, og
+En verden kan la hver spiller ha mer enn én robot. Spillregelen `halisoncode:max_robots` sier hvor mange (1 til 16, og
 roboten uten navn teller som én). Den er 1 fra start, så alt virker med én robot som før. En operatør skrur den opp,
-for eksempel `/gamerule codeling:max_robots 4`. Skrur man den ned igjen, forsvinner ingen roboter; det kommer bare
+for eksempel `/gamerule halisoncode:max_robots 4`. Skrur man den ned igjen, forsvinner ingen roboter; det kommer bare
 ikke flere.
 
 - `/robot spawn Miner` lager en robot som heter Miner, ved føttene dine. Et navn begynner med en bokstav og har høyst
@@ -593,7 +593,7 @@ player.onChat("both", function (num1, num2, num3) {
 })
 ```
 
-1. La verdenen ha tre roboter (`/gamerule codeling:max_robots 3`, standardroboten din teller som én). Så
+1. La verdenen ha tre roboter (`/gamerule halisoncode:max_robots 3`, standardroboten din teller som én). Så
    `/robot spawn Miner` og `/robot spawn Builder`.
 2. Legg blokker i Builder: høyreklikk på den, eller `/robot give stone 64 1 Builder` i kreativ modus. Den bygger med
    plassen den har valgt (`/robot slot 1 Builder`).
@@ -649,13 +649,13 @@ standardroboten din.
 
 | Kommando | Hva den gjør |
 |---|---|
-| `/codeling` | Åpner editoren i nettleseren. |
-| `/codeling chat <tekst>` | Sender en chattelinje til "når chatkommando"-koden i ditt eget program, slik det å skrive den i chatten ville gjort. Virker på servere der chatteutvidelser tar chattelinjene først. Sier fra når ingen av programmene dine lytter. |
-| `/codeling signal <spillere> <navn> [tall]` | Sender et signal til programmene til spillerne du nevner (for eksempel `@a` eller et spillernavn), med tallet (0 uten tall). Bare for operatører, og for kommandoblokker. Den sier hvor mange programmer som fikk det, og nevner spillerne det ikke nådde. |
-| `/codeling log on [minutter]` og `/codeling log off` | Utvidet logging i ditt eget spill i 15 minutter (eller 1 til 60). Se «Meld fra om et problem». |
-| `/codeling report` | Skriver det en feilmelding trenger til `logs/codeling-report.txt` i mappen til spillet. |
-| `/codeling server log on [minutter]`, `/codeling server log off` og `/codeling server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
-| `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `codeling:max_robots`. |
+| `/halisoncode` | Åpner editoren i nettleseren. |
+| `/halisoncode chat <tekst>` | Sender en chattelinje til "når chatkommando"-koden i ditt eget program, slik det å skrive den i chatten ville gjort. Virker på servere der chatteutvidelser tar chattelinjene først. Sier fra når ingen av programmene dine lytter. |
+| `/halisoncode signal <spillere> <navn> [tall]` | Sender et signal til programmene til spillerne du nevner (for eksempel `@a` eller et spillernavn), med tallet (0 uten tall). Bare for operatører, og for kommandoblokker. Den sier hvor mange programmer som fikk det, og nevner spillerne det ikke nådde. |
+| `/halisoncode log on [minutter]` og `/halisoncode log off` | Utvidet logging i ditt eget spill i 15 minutter (eller 1 til 60). Se «Meld fra om et problem». |
+| `/halisoncode report` | Skriver det en feilmelding trenger til `logs/halisoncode-report.txt` i mappen til spillet. |
+| `/halisoncode server log on [minutter]`, `/halisoncode server log off` og `/halisoncode server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
+| `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `halisoncode:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |
 | `/robot remove <navn>` | Fjerner en robot. Tingene den har, får du. `agent` er standardroboten din. Fjerner du den, stopper også programmet ditt. |
 | `/robot rename <navn> <nytt navn>` | Gir en robot nytt navn. `agent` er standardroboten din, og `/robot rename <nytt navn>` gir også den nytt navn. |
@@ -669,7 +669,7 @@ standardroboten din.
 | `/robot inspect <retning> [navn]` | Viser nummeret til blokken. |
 | `/robot detect <retning> [navn]` | Sann hvis en blokk står i veien. |
 | `/robot slot <1-27> [navn]` | Velger en plass. |
-| `/robot give <blokk> <antall> [plass] [navn]` | Gir ting, for eksempel `/robot give oak_planks 64`. Bare i kreativ modus, med spilleregelen `codeling:free_items`, eller når serveren lar deg. |
+| `/robot give <blokk> <antall> [plass] [navn]` | Gir ting, for eksempel `/robot give oak_planks 64`. Bare i kreativ modus, med spilleregelen `halisoncode:free_items`, eller når serveren lar deg. |
 | `/robot inventory [navn]` | Åpner robotens inventar hvis du står nær. Ellers lister den tingene. |
 | `/robot collect [navn]` | Plukker opp ting ved siden av seg. |
 | `/robot drop <retning> [navn]` | Slipper alt. |
@@ -704,7 +704,7 @@ Bruk `/robot color 3366FF` for en egen hovedfarge på panelene, eller `/robot co
 
 Grensene holder spillet raskt for alle.
 
-- Én robot per spiller, med mindre spillregelen `codeling:max_robots` tillater flere (høyst 16).
+- Én robot per spiller, med mindre spillregelen `halisoncode:max_robots` tillater flere (høyst 16).
 - `flytt` går høyst 64 blokker per kommando. Hver blokk tar 4 spilltikk (0,2 sekunder).
 - `finn nærmeste` og måleblokkene ser høyst 32 blokker ut fra roboten.
 - Fyll og former bygger høyst 32 blokker ut fra roboten, høyst 32768 blokker om gangen, 256 blokker per tikk.
@@ -725,28 +725,28 @@ Grensene holder spillet raskt for alle.
 - Bruk samme Halison Code-versjon på serveren og hos alle spillerne. Å blande versjoner er ikke støttet og ikke testet.
 - Bare du kan programmere roboten din. Ingen andre kan sende den kommandoer. Det gjelder roboter med navn også: et
   navn velger alltid bare en av dine egne roboter.
-- `/gamerule codeling:max_robots <1-16>` bestemmer hvor mange roboter hver spiller kan ha (1, standard, er én robot
+- `/gamerule halisoncode:max_robots <1-16>` bestemmer hvor mange roboter hver spiller kan ha (1, standard, er én robot
   uten navn).
 - Bare du og operatører på serveren kan åpne inventaret til roboten din. Andre får beskjeden "This is not your robot" over hurtiglinjen.
-- I overlevelse samler roboten sine egne ressurser. "robot gi" og `/robot give` virker bare i kreativ modus, eller når verdenen har `/gamerule codeling:free_items true`. Ellers legger du ting i roboten gjennom inventarskjermen dens.
+- I overlevelse samler roboten sine egne ressurser. "robot gi" og `/robot give` virker bare i kreativ modus, eller når verdenen har `/gamerule halisoncode:free_items true`. Ellers legger du ting i roboten gjennom inventarskjermen dens.
 - Operatører kan stoppe alle roboter med `/robot stop all`.
-- `config/codeling-server.json` på serveren sier hvor mye roboter får gjøre hvert tikk (i spillet, ikke i programmet). Filen
+- `config/halisoncode-server.json` på serveren sier hvor mye roboter får gjøre hvert tikk (i spillet, ikke i programmet). Filen
   blir laget første gang en verden eller server med Halison Code kjører, og leses når den starter. Spillerne deler likt, uansett
   hvor mange roboter de har; på en travel server kan en robot vente litt før den fortsetter.
-- Med en rettighetsmod, som LuckPerms, bestemmer serveren for hver spiller: `codeling.robot` (bruke en robot; alle fra start),
-  `codeling.build` (plasser, fyll, former og labyrint; alle), `codeling.free_items` (ting og bygging gratis; kreativ modus
-  eller spilleregelen) og `codeling.teleport` (spillerens teleport; operatører og verten i en enspillerverden). For eksempel
-  `/lp user <spiller> permission set codeling.build false`. Uten `codeling.robot` er `/robot` en ukjent kommando.
+- Med en rettighetsmod, som LuckPerms, bestemmer serveren for hver spiller: `halisoncode.robot` (bruke en robot; alle fra start),
+  `halisoncode.build` (plasser, fyll, former og labyrint; alle), `halisoncode.free_items` (ting og bygging gratis; kreativ modus
+  eller spilleregelen) og `halisoncode.teleport` (spillerens teleport; operatører og verten i en enspillerverden). For eksempel
+  `/lp user <spiller> permission set halisoncode.build false`. Uten `halisoncode.robot` er `/robot` en ukjent kommando.
 - `player.say` i et program går bare til spilleren som kjører det, og `player.teleport` virker på en server bare for operatører, eller spillere serveren lar gjøre det.
 - Et program hører bare chatkommandoene, døden og de ødelagte blokkene til sin egen spiller, redstonesignalet til sin
   egen robot og dagen i sin egen spillers verden, aldri noe om en annen spiller. En chattelinje holdes bare tilbake
   fra chatten mens programmet ditt kjører og lytter etter det første ordet i den.
 - Et signal når bare programmet til spilleren det ble sendt til. "send signal" i et program går bare til de andre
   modene på serveren, aldri til en annen spiller, og har bare med navnet.
-- `/gamerule codeling:pause_on_lost_focus false` gjør at spillet til den som kjører verdenen (enspiller, eller åpnet for
+- `/gamerule halisoncode:pause_on_lost_focus false` gjør at spillet til den som kjører verdenen (enspiller, eller åpnet for
   LAN), ikke går på pause når vinduet mister fokus. Escape pauser fortsatt. `true`, som er standard, følger spillerens
   eget valg med F3+P.
-- Spillregelen `codeling:robot_camera` bestemmer hvem som kan bruke robotkameraet: `owner` (standard: hver spiller gjennom sin egen robot), `ops` (bare operatører) eller `off` (ingen). For eksempel `/gamerule codeling:robot_camera off`. På NeoForge 26.3 viser skjermen Edit Game Rules regelen som et tekstfelt: skriv `off`, `owner` eller `ops` (på NeoForge 1.21.1 er den ikke med på skjermen; bruk kommandoen). Serveren sjekker dette, og kameraet slutter med en gang når regelen tar det bort.
+- Spillregelen `halisoncode:robot_camera` bestemmer hvem som kan bruke robotkameraet: `owner` (standard: hver spiller gjennom sin egen robot), `ops` (bare operatører) eller `off` (ingen). For eksempel `/gamerule halisoncode:robot_camera off`. På NeoForge 26.3 viser skjermen Edit Game Rules regelen som et tekstfelt: skriv `off`, `owner` eller `ops` (på NeoForge 1.21.1 er den ikke med på skjermen; bruk kommandoen). Serveren sjekker dette, og kameraet slutter med en gang når regelen tar det bort.
 - Roboten knuser og bruker ting som om den var deg. Hvis serveren beskytter et område, kan heller ikke roboten endre det.
 
 ## Feilsøking
@@ -755,16 +755,16 @@ Feilmeldingene er på engelsk.
 
 | Problem | Hva du gjør |
 |---|---|
-| "Editor link expired" | Minecraft er startet på nytt siden du åpnet fanen. Skriv `/codeling` igjen. |
+| "Editor link expired" | Minecraft er startet på nytt siden du åpnet fanen. Skriv `/halisoncode` igjen. |
 | "Not in a world" | Åpne en verden først, og trykk Kjør igjen. |
 | "This server does not have Halison Code installed" | Serveren mangler moden. Spør den som eier serveren, eller spill i enspiller. |
 | Roboten gjør ingenting mens du er i nettleseren, og loggen sier "Minecraft is paused" | Pausemenyen er åpen i spillet. Gå tilbake til spillet og lukk den; roboten fortsetter av seg selv. |
-| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. Eller slå det av for denne verdenen med `/gamerule codeling:pause_on_lost_focus false` (operatører, så juks må være på). |
+| Spillet går på pause når du klikker i nettleseren, før du trykker Kjør | Trykk F3+P i spillet (Fn+F3+P på noen bærbare maskiner). Da går ikke spillet på pause når du forlater vinduet. Trykk F3+P igjen for å slå det tilbake. Eller slå det av for denne verdenen med `/gamerule halisoncode:pause_on_lost_focus false` (operatører, så juks må være på). |
 | "Kintro is not loaded. Go near it, or use /robot spawn to bring it to you" | Skriv `/robot spawn`, eller gå nærmere roboten. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Sjekk navnet med `/robot list`. Gå nærmere roboten, eller skriv `/robot spawn Miner`. |
-| "This world allows one robot per player" | Roboter med navn trenger spillregelen `codeling:max_robots` over 1. Spør en operatør. |
-| `/codeling` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Halison Code. Lukk den og start Minecraft på nytt. I spillets logg står det "Halison Code could not start the editor server on port 25580". Slik finner du programmet på Windows: skriv `netstat -ano \| findstr 25580` i et kommandovindu. Det siste tallet er PID-en i Oppgavebehandling (Detaljer). På macOS og Linux skriver du `lsof -i :25580`. |
-| `/codeling` er en ukjent kommando | Ditt eget spill har ikke Halison Code. Installer samme versjon som serveren, for samme modlaster og Minecraft-versjon. |
+| "This world allows one robot per player" | Roboter med navn trenger spillregelen `halisoncode:max_robots` over 1. Spør en operatør. |
+| `/halisoncode` gjør ingenting | Et annet program bruker port 25580, ofte en annen Minecraft med Halison Code. Lukk den og start Minecraft på nytt. I spillets logg står det "Halison Code could not start the editor server on port 25580". Slik finner du programmet på Windows: skriv `netstat -ano \| findstr 25580` i et kommandovindu. Det siste tallet er PID-en i Oppgavebehandling (Detaljer). På macOS og Linux skriver du `lsof -i :25580`. |
+| `/halisoncode` er en ukjent kommando | Ditt eget spill har ikke Halison Code. Installer samme versjon som serveren, for samme modlaster og Minecraft-versjon. |
 | Serveren avviser deg når du blir med, og nevner Halison Code | Ditt eget spill har ikke Halison Code. Installer det som i raden over. |
 | En brannmur eller et antivirusprogram spør om Minecraft eller Java | Halison Code trenger det ikke. Editoren kan bare nås fra din egen datamaskin, så åpne aldri port 25580 i en brannmur eller ruter. Minecraft selv kan spørre når du åpner en verden for andre. |
 | Programmene dine er borte | De lagres i én nettleser på én datamaskin. Åpne editoren i nettleseren du brukte før. Se [Spørsmål og svar](#spørsmål-og-svar). |
@@ -789,15 +789,15 @@ lenker, for eksempel til vilkår og personvern, går til internett. En server p�
 
 ## Meld fra om et problem
 
-1. Skriv `/codeling log on`. Da skriver Halison Code mer i spillets logg i 15 minutter. Det slår seg av selv.
+1. Skriv `/halisoncode log on`. Da skriver Halison Code mer i spillets logg i 15 minutter. Det slår seg av selv.
 2. Gjør det som gikk galt en gang til.
-3. Skriv `/codeling report` og klikk «[copy the report]». Rapporten ligger også i `logs/codeling-report.txt`.
+3. Skriv `/halisoncode report` og klikk «[copy the report]». Rapporten ligger også i `logs/halisoncode-report.txt`.
 4. Les gjennom den. Halison Code utelater spillernavn, robotnavn, chat og det roboter sier der den kjenner dem. Fjern resten
    du ikke vil at andre skal se.
 5. Lim den inn i [en feilmelding](https://github.com/halisonworks/mod-codeling/issues/new/choose). Det du skriver der, er offentlig.
    Er du barn, be en voksen om hjelp.
 
-På en server andre eier, gjør eieren det samme med `/codeling server log on` og `/codeling server report`. Halison Code
+På en server andre eier, gjør eieren det samme med `/halisoncode server log on` og `/halisoncode server report`. Halison Code
 sender aldri noe av seg selv.
 
 ## Ansvarsfraskrivelse

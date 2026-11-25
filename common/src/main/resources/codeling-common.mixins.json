@@ -1,8 +1,0 @@
-{
-  "required": true,
-  "package": "codeling.mixin",
-  "compatibilityLevel": "${mixin_java}",
-  "mixins": [
-    "ItemEntityAccessor"
-  ]
-}

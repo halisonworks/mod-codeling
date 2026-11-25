@@ -1,0 +1,213 @@
+package halisoncode;
+
+import halisoncode.log.Log;
+import halisoncode.net.PlayerEvents;
+import halisoncode.net.ServerRelay;
+import halisoncode.platform.Platform;
+import halisoncode.robot.ItemIds;
+import halisoncode.robot.RobotCamera;
+import halisoncode.robot.RobotEntity;
+import halisoncode.robot.RobotManager;
+import halisoncode.robot.RobotMenu;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.block.state.BlockState;
+//? if >=1.21.11 {
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRuleCategory;
+//?} else {
+/*import net.minecraft.world.level.GameRules;
+*///?}
+
+/**
+ * The loader-independent half of the mod (issue #186): registered content and the hooks each loader's entrypoint
+ * calls from its own events. The values are suppliers so NeoForge can register them later; call get() in game only.
+ */
+public final class HalisonCode {
+    public static final String MOD_ID = "halisoncode";
+    public static final Log LOG = Log.of(MOD_ID);
+    private static final Platform PLATFORM = Platform.INSTANCE;
+
+    private static final ResourceKey<EntityType<?>> ROBOT_KEY =
+            ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(MOD_ID, "kintro"));
+    // noSummon: a robot always needs an owner, so it is only created through /robot spawn. The name tag sits 1.7 up
+    // (vanilla adds 0.5 to the attachment), clear of the 1.0 high robot model even seen from above, as from the follow camera.
+    //? if >=1.21.2 {
+    public static final Supplier<EntityType<RobotEntity>> ROBOT = PLATFORM.register(BuiltInRegistries.ENTITY_TYPE, ROBOT_KEY.identifier(),
+            () -> EntityType.Builder.of(RobotEntity::new, MobCategory.MISC).noLootTable().noSummon().sized(0.8F, 1.0F).nameTagOffset(1.2F)
+                    .clientTrackingRange(10).build(ROBOT_KEY));
+    //?} else {
+    /*// Before 1.21.2 there is no noLootTable (entity loot tables came later), and the type is built from the plain id.
+    public static final Supplier<EntityType<RobotEntity>> ROBOT = PLATFORM.register(BuiltInRegistries.ENTITY_TYPE, ROBOT_KEY.location(),
+            () -> EntityType.Builder.of(RobotEntity::new, MobCategory.MISC).noSummon().sized(0.8F, 1.0F).nameTagOffset(1.2F)
+                    .clientTrackingRange(10).build(ROBOT_KEY.location().toString()));
+    *///?}
+    /** The robot's inventory screen (issue #67); the client registers RobotScreen for it. */
+    public static final Supplier<MenuType<RobotMenu>> ROBOT_MENU = PLATFORM.register(BuiltInRegistries.MENU,
+            Identifier.fromNamespaceAndPath(MOD_ID, "robot"), () -> new MenuType<>(RobotMenu::new, FeatureFlags.VANILLA_SET));
+
+    //? if >=1.21.11 {
+    /** Survival robots gather their own items; true lets every robot in the world get items free (setItem, building). */
+    public static final Supplier<GameRule<Boolean>> FREE_ITEMS = PLATFORM.booleanRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "free_items"), GameRuleCategory.MISC, false);
+    /** Who may look through a robot's eyes (issue #175): off, owner (the owner and ops) or ops (ops only). */
+    public static final Supplier<GameRule<RobotCamera.Mode>> ROBOT_CAMERA = PLATFORM.enumRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "robot_camera"), GameRuleCategory.MISC, RobotCamera.Mode.owner);
+    /**
+     * How many robots each player may have (issue #140): the default robot counts as one, so 1 (the default) means no
+     * named robots. Lowering it never removes robots; it only stops new ones.
+     */
+    public static final Supplier<GameRule<Integer>> MAX_ROBOTS = PLATFORM.intRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "max_robots"), GameRuleCategory.MISC, 1, 1, 16);
+    /** False: the game of the player who runs the world does not pause when its window loses focus (issue #297). */
+    public static final Supplier<GameRule<Boolean>> PAUSE_ON_LOST_FOCUS = PLATFORM.booleanRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "pause_on_lost_focus"), GameRuleCategory.MISC, true);
+    //?} else {
+    /*// Before 1.21.11 game rules are GameRules keys named by a plain string; Halison Code keeps the 26.x names
+    // (/gamerule halisoncode:free_items true). The enum rule's value type is the loader's (Fabric's EnumRule, Halison Code's
+    // own value on NeoForge), so common reads it as its saved text (the constant name, as on 26.x).
+    public static final Supplier<GameRules.Key<GameRules.BooleanValue>> FREE_ITEMS = PLATFORM.booleanRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "free_items"), GameRules.Category.MISC, false);
+    public static final Supplier<? extends GameRules.Key<?>> ROBOT_CAMERA = PLATFORM.enumRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "robot_camera"), GameRules.Category.MISC, RobotCamera.Mode.owner);
+    public static final Supplier<GameRules.Key<GameRules.IntegerValue>> MAX_ROBOTS = PLATFORM.intRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "max_robots"), GameRules.Category.MISC, 1, 1, 16);
+    public static final Supplier<GameRules.Key<GameRules.BooleanValue>> PAUSE_ON_LOST_FOCUS = PLATFORM.booleanRule(
+            Identifier.fromNamespaceAndPath(MOD_ID, "pause_on_lost_focus"), GameRules.Category.MISC, true);
+    *///?}
+
+    /** The free_items game rule (issue #189: one read for every Minecraft version). */
+    public static boolean freeItems(MinecraftServer server) {
+        //? if >=26.1 {
+        return server.getGameRules().get(FREE_ITEMS.get());
+        //?} else if >=1.21.11 {
+        /*return server.overworld().getGameRules().get(FREE_ITEMS.get());
+        *///?} else {
+        /*return server.getGameRules().getBoolean(FREE_ITEMS.get());
+        *///?}
+    }
+
+    /** The pause_on_lost_focus game rule (issue #297). */
+    public static boolean pauseOnLostFocus(MinecraftServer server) {
+        //? if >=26.1 {
+        return server.getGameRules().get(PAUSE_ON_LOST_FOCUS.get());
+        //?} else if >=1.21.11 {
+        /*return server.overworld().getGameRules().get(PAUSE_ON_LOST_FOCUS.get());
+        *///?} else {
+        /*return server.getGameRules().getBoolean(PAUSE_ON_LOST_FOCUS.get());
+        *///?}
+    }
+
+    /** The max_robots game rule. */
+    public static int maxRobots(MinecraftServer server) {
+        //? if >=26.1 {
+        return server.getGameRules().get(MAX_ROBOTS.get());
+        //?} else if >=1.21.11 {
+        /*return server.overworld().getGameRules().get(MAX_ROBOTS.get());
+        *///?} else {
+        /*return server.getGameRules().getInt(MAX_ROBOTS.get());
+        *///?}
+    }
+
+    /** The robot_camera game rule. */
+    public static RobotCamera.Mode robotCamera(MinecraftServer server) {
+        //? if >=26.1 {
+        return server.getGameRules().get(ROBOT_CAMERA.get());
+        //?} else if >=1.21.11 {
+        /*return server.overworld().getGameRules().get(ROBOT_CAMERA.get());
+        *///?} else {
+        /*return RobotCamera.Mode.valueOf(server.getGameRules().getRule(ROBOT_CAMERA.get()).serialize());
+        *///?}
+    }
+
+    private HalisonCode() {
+    }
+
+    /** Called first by each loader's entrypoint: loading this class registers the content above. */
+    public static void init() {
+        ItemIds.setInThisVersion(id -> BuiltInRegistries.ITEM.containsKey(McCompat.itemId(id)));
+        List<String> versions = new ArrayList<>();
+        PLATFORM.versions().forEach((name, version) -> versions.add(name + " " + version));
+        LOG.info("Starting with {}.", String.join(", ", versions));
+    }
+
+    // The hooks below run in the order the separate Fabric listeners ran before issue #186: robots, relay, camera.
+
+    private static Limits limits;
+
+    /** The server's limits (issue #52), read the first time a running server needs them. */
+    public static Limits limits() {
+        if (limits == null) limits = Limits.load(PLATFORM.configDir(), LOG);
+        return limits;
+    }
+
+    /** For GameTests. */
+    public static void setLimits(Limits set) {
+        limits = set;
+    }
+
+    /** End of every server tick. */
+    public static void serverTick(MinecraftServer server) {
+        Log.tick();
+        RobotManager.tick(server);
+        ServerRelay.tick(server);
+        RobotCamera.tick(server);
+    }
+
+    public static void serverStopped() {
+        limits = null;
+        RobotManager.serverStopped();
+        ServerRelay.serverStopped();
+        RobotCamera.serverStopped();
+    }
+
+    public static void playerLeft(ServerPlayer player) {
+        ServerRelay.playerLeft(player);
+        RobotCamera.playerLeft(player);
+    }
+
+    /**
+     * A chat line {@code player} typed (issue #27). True when their running program takes it as a chat command: the
+     * loader must then not broadcast it. Never changes the line. Both loaders call this on the server thread (vanilla
+     * runs the chat handler through server.execute); anything else is broadcast untouched.
+     */
+    public static boolean chat(ServerPlayer player, String text) {
+        return player.level().getServer().isSameThread() && PlayerEvents.chat(player, text);
+    }
+
+    /** An entity died; a player's running program may listen for it. */
+    public static void died(Entity entity) {
+        if (entity instanceof ServerPlayer player) PlayerEvents.died(player);
+    }
+
+    /**
+     * A player broke a block (issue #89). Both loaders call this only for a break that happened, never to change or
+     * cancel it. Only a real player counts: the robot's FakePlayer carries its owner's UUID, and a client-side call
+     * has no ServerPlayer.
+     */
+    public static void blockBroken(Player player, BlockState state) {
+        if (player instanceof ServerPlayer p && !PLATFORM.isFakePlayer(p) && p.level().getServer().isSameThread()) PlayerEvents.blockBroken(p, state);
+    }
+
+    public static void entityLoaded(Entity entity, ServerLevel level) {
+        RobotManager.entityLoaded(entity, level);
+    }
+
+    public static void entityUnloaded(Entity entity) {
+        RobotManager.entityUnloaded(entity);
+    }
+}
