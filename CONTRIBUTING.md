@@ -10,8 +10,8 @@ documentation are in English, except the Norwegian player guide and block texts.
 
 | You want to | Do this |
 |---|---|
-| Report a bug | [Open a bug report](https://github.com/halisonworks/mod-codeling/issues/new?template=bug_report.yml). Look in the troubleshooting table of the player guide ([English](docs/player/guide-en.md#troubleshooting), [norsk](docs/player/guide-nb.md)) and in the open issues first. |
-| Suggest an idea | [Open an idea](https://github.com/halisonworks/mod-codeling/issues/new?template=feature_request.yml). Say what you want to do and why it is useful or fun; a solution is welcome but not needed. |
+| Report a bug | [Open a bug report](https://github.com/halisonworks/mod-halisoncode/issues/new?template=bug_report.yml). Look in the troubleshooting table of the player guide ([English](docs/player/guide-en.md#troubleshooting), [norsk](docs/player/guide-nb.md)) and in the open issues first. |
+| Suggest an idea | [Open an idea](https://github.com/halisonworks/mod-halisoncode/issues/new?template=feature_request.yml). Say what you want to do and why it is useful or fun; a solution is welcome but not needed. |
 | Report a security problem | Never in a public issue. See [SECURITY.md](SECURITY.md). |
 | Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/halisoncode/`. |
 | Share an example program | Open an idea with the program in it. |
