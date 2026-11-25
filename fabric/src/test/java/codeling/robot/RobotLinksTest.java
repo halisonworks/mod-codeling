@@ -119,6 +119,41 @@ class RobotLinksTest {
         assertEquals(robot, decode(old).robot(owner));
     }
 
+    // Issue #358: the links files that the released 0.0.5 saved, on 26.x (robots.dat) and before (codeling_robots.dat).
+    @Test
+    void readsTheFilesSavedBy005() throws java.io.IOException {
+        readsTheFileSavedBy005("robots.dat", "62702fca-a121-4a0c-8dc9-faaa3f9cf1ea", "f738df80-6f29-4926-b894-690f16bccb45",
+                "4a6f3225-83d2-4eaf-add9-df6323340369");
+        readsTheFileSavedBy005("codeling_robots.dat", "21420d8b-e206-4114-a2f3-28aca21e2e57", "7b7126cd-bcc0-4631-aa43-ecb93c0a10ee",
+                "431d1b52-522b-4b45-ad73-7214a577a6a9");
+    }
+
+    private static void readsTheFileSavedBy005(String file, String player, String defaultRobot, String minerRobot) throws java.io.IOException {
+        UUID owner = UUID.fromString(player), robot = UUID.fromString(defaultRobot), miner = UUID.fromString(minerRobot);
+        RobotLinks links;
+        try (java.io.InputStream in = RobotLinksTest.class.getResourceAsStream("/saved-by-0.0.5/" + file)) {
+            links = RobotLinks.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE,
+                    net.minecraft.nbt.NbtIo.readCompressed(in, net.minecraft.nbt.NbtAccounter.unlimitedHeap()).get("data")).getOrThrow();
+        }
+        assertEquals(robot, links.robot(owner), file);
+        assertEquals(miner, links.robot(new RobotLinks.Key(owner, "Miner")), file);
+        assertEquals("Bob", links.defaultName(owner), file);
+        assertEquals(new RobotLinks.Appearance("mint", -1), links.appearance(robot), file);
+        assertEquals(new RobotLinks.Appearance("industrial", 0x3366FF), links.appearance(miner), file);
+    }
+
+    // The file the links are in: a world loses its robots when this changes.
+    @Test
+    void theLinksStayInTheSameFile() {
+        //? if >=26.1 {
+        assertEquals("codeling:robots", RobotLinks.TYPE.id().toString());
+        assertEquals("codeling_robots.dat", RobotLinks.LEGACY_FILE);
+        //?} else if >=1.21.5 {
+        /*assertEquals("codeling_robots", RobotLinks.TYPE.id());
+        *///?} else
+        /*assertEquals("codeling_robots", RobotLinks.FILE);*/
+    }
+
     //? if >=26.1 {
     // A world from 1.21.x keeps its links in data/codeling_robots.dat, which 26.x reads when robots.dat is missing.
     @Test
