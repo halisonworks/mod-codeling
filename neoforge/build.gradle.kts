@@ -14,7 +14,7 @@ val oldGameRules = stonecutter.current.parsed < "1.21.11"
 val oldRulesAt = "META-INF/accesstransformer-gamerules.cfg"
 // Vanilla's GameTest rewrite (test registries, --tests and --report) came with 1.21.5.
 val oldGameTests = stonecutter.current.parsed < "1.21.5"
-// codeling.mixins.json: Mixin's compatibility level follows the Java version, and before 26.3 one mixin more
+// halisoncode.mixins.json: Mixin's compatibility level follows the Java version, and before 26.3 one mixin more
 // (GameRendererMixin hides the hand while the robot camera is on; 26.3 does that from the level render state).
 val mixinProps = mapOf(
     "mixin_java" to "JAVA_$javaRelease",
@@ -29,7 +29,7 @@ tasks.withType<JavaCompile>().configureEach { options.release = javaRelease }
 // Version, group, jar name rule (checkJarNames) and the editor in the resources, shared with :fabric.
 apply(from = rootProject.file("gradle/loader.gradle.kts"))
 
-// Server GameTests for NeoForge (smoke tests; the full suite runs on Fabric). Part of the codeling mod in dev runs,
+// Server GameTests for NeoForge (smoke tests; the full suite runs on Fabric). Part of the halisoncode mod in dev runs,
 // never in the jar.
 val gametest: SourceSet = sourceSets.create("gametest") {
     compileClasspath += sourceSets.main.get().output
@@ -42,7 +42,7 @@ neoForge {
     if (oldGameRules) accessTransformers.from(rootProject.file("neoforge/src/main/resources/$oldRulesAt"))
     addModdingDependenciesTo(gametest)
     mods {
-        register("codeling") {
+        register("halisoncode") {
             sourceSet(sourceSets.main.get())
             sourceSet(gametest)
         }
@@ -58,17 +58,17 @@ neoForge {
             gameDirectory = file("run/server")
             programArgument("--nogui")
         }
-        // ./gradlew :neoforge:<version>:runGameTestServer: a headless server that runs every codeling GameTest and exits with the
+        // ./gradlew :neoforge:<version>:runGameTestServer: a headless server that runs every halisoncode GameTest and exits with the
         // number of failed required tests, so `check` (and `build`) fails on a red test.
         register("gameTestServer") {
             type = "gameTestServer"
             sourceSet = gametest
             gameDirectory = file("run/gametest")
             val report = layout.buildDirectory.file("test-results/gameTest/TEST-gametest.xml").get().asFile.path
-            // 1.21.1's GameTest server takes no test filter or report argument: NeoForge runs the codeling namespace and
+            // 1.21.1's GameTest server takes no test filter or report argument: NeoForge runs the halisoncode namespace and
             // NeoForgeSmokeGameTests writes the report from this property.
-            if (oldGameTests) systemProperties.putAll(mapOf("neoforge.enabledGameTestNamespaces" to "codeling", "codeling.gameTestReport" to report))
-            else programArguments.addAll("--tests", "codeling:*", "--report", report)
+            if (oldGameTests) systemProperties.putAll(mapOf("neoforge.enabledGameTestNamespaces" to "halisoncode", "halisoncode.gameTestReport" to report))
+            else programArguments.addAll("--tests", "halisoncode:*", "--report", report)
         }
         // ./gradlew :neoforge:<version>:runClientSmoke: starts the NeoForge client, checks that the mixins applied and the relay
         // serves the editor, then quits (NeoForgeClientSmoke). It opens a game window, so it is not part of `build`.
@@ -76,13 +76,13 @@ neoForge {
             client()
             sourceSet = gametest
             gameDirectory = file("run/clientSmoke")
-            systemProperty("codeling.clientSmoke", "true")
+            systemProperty("halisoncode.clientSmoke", "true")
         }
     }
 }
 
 // core (pure Java) and common (vanilla Minecraft) are compiled into this module, as MultiLoader-Template does with
-// common: so their classes and the editor files share the mod's class loader (RelayServer loads codeling-editor/
+// common: so their classes and the editor files share the mod's class loader (RelayServer loads halisoncode-editor/
 // through its own class loader). NeoForge has no split client source set; the client entrypoint is @Mod(dist = CLIENT).
 // common's sources for this Minecraft version: src/ itself for the active version, else Stonecutter's preprocessed
 // copy from :common:<version> (built by its stonecutterGenerate tasks).
@@ -113,7 +113,7 @@ tasks.named<ProcessResources>("processResources") {
     inputs.properties(props)
     inputs.properties(mixinProps)
     filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
-    filesMatching(listOf("codeling.mixins.json", "codeling-common.mixins.json")) { expand(mixinProps) }
+    filesMatching(listOf("halisoncode.mixins.json", "halisoncode-common.mixins.json")) { expand(mixinProps) }
 }
 
 // The JUnit-like report (--report above) needs its directory; CI uploads it.

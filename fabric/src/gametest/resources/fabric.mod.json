@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "codeling-gametest",
+  "id": "halisoncode-gametest",
   "version": "0.0.0",
-  "name": "Codeling GameTests",
-  "description": "Server and client GameTests for Codeling. Not shipped in the mod jar.",
+  "name": "Halison Code GameTests",
+  "description": "Server and client GameTests for Halison Code. Not shipped in the mod jar.",
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "fabric-gametest": ["codeling.gametest.RobotGameTests", "codeling.gametest.RelayGameTests", "codeling.gametest.RobotPerformanceGameTests",
-      "codeling.gametest.MultiRobotGameTests", "codeling.gametest.SavedRobotGameTests"],
-    "fabric-client-gametest": ["codeling.gametest.RobotClientGameTest", "codeling.gametest.EditorEndToEndClientGameTest"],
-    "client": ["codeling.gametest.FabricClientSmoke"]
+    "fabric-gametest": ["halisoncode.gametest.RobotGameTests", "halisoncode.gametest.RelayGameTests", "halisoncode.gametest.RobotPerformanceGameTests",
+      "halisoncode.gametest.MultiRobotGameTests", "halisoncode.gametest.SavedRobotGameTests"],
+    "fabric-client-gametest": ["halisoncode.gametest.RobotClientGameTest", "halisoncode.gametest.EditorEndToEndClientGameTest"],
+    "client": ["halisoncode.gametest.FabricClientSmoke"]
   },
-  "mixins": ["codeling-gametest.mixins.json"],
+  "mixins": ["halisoncode-gametest.mixins.json"],
   "depends": {
-    "codeling": "*",
+    "halisoncode": "*",
     "fabric-gametest-api-v1": "*"
   }
 }

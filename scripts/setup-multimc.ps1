@@ -1,15 +1,15 @@
 <#
 .SYNOPSIS
-    Sets up one MultiMC instance per loader and Minecraft version that Codeling supports, in a "Codeling" group,
+    Sets up one MultiMC instance per loader and Minecraft version that Halison Code supports, in a "Halison Code" group,
     with the right Java and mods, for testing every jar.
 
 .DESCRIPTION
     Run it from a MultiMC folder (the one with MultiMC.exe), or pass -MultiMC. For every row in $Targets below it
-    makes an instance "Codeling <Loader> <Minecraft version>" with:
+    makes an instance "Halison Code <Loader> <Minecraft version>" with:
       - Minecraft and the loader (Fabric Loader from gradle.properties, the newest NeoForge for that version),
       - Java 21 for 1.21.x and Java 25 for 26.x (found under Program Files, or given with -Java21 / -Java25),
-      - the Codeling jar of the target that covers that version, and Fabric API on Fabric.
-    Running it again updates the instances in place: it replaces the Codeling and Fabric API jars, the loader and
+      - the Halison Code jar of the target that covers that version, and Fabric API on Fabric.
+    Running it again updates the instances in place: it replaces the Halison Code and Fabric API jars, the loader and
     the Java path, and keeps worlds, options and anything else in the instance. Close MultiMC first: it rewrites
     instgroups.json on exit.
 
@@ -25,7 +25,7 @@
 param(
     # The MultiMC folder. Default: the current folder.
     [string]$MultiMC = (Get-Location).Path,
-    # A folder with codeling-<loader>-<target>-<version>.jar files, instead of the repo build output.
+    # A folder with halisoncode-<loader>-<target>-<version>.jar files, instead of the repo build output.
     [string]$JarDir,
     # A GitHub release tag (for example v0.0.1) to download the jars from, instead of the repo build output.
     [string]$Release,
@@ -35,7 +35,7 @@ param(
     # Only instances whose name matches this wildcard, for example "*Fabric*" or "*26.*".
     [string]$Only = "*",
     # The instance group in MultiMC.
-    [string]$Group = "Codeling"
+    [string]$Group = "Halison Code"
 )
 
 $ErrorActionPreference = "Stop"
@@ -149,7 +149,7 @@ Write-Host "Fabric Loader $loaderVersion"
 
 # Jars from a release: download every asset into a cache folder and use it as -JarDir.
 if ($Release) {
-    $JarDir = Join-Path $MultiMC "codeling-jars\$Release"
+    $JarDir = Join-Path $MultiMC "halisoncode-jars\$Release"
     New-Item -ItemType Directory -Force $JarDir | Out-Null
     # The public API does not show a draft release or a tag without a release (404): say how to get the jars then.
     try { $info = Get-Text "https://api.github.com/repos/$GitHubRepo/releases/tags/$Release" | ConvertFrom-Json }
@@ -157,11 +157,11 @@ if ($Release) {
         if ("$_" -notmatch '404') { throw }
         throw ("No published release $Release in $GitHubRepo (GitHub answers 404). A draft release, or a tag without " +
             "a release, is not visible to this script. With access to the repo, download the jars and pass the folder:`n" +
-            "    gh release download $Release --repo $GitHubRepo --pattern 'codeling-*.jar' --dir <folder>`n" +
+            "    gh release download $Release --repo $GitHubRepo --pattern 'halisoncode-*.jar' --dir <folder>`n" +
             "    .\setup-multimc.ps1 -JarDir <folder>`n" +
             "or build the targets and leave out -Release.")
     }
-    foreach ($asset in $info.assets | Where-Object { $_.name -like "codeling-*.jar" -and $_.name -notlike "*-sources.jar" }) {
+    foreach ($asset in $info.assets | Where-Object { $_.name -like "halisoncode-*.jar" -and $_.name -notlike "*-sources.jar" }) {
         $dest = Join-Path $JarDir $asset.name
         if (-not (Test-Path $dest)) {
             Write-Host "Downloading $($asset.name)"
@@ -170,13 +170,13 @@ if ($Release) {
     }
 }
 
-function Find-CodelingJar([string]$Loader, [string]$Target) {
-    $pattern = "codeling-$Loader-$Target-*.jar"
+function Find-HalisonCodeJar([string]$Loader, [string]$Target) {
+    $pattern = "halisoncode-$Loader-$Target-*.jar"
     $dirs = if ($JarDir) { @($JarDir) } else { @(Join-Path $RepoRoot "$($Loader.ToLower())\versions\$Target\build\libs") }
     foreach ($dir in $dirs) {
         if (-not (Test-Path $dir)) { continue }
         $jar = Get-ChildItem $dir -Filter $pattern |
-            Where-Object { $_.Name -notlike "*-sources.jar" -and $_.Name -match "^codeling-$Loader-$([regex]::Escape($Target))-[^-]+\.jar$" } |
+            Where-Object { $_.Name -notlike "*-sources.jar" -and $_.Name -match "^halisoncode-$Loader-$([regex]::Escape($Target))-[^-]+\.jar$" } |
             Sort-Object LastWriteTime | Select-Object -Last 1
         if ($jar) { return $jar.FullName }
     }
@@ -204,7 +204,7 @@ function Get-NeoForge([string]$Mc) {
     return ($pick | Sort-Object { Get-VersionKey $_ } | Select-Object -Last 1)
 }
 
-$cacheDir = Join-Path $MultiMC "codeling-jars\fabric-api"
+$cacheDir = Join-Path $MultiMC "halisoncode-jars\fabric-api"
 New-Item -ItemType Directory -Force $cacheDir | Out-Null
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -239,9 +239,9 @@ $missingJars = New-Object System.Collections.Generic.List[string]
 
 foreach ($t in $Targets) {
     foreach ($loader in "Fabric", "NeoForge") {
-        $jar = Find-CodelingJar $loader.ToLower() $t.Target
+        $jar = Find-HalisonCodeJar $loader.ToLower() $t.Target
         foreach ($mc in $t[$loader]) {
-            $name = "Codeling $loader $mc"
+            $name = "Halison Code $loader $mc"
             if ($name -notlike $Only) { continue }
 
             $loaderVer = if ($loader -eq "Fabric") { $loaderVersion } else { Get-NeoForge $mc }
@@ -253,15 +253,15 @@ foreach ($t in $Targets) {
 
             $major = if ($mc.StartsWith("1.")) { 21 } else { 25 }
             $cfg = @{ InstanceType = "OneSix"; name = $name; iconKey = "default"
-                      notes = "Codeling test instance (scripts/setup-multimc.ps1). Codeling jar for $($t.Target)." }
+                      notes = "Halison Code test instance (scripts/setup-multimc.ps1). Halison Code jar for $($t.Target)." }
             if ($java[$major]) { $cfg["OverrideJavaLocation"] = "true"; $cfg["JavaPath"] = $java[$major].Replace('\', '/') }
             Set-InstanceConfig (Join-Path $dir "instance.cfg") $cfg
             Write-Utf8 (Join-Path $dir "mmc-pack.json") (New-Pack $loader $mc $loaderVer)
 
             # Mods: our jar and Fabric API, replacing older copies; other mods in the folder stay.
-            Get-ChildItem $mods -Filter "codeling-*.jar" | Remove-Item -Force
+            Get-ChildItem $mods -Filter "halisoncode-*.jar" | Remove-Item -Force
             if ($jar) { Copy-Item $jar $mods }
-            else { $missingJars.Add("$name (needs codeling-$($loader.ToLower())-$($t.Target)-*.jar)") }
+            else { $missingJars.Add("$name (needs halisoncode-$($loader.ToLower())-$($t.Target)-*.jar)") }
 
             $extra = ""
             if ($loader -eq "Fabric") {
@@ -276,7 +276,7 @@ foreach ($t in $Targets) {
                     $extra = ", Fabric API $api"
                 } else { Write-Warning "${name}: no Fabric API for $mc found." }
             }
-            $jarText = if ($jar) { Split-Path -Leaf $jar } else { "NO CODELING JAR" }
+            $jarText = if ($jar) { Split-Path -Leaf $jar } else { "NO HALISONCODE JAR" }
             Write-Host ("{0,-28} {1} {2}, Java {3}, {4}{5}" -f $name, $loader, $loaderVer, $major, $jarText, $extra)
             $made.Add($name)
         }
@@ -299,7 +299,7 @@ Write-Utf8 $groupsPath ([ordered]@{ formatVersion = "1"; groups = $groups } | Co
 Write-Host ""
 Write-Host "$($made.Count) instances in group '$Group' in $instancesDir."
 if ($missingJars.Count -gt 0) {
-    Write-Warning "No Codeling jar for $($missingJars.Count) instances (build those targets or pass -JarDir / -Release, then run again):"
+    Write-Warning "No Halison Code jar for $($missingJars.Count) instances (build those targets or pass -JarDir / -Release, then run again):"
     $missingJars | ForEach-Object { Write-Host "  $_" }
 }
 Write-Host "Start MultiMC; it downloads Minecraft and the loaders on each instance's first launch."

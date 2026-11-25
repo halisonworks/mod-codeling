@@ -1,4 +1,4 @@
-// Generated from core/src/main/java/codeling/robot/ItemIds.java by ItemEnumTest. Do not edit.
+// Generated from core/src/main/java/halisoncode/robot/ItemIds.java by ItemEnumTest. Do not edit.
 // Items that are also in the Block enum have the same value, so Item.Cobblestone == Block.Cobblestone.
 declare const enum Item {
     //% block="stone" blockIdentity=blocks.item

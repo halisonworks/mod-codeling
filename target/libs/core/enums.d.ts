@@ -31,7 +31,7 @@ declare const enum AgentInspection {
     //% block=data
     Data = 1
 }
-// Codeling extension (issue #41): the server maps these, in this order, to block tags (codeling.robot.RobotManager).
+// Halison Code extension (issue #41): the server maps these, in this order, to block tags (halisoncode.robot.RobotManager).
 declare const enum BlockCategory {
     //% block=logs
     Logs = 0,
@@ -46,7 +46,7 @@ declare const enum BlockCategory {
     //% block=flowers
     Flowers = 5
 }
-// Codeling extension (issue #86): codeling.robot.RobotManager.entities maps these, in this order.
+// Halison Code extension (issue #86): halisoncode.robot.RobotManager.entities maps these, in this order.
 declare const enum EntityKind {
     //% block="hostile mob"
     Mob = 0,
@@ -57,7 +57,7 @@ declare const enum EntityKind {
     //% block=item
     Item = 3
 }
-// Codeling extension (issue #161): codeling.robot.RobotManager.liquid answers these numbers.
+// Halison Code extension (issue #161): halisoncode.robot.RobotManager.liquid answers these numbers.
 declare const enum Liquid {
     //% block=none blockIdentity=agent.liquid
     None = 0,
@@ -66,7 +66,7 @@ declare const enum Liquid {
     //% block=lava blockIdentity=agent.liquid
     Lava = 2
 }
-// Codeling extension (issue #177): codeling.robot.RobotCamera has the same numbers.
+// Halison Code extension (issue #177): halisoncode.robot.RobotCamera has the same numbers.
 declare const enum CameraMode {
     //% block=off
     Off = 0,
@@ -75,7 +75,7 @@ declare const enum CameraMode {
     //% block=follow
     Follow = 2
 }
-// Codeling extension (issue #179): codeling.robot.RobotTrail has the same numbers.
+// Halison Code extension (issue #179): halisoncode.robot.RobotTrail has the same numbers.
 declare const enum PathStop {
     //% block=end blockIdentity=agent.pathStop
     End = 0,
@@ -103,7 +103,7 @@ declare const enum AgentAssist {
     //% blockHidden=true
     DestroyObstacles = 2
 }
-// Issue #90: MakeCode's names. codeling.robot.RobotShapes uses the same numbers.
+// Issue #90: MakeCode's names. halisoncode.robot.RobotShapes uses the same numbers.
 declare const enum FillOperation {
     //% block=replace
     Replace = 0,

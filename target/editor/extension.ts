@@ -1,11 +1,11 @@
 // Editor extension (pxtarget.json appTheme.extendEditor), loaded by pxt as editor.js.
 // blocklyPatch runs on every Blocks file before it loads, so projects saved by an older editor can be upgraded.
 
-namespace codeling.editor {
-    // Commit d506004 (issue #125) turned the Block dropdown of these blocks into an item input (codeling_item shadow).
+namespace halisoncode.editor {
+    // Commit d506004 (issue #125) turned the Block dropdown of these blocks into an item input (halisoncode_item shadow).
     // A project saved before that has <field name="item">Block.Sandstone</field> where the block now has an input, and
     // the value was lost on load (the slot came back as 0, which setItem reads as air). Turn the field into the
-    // codeling_block reporter the editor makes for a Block argument today, so the value survives.
+    // halisoncode_block reporter the editor makes for a Block argument today, so the value survives.
     const ITEM_SLOTS: { [blockType: string]: string } = {
         agent_set_item: "blockOrItem",
         agent_take_item: "item",
@@ -21,10 +21,10 @@ namespace codeling.editor {
             const value = doc.createElementNS(block.namespaceURI, "value");
             value.setAttribute("name", slot);
             const shadow = doc.createElementNS(block.namespaceURI, "shadow");
-            shadow.setAttribute("type", "codeling_item");
+            shadow.setAttribute("type", "halisoncode_item");
             shadow.appendChild(fieldOf(doc, block.namespaceURI, "item", "Item.Coal"));
             const reporter = doc.createElementNS(block.namespaceURI, "block");
-            reporter.setAttribute("type", "codeling_block");
+            reporter.setAttribute("type", "halisoncode_block");
             reporter.appendChild(fieldOf(doc, block.namespaceURI, "block", field.textContent));
             value.appendChild(shadow);
             value.appendChild(reporter);

@@ -48,7 +48,7 @@ the robot's commands are sent to it, and the server checks each one.
 
 1. Install Fabric Loader and Fabric API, or NeoForge, for your Minecraft version.
 2. Put the Halison Code file for that loader and version in the `mods` folder.
-3. Start the game, open a world, and type `/robot spawn` and then `/codeling` in the chat.
+3. Start the game, open a world, and type `/robot spawn` and then `/halisoncode` in the chat.
 
 **Good to know**
 
@@ -92,7 +92,7 @@ server sendes bare kommandoene til roboten, og serveren sjekker hver av dem.
 
 1. Installer Fabric Loader og Fabric API, eller NeoForge, for din versjon av Minecraft.
 2. Legg Halison Code-filen for den loaderen og versjonen i mappen `mods`.
-3. Start spillet, åpne en verden, og skriv `/robot spawn` og så `/codeling` i chatten.
+3. Start spillet, åpne en verden, og skriv `/robot spawn` og så `/halisoncode` i chatten.
 
 **Greit å vite**
 

@@ -16,7 +16,7 @@ plugins {
     id("dev.kikugie.loom-back-compat") version "0.4.3"
 }
 
-rootProject.name = "codeling"
+rootProject.name = "halisoncode"
 
 // core is pure Java and the same for every Minecraft version, so it stays outside Stonecutter.
 include("core")
