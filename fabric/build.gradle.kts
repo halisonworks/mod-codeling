@@ -196,7 +196,7 @@ if (isMain) {
 } else {
     // The client GameTests need fabric-client-gametest-api-v1 (1.21.5 and later); they only run on the main version.
     tasks.named<JavaCompile>("compileGametestJava") {
-        exclude("**/RobotClientGameTest.java", "**/EditorEndToEndClientGameTest.java")
+        exclude("**/RobotClientGameTest.java", "**/EditorEndToEndClientGameTest.java", "**/EditorPortClientGameTest.java")
     }
     // No client GameTest API in Fabric API for this version: ./gradlew :fabric:1.21.1:runClientSmoke starts the client
     // once (a game window, not part of `build`), checks that the camera mixins were merged and the relay serves the
