@@ -3,6 +3,7 @@ package codeling.fabric;
 import codeling.Permission;
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -73,6 +74,11 @@ public final class FabricPlatform implements Platform {
         return () -> key;
     }
     *///?}
+
+    @Override
+    public Path configDir() {
+        return FabricLoader.getInstance().getConfigDir();
+    }
 
     @Override
     public Map<String, String> versions() {

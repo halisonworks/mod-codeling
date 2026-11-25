@@ -324,6 +324,23 @@ public class RelayGameTests {
         return b.helper().getLevel().getServer().getCommands().getDispatcher().getRoot().getChild("robot").canUse(b.player().createCommandSourceStack());
     }
 
+    // Issue #52: a player's browser has so many messages handled each tick; the rest wait in order, and what is too much
+    // even for that is dropped.
+    @GameTest(maxTicks = 100)
+    public void messagesOverTheLimitWait(GameTestHelper helper) {
+        Browser b = browser(helper);
+        long run = b.start();
+        int max = Codeling.limits().messagesPerTick(), kept = max + 256;
+        for (int i = 1; i <= kept + 10; i++) ServerRelay.receive(b.player(), cmd(i, run, "positions.toWorld", "[1,0,0,0]"), reply -> b.inbox().add(JsonParser.parseString(reply).getAsJsonObject()));
+        helper.assertValueEqual(b.inbox().size(), max, "answered at once");
+        helper.succeedWhen(() -> {
+            helper.assertTrue(b.inbox().size() >= kept, "all answered: " + b.inbox().size());
+            helper.assertValueEqual(b.inbox().size(), kept, "the last ten dropped");
+            for (int i = 0; i < kept; i++) helper.assertValueEqual(b.inbox().get(i).get("id").getAsLong(), i + 1L, "in order");
+            b.leave();
+        });
+    }
+
     // Issue #51: what the server's permission mod refuses. The calls that need no robot still work.
     @GameTest(maxTicks = 100)
     public void permissionModRefusesRobots(GameTestHelper helper) {

@@ -147,6 +147,19 @@ public final class Codeling {
 
     // The hooks below run in the order the separate Fabric listeners ran before issue #186: robots, relay, camera.
 
+    private static Limits limits;
+
+    /** The server's limits (issue #52), read the first time a running server needs them. */
+    public static Limits limits() {
+        if (limits == null) limits = Limits.load(PLATFORM.configDir(), LOG);
+        return limits;
+    }
+
+    /** For GameTests. */
+    public static void setLimits(Limits set) {
+        limits = set;
+    }
+
     /** End of every server tick. */
     public static void serverTick(MinecraftServer server) {
         Log.tick();
@@ -156,6 +169,7 @@ public final class Codeling {
     }
 
     public static void serverStopped() {
+        limits = null;
         RobotManager.serverStopped();
         ServerRelay.serverStopped();
         RobotCamera.serverStopped();

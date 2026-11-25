@@ -2,6 +2,7 @@ package codeling.platform;
 
 import codeling.Permission;
 import com.mojang.authlib.GameProfile;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
@@ -47,6 +48,9 @@ public interface Platform {
     /^* Vanilla has no enum game rules; the value serializes as the constant name, as on 26.x. ^/
     <E extends Enum<E>> Supplier<? extends GameRules.Key<?>> enumRule(Identifier id, GameRules.Category category, E defaultValue);
     *///?}
+
+    /** Where the server's settings are (issue #52). */
+    Path configDir();
 
     /** The versions of Codeling, Minecraft and the loader, by name, for the log and the report (issue #279). */
     Map<String, String> versions();
