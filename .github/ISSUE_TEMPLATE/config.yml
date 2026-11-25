@@ -1,11 +1,11 @@
 blank_issues_enabled: true
 contact_links:
   - name: Player guide and troubleshooting (English)
-    url: https://github.com/halisonworks/mod-codeling/blob/develop/docs/player/guide-en.md
+    url: https://github.com/halisonworks/mod-halisoncode/blob/develop/docs/player/guide-en.md
     about: Install, first program, every command, and what to do when something does not work
   - name: Spillerguide og feilsøking (norsk)
-    url: https://github.com/halisonworks/mod-codeling/blob/develop/docs/player/guide-nb.md
+    url: https://github.com/halisonworks/mod-halisoncode/blob/develop/docs/player/guide-nb.md
     about: Installasjon, første program, alle kommandoer, og hva du gjør når noe ikke virker
   - name: Security problem (private)
-    url: https://github.com/halisonworks/mod-codeling/security/advisories/new
+    url: https://github.com/halisonworks/mod-halisoncode/security/advisories/new
     about: Report a vulnerability privately, never in a public issue

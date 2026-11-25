@@ -1,6 +1,6 @@
 # Claude Code handover: Halison Code
 
-Date: 24 November 2026. Repository: `halisonworks/mod-codeling`. Planning PR: [#411](https://github.com/halisonworks/mod-codeling/pull/411), merged to `develop` on 25 November 2026. This is a maintainer handover, not permission to merge, publish, rename or change security policy.
+Date: 24 November 2026. Repository: `halisonworks/mod-halisoncode`. Planning PR: [#411](https://github.com/halisonworks/mod-halisoncode/pull/411), merged to `develop` on 25 November 2026. This is a maintainer handover, not permission to merge, publish, rename or change security policy.
 
 ## 1. Mission and immediate priorities
 
@@ -80,9 +80,9 @@ Keep ROADMAP and the native metadata aligned when issues change. Commands to rea
 
 ```sh
 gh auth status
-gh repo view halisonworks/mod-codeling
-gh api --paginate 'repos/halisonworks/mod-codeling/milestones?state=all&per_page=100'
-gh issue list -R halisonworks/mod-codeling --state open --limit 500 --json number,title,body,labels,milestone
+gh repo view halisonworks/mod-halisoncode
+gh api --paginate 'repos/halisonworks/mod-halisoncode/milestones?state=all&per_page=100'
+gh issue list -R halisonworks/mod-halisoncode --state open --limit 500 --json number,title,body,labels,milestone
 ```
 
 For later changes: inspect the current state, preview the exact mutations and get approval before bulk changes. Use actual milestone numbers. Map canonical Parent lines to actual issue IDs, and do not mistake historical review sections for current Parent lines. Keep one parent per active non-epic; do not use parenthood as a blanket blocking edge. Verify by re-reading live state, and record exceptions. Native dependencies should mirror only actual hard dependencies, not related or conditional links.

@@ -28,6 +28,8 @@ there are unknown registry entries or keys, not that the mod must be updated.
   (`config/halisoncode-server.json`), jar files and the robot's player name (`HalisonCode[<owner>]`) follow. `/robot` is as before.
   **Robots, game rules, settings and editor projects from 0.0.5 and before are not carried over.** Before you change: empty
   your robots, copy your programs' JavaScript to a text file (old project files cannot be imported), and take the old jar out of the `mods` folder.
+- The project is now at `github.com/halisonworks/mod-halisoncode` (issue #349). The links in the mod list and the downloads in
+  `scripts/setup-multimc.ps1` use the new address.
 - Players share each tick equally, whatever number of robots they have (issue #52). Before, a player with 16 robots got 16
   times as much as a player with one.
 - 19 Norwegian editor texts have new wording (issue #59).

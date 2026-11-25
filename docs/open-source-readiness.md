@@ -48,7 +48,7 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
 ### 1. SECURITY.md and private vulnerability reporting (Must, S)
 
 - **Current state.** No `SECURITY.md` in the repo or in `.github/` (`git ls-files`). GitHub's community profile
-  (`gh api repos/halisonworks/mod-codeling/community/profile`) lists only README and LICENSE.
+  (`gh api repos/halisonworks/mod-halisoncode/community/profile`) lists only README and LICENSE.
   `gh api .../private-vulnerability-reporting` answers `{"enabled": false}`. Secret scanning and push protection are
   `disabled` (`security_and_analysis` on the repo).
 - **Why it matters.** Codeling runs an HTTP and WebSocket server on the player's machine (`core/.../RelayServer.java`)
@@ -193,7 +193,8 @@ Effort: **S** under two hours, **M** half a day to two days, **L** more than two
   allow saying a mod is "for Minecraft"; whether a repo name counts as a product name is a judgment call.
 - **Action.** Decide once and write it down. If it should change, rename to `codeling` or `codeling-mod` (GitHub
   redirects the old URL).
-- **Done.** The repo is now `halisonworks/mod-codeling`; GitHub redirects the old URL.
+- **Done.** The repo became `halisonworks/mod-codeling`, and is `halisonworks/mod-halisoncode` since the mod is called
+  Halison Code; GitHub redirects the old URLs.
 
 ## Documentation
 

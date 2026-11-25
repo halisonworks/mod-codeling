@@ -794,7 +794,7 @@ lenker, for eksempel til vilkår og personvern, går til internett. En server p�
 3. Skriv `/halisoncode report` og klikk «[copy the report]». Rapporten ligger også i `logs/halisoncode-report.txt`.
 4. Les gjennom den. Halison Code utelater spillernavn, robotnavn, chat og det roboter sier der den kjenner dem. Fjern resten
    du ikke vil at andre skal se.
-5. Lim den inn i [en feilmelding](https://github.com/halisonworks/mod-codeling/issues/new/choose). Det du skriver der, er offentlig.
+5. Lim den inn i [en feilmelding](https://github.com/halisonworks/mod-halisoncode/issues/new/choose). Det du skriver der, er offentlig.
    Er du barn, be en voksen om hjelp.
 
 På en server andre eier, gjør eieren det samme med `/halisoncode server log on` og `/halisoncode server report`. Halison Code

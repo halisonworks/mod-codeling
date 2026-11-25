@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Thanks for telling us. You can write in English or Norwegian.
-        **Security problem?** Do not write it here. Report it privately, see [SECURITY.md](https://github.com/halisonworks/mod-codeling/blob/develop/SECURITY.md).
+        **Security problem?** Do not write it here. Report it privately, see [SECURITY.md](https://github.com/halisonworks/mod-halisoncode/blob/develop/SECURITY.md).
         Everything you write here is public. Leave out real names, email addresses and editor links (they contain a token). If you are a child, ask an adult to help you.
   - type: input
     id: halisoncode

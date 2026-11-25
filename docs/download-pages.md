@@ -17,7 +17,7 @@ This text was drafted with generative AI. See "Rules of the sites".
 | Environment | Client and server |
 | Loaders | Fabric, NeoForge |
 | Dependencies | Fabric API (Fabric only) |
-| Source, issues | https://github.com/halisonworks/mod-codeling |
+| Source, issues | https://github.com/halisonworks/mod-halisoncode |
 | Icon, gallery | From #198: real pictures from the game and the editor |
 
 ## English
@@ -57,9 +57,9 @@ the robot's commands are sent to it, and the server checks each one.
 - Only you can program your robot. It follows your own rules on the server, such as protected areas.
 - The game commands and messages are in English. The editor's own blocks are also in Norwegian.
 
-[Player guide](https://github.com/halisonworks/mod-codeling/blob/develop/docs/player/guide-en.md) ·
-[Report a problem](https://github.com/halisonworks/mod-codeling/issues/new/choose) ·
-[Report a security problem](https://github.com/halisonworks/mod-codeling/blob/develop/SECURITY.md)
+[Player guide](https://github.com/halisonworks/mod-halisoncode/blob/develop/docs/player/guide-en.md) ·
+[Report a problem](https://github.com/halisonworks/mod-halisoncode/issues/new/choose) ·
+[Report a security problem](https://github.com/halisonworks/mod-halisoncode/blob/develop/SECURITY.md)
 
 Free and open source, under the MIT licence. The editor is built with pxt, Microsoft's open-source toolkit, under the
 same licence.
@@ -101,9 +101,9 @@ server sendes bare kommandoene til roboten, og serveren sjekker hver av dem.
 - Bare du kan programmere roboten din. Den følger dine egne regler på serveren, for eksempel vernede områder.
 - Kommandoer og meldinger i spillet er på engelsk. Blokkene i editoren finnes også på norsk.
 
-[Spillerguide](https://github.com/halisonworks/mod-codeling/blob/develop/docs/player/guide-nb.md) ·
-[Meld om et problem](https://github.com/halisonworks/mod-codeling/issues/new/choose) ·
-[Meld om et sikkerhetsproblem](https://github.com/halisonworks/mod-codeling/blob/develop/SECURITY.md)
+[Spillerguide](https://github.com/halisonworks/mod-halisoncode/blob/develop/docs/player/guide-nb.md) ·
+[Meld om et problem](https://github.com/halisonworks/mod-halisoncode/issues/new/choose) ·
+[Meld om et sikkerhetsproblem](https://github.com/halisonworks/mod-halisoncode/blob/develop/SECURITY.md)
 
 Gratis og åpen kildekode, med MIT-lisens. Editoren er bygget med pxt, Microsofts åpne verktøy, med samme lisens.
 
