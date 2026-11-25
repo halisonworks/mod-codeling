@@ -134,7 +134,7 @@ må også kjøre (kalle) den.
    spillet.
 4. Trykk på Kjør-knappen.
 
-Denne funksjonen har et tall, `length` ("Legg til en parameter", "Tall"). Trykk på Kjør én gang. Skriv så `wall 5` i
+Denne funksjonen har et tall, `length` ("Ny parameter", "Tall"). Trykk på Kjør én gang. Skriv så `wall 5` i
 chatten i spillet, og igjen så ofte du vil, med det tallet du vil:
 
 ```
@@ -159,7 +159,7 @@ kommando.
 - Klikk på rundingen på en blokk (eller i feltet til venstre for et linjenummer i JavaScript og Python) for å sette et
   stoppunkt. Programmet stopper der hver gang det kommer dit.
 - I Blokker kjører "Step" én blokk og stopper igjen (knappen har ikke norsk tekst). I JavaScript og Python kjører
-  "Ta neste steg" én linje (et funksjonskall i ett steg), og "Gå inn i" går inn i funksjonen.
+  "Ta neste steg" én linje (et funksjonskall i ett steg), og "Steg inn" går inn i funksjonen.
 - Pilen (Fortsett) kjører videre til neste stoppunkt, eller til slutten.
 - Mens programmet står stille, er blokken eller linjen som kommer etterpå markert, og "Variabler" viser verdien til
   hver variabel.

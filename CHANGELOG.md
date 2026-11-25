@@ -26,6 +26,7 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
   your robots, copy your programs' JavaScript to a text file (old project files cannot be imported), and take the old jar out of the `mods` folder.
 - Players share each tick equally, whatever number of robots they have (issue #52). Before, a player with 16 robots got 16
   times as much as a player with one.
+- 19 Norwegian editor texts have new wording (issue #59).
 
 ### Fixed
 
