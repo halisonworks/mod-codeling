@@ -8,7 +8,7 @@
   "environment": "*",
   "entrypoints": {
     "fabric-gametest": ["codeling.gametest.RobotGameTests", "codeling.gametest.RelayGameTests", "codeling.gametest.RobotPerformanceGameTests",
-      "codeling.gametest.MultiRobotGameTests"],
+      "codeling.gametest.MultiRobotGameTests", "codeling.gametest.SavedRobotGameTests"],
     "fabric-client-gametest": ["codeling.gametest.RobotClientGameTest", "codeling.gametest.EditorEndToEndClientGameTest"],
     "client": ["codeling.gametest.FabricClientSmoke"]
   },
