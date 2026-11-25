@@ -84,6 +84,14 @@ public record RobotCommand(Op op, int a, int b, int c, int d, int e, int f, int 
         CAMERA
     }
 
+    /** blocks.place, blocks.fill, the shapes and the maze (issue #51). */
+    public boolean isBuilding() {
+        return switch (op) {
+            case FILL, LINE, CIRCLE, SPHERE, MAZE -> true;
+            default -> false;
+        };
+    }
+
     // SixDirection
     public static final int FORWARD = 0, BACK = 1, LEFT = 2, RIGHT = 3, UP = 4, DOWN = 5;
     // TurnDirection

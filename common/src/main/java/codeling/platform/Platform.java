@@ -1,5 +1,6 @@
 package codeling.platform;
 
+import codeling.Permission;
 import com.mojang.authlib.GameProfile;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -59,4 +60,7 @@ public interface Platform {
     boolean canSend(ServerPlayer player, CustomPacketPayload.Type<?> type);
 
     void send(ServerPlayer player, CustomPacketPayload payload);
+
+    /** What the server's permission mod says (issue #51), else {@link Permission#byDefault}. */
+    boolean allows(ServerPlayer player, Permission permission);
 }

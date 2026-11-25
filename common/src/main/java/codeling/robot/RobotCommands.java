@@ -3,6 +3,7 @@ package codeling.robot;
 import codeling.McCompat;
 import codeling.Codeling;
 import codeling.Messages;
+import codeling.Permission;
 import codeling.Report;
 import codeling.log.Log;
 import codeling.api.Signals;
@@ -113,7 +114,8 @@ public final class RobotCommands {
                         .then(Commands.literal("report").executes(RobotCommands::serverReport))));
         // The slot comes before the robot name, so "give stone 5 3" is slot 3 (robot names start with a letter).
         Command<CommandSourceStack> giveToSlot = c -> give(c, IntegerArgumentType.getInteger(c, "slot"));
-        dispatcher.register(Commands.literal("robot")
+        // Issue #51: without the permission /robot is an unknown command, as the game's own are. The console may.
+        dispatcher.register(Commands.literal("robot").requires(s -> !(s.getEntity() instanceof ServerPlayer p) || Permission.ROBOT.allows(p))
                 .then(place).then(destroy).then(inspect).then(detect).then(drop)
                 .then(named(Commands.literal("collect"), c -> send(c, "agent.collectAll", List.of(), v -> done("commands.codeling.collect", robot(c)))))
                 .then(Commands.literal("slot").then(named(Commands.argument("slot", IntegerArgumentType.integer(1, RobotCommand.SLOTS)),

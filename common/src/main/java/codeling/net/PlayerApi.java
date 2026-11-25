@@ -2,6 +2,7 @@ package codeling.net;
 
 import codeling.Codeling;
 import codeling.McCompat;
+import codeling.Permission;
 import codeling.robot.Result;
 import codeling.robot.RobotCommand;
 import codeling.robot.RobotException;
@@ -118,12 +119,12 @@ final class PlayerApi {
         return taken ? Result.ok(true) : Result.ok(false, "No mod on this server takes the signal \"" + name + "\".");
     }
 
-    // As /tp would allow it: the host of a singleplayer world or an op (game master), in the owner's own dimension,
+    // As /tp would allow it: by default the host of a singleplayer world or an op (game master), in the owner's own dimension,
     // inside the world border and the build height. To the middle of the block, keeping the owner's facing.
     private static Result teleport(ServerPlayer player, BlockPos pos) {
         String name = player.getGameProfile().name();
-        if (!McCompat.isSingleplayerOwner(player) && !McCompat.isGamemaster(player)) {
-            return Result.error(Result.Code.NO_PERMISSION, "player.teleport needs singleplayer or operator rights");
+        if (!Permission.TELEPORT.allows(player)) {
+            return Result.error(Result.Code.NO_PERMISSION, "player.teleport needs singleplayer, operator rights or the permission " + Permission.TELEPORT.node());
         }
         ServerLevel level = McCompat.level(player);
         if (!Level.isInSpawnableBounds(pos) || level.isOutsideBuildHeight(pos) || !level.getWorldBorder().isWithinBounds(pos)) {
