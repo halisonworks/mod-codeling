@@ -70,9 +70,9 @@ public final class EditorLauncher {
         return "<!doctype html>\n<html><head><meta charset=\"utf-8\">\n"
                 + "<meta name=\"referrer\" content=\"no-referrer\">\n"
                 + "<meta http-equiv=\"refresh\" content=\"0;url=" + attr + "\">\n"
-                + "<title>Codeling</title>\n"
+                + "<title>Halison Code</title>\n"
                 + "<script>location.replace(\"" + escapeJs(url) + "\");</script>\n"
-                + "</head><body><p><a href=\"" + attr + "\">Open the Codeling editor</a></p></body></html>\n";
+                + "</head><body><p><a href=\"" + attr + "\">Open the Halison Code editor</a></p></body></html>\n";
     }
 
     // Windows: replaces the ACL inherited from %TEMP% (which may grant more than the user, SYSTEM and Administrators)

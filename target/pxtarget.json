@@ -1,8 +1,8 @@
 {
     "id": "codeling",
-    "name": "codeling",
-    "nickname": "codeling",
-    "title": "Codeling",
+    "name": "halison-code",
+    "nickname": "halison-code",
+    "title": "Halison Code",
     "description": "Program your Minecraft robot with blocks, JavaScript or Python",
     "corepkg": "core",
     "bundleddirs": [
@@ -33,11 +33,11 @@
     "appTheme": {
         "logoUrl": "/",
         "homeUrl": "/",
-        "boardName": "Codeling",
+        "boardName": "Halison Code",
         "useTextLogo": true,
-        "organization": "Codeling",
-        "organizationText": "Codeling",
-        "organizationShortText": "Codeling",
+        "organization": "Halison Code",
+        "organizationText": "Halison Code",
+        "organizationShortText": "Halison Code",
         "organizationUrl": "/",
         "privacyUrl": "/about",
         "termsOfUseUrl": "/about",
