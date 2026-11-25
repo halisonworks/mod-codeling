@@ -47,7 +47,7 @@ namespace robots {
 }
 
 /**
- * Named signals to and from other mods on the server, or from /codeling signal (issue #249)
+ * Named signals to and from other mods on the server, or from /halisoncode signal (issue #249)
  */
 //% color=#E65100 weight=85 icon="\uf1eb"
 namespace signals {
@@ -135,7 +135,7 @@ namespace blocks {
      * An item (or block) for the calls that take items: chests, crafting, setItem.
      * @param item the item, eg: Item.Coal
      */
-    //% shim=TD_ID blockId=codeling_item block="%item" blockHidden=true
+    //% shim=TD_ID blockId=halisoncode_item block="%item" blockHidden=true
     //% item.fieldEditor="gridpicker" item.fieldOptions.hasSearchBar=true
     //% item.fieldOptions.columns=3 item.fieldOptions.width=360 item.fieldOptions.maxRows=8
     export function item(item: Item): number {
@@ -146,7 +146,7 @@ namespace blocks {
      * A block as a number. Programs that pass Block.Stone where an item is wanted show this block.
      * @param block the block, eg: Block.Stone
      */
-    //% shim=TD_ID blockId=codeling_block block="%block" blockHidden=true
+    //% shim=TD_ID blockId=halisoncode_block block="%block" blockHidden=true
     export function block(block: Block): number {
         return block;
     }

@@ -281,7 +281,7 @@ def bbmodel(model, variant_index):
                       "override": False, "length": animation["length"], "snapping": 40, "selected": False,
                       "animators": animators})
     return {"meta": {"format_version": "5.0", "model_format": "free", "box_uv": False},
-            "name": "Codeling Robot", "model_identifier": "codeling_robot", "visible_box": [1,1,0.5],
+            "name": "Halison Code Robot", "model_identifier": "halisoncode_robot", "visible_box": [1,1,0.5],
             "resolution": {"width": SIZE, "height": SIZE}, "elements": elements, "groups": groups,
             "outliner": [outline("root")], "textures": textures, "animations": anims}
 
@@ -345,7 +345,7 @@ def validate(model):
                 floor = min(3+y*math.cos(angle)-z*math.sin(angle)+lift for y in (-3,0) for z in (-2,1))
                 assert floor >= -0.0001, f"Foot penetrates floor by {-floor}: {bone}"
     for variant_index, variant in enumerate(PALETTES):
-        project = json.loads((ROOT/f"codeling_robot_{variant}.bbmodel").read_text())
+        project = json.loads((ROOT/f"halisoncode_robot_{variant}.bbmodel").read_text())
         group_ids = {g["uuid"] for g in project["groups"]}
         element_ids = {e["uuid"] for e in project["elements"]}
         def visit(node):
@@ -381,7 +381,7 @@ def main():
     make_uv()
     write_textures()
     animations = make_animations()
-    model = {"schema": "codeling.robot.asset.v1", "texture_size": [64,64],
+    model = {"schema": "halisoncode.robot.asset.v1", "texture_size": [64,64],
              "coordinates": {"units_per_block": 16, "up": "+Y", "front": "-Z", "rotation_unit": "degrees",
                              "rotation_order": "ZYX", "rotation_convention": "right-handed", "bone_pivots": "absolute model space",
                              "rest_bounds": {"from": [-5.5,0,-3], "to": [5.5,16,3]}},
@@ -393,12 +393,12 @@ def main():
                                  "head": "Separate look clips return to neutral. Runtime may drive/clamp head yaw/pitch directly instead.",
                                  "light": "Lamp texels/mask only describe appearance. No beam is included, and actual world illumination is not provided by these files."}}
     write_json("robot_model.json", model)
-    write_json("robot_animations.json", {"schema": "codeling.robot.animations.v1", "rotation_unit": "degrees", "animations": animations})
+    write_json("robot_animations.json", {"schema": "halisoncode.robot.animations.v1", "rotation_unit": "degrees", "animations": animations})
     write_json("robot_uv_layout.json", {"texture_size": [64,64], "faces": [
         {"bone": b["name"], "cube": c["name"], "face": f, **d}
         for b in BONES for c in b["cubes"] for f,d in c["faces"].items()]})
     for index, variant in enumerate(PALETTES):
-        write_json(f"codeling_robot_{variant}.bbmodel", bbmodel(model,index))
+        write_json(f"halisoncode_robot_{variant}.bbmodel", bbmodel(model,index))
     # Enlarged contact sheet is a labelled atlas inspection aid, not a runtime texture.
     contact = Image.new("RGB", (3*272,300), "#E7E3DC")
     draw = ImageDraw.Draw(contact)

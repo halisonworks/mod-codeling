@@ -5,7 +5,7 @@ version = providers.gradleProperty("mod_version").get()
 group = providers.gradleProperty("maven_group").get()
 
 // Jar name rule (README, docs/architecture.md): <modid>-<loader>-<minecraftversion>-<modversion>.jar, e.g.
-// codeling-fabric-26.3-0.0.1.jar. Stonecutter (issue #189) makes one project per loader and version, :fabric:26.3:
+// halisoncode-fabric-26.3-0.0.1.jar. Stonecutter (issue #189) makes one project per loader and version, :fabric:26.3:
 // the loader part is the module's name (the parent project), the Minecraft version is the project's own name.
 extensions.configure<BasePluginExtension> {
     archivesName = "${providers.gradleProperty("mod_id").get()}-${project.parent!!.name}-${project.name}"
@@ -18,7 +18,7 @@ val checkJarNames = tasks.register("checkJarNames") {
     val libs = layout.buildDirectory.dir("libs")
     dependsOn(tasks.withType<Jar>().matching { it.destinationDirectory.get().asFile == libs.get().asFile })
     doLast {
-        val rule = Regex("""^codeling-(fabric|neoforge|forge)-\d+(\.\d+)+-\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?(-sources)?\.jar$""")
+        val rule = Regex("""^halisoncode-(fabric|neoforge|forge)-\d+(\.\d+)+-\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?(-sources)?\.jar$""")
         val bad = libs.get().asFile.listFiles().orEmpty().map { it.name }.filter { it.endsWith(".jar") && !rule.matches(it) }
         if (bad.isNotEmpty()) throw GradleException("Jar names break the rule <modid>-<loader>-<minecraftversion>-<modversion>.jar: $bad")
     }
@@ -54,13 +54,13 @@ tasks.named<Jar>("jar") {
     from(rootProject.files("LICENSE", "THIRD-PARTY-NOTICES.md")) { into("META-INF") }
 }
 
-// The static editor built by `npm run staticpkg` in ../target goes into the jar under codeling-editor/. Loom's split
+// The static editor built by `npm run staticpkg` in ../target goes into the jar under halisoncode-editor/. Loom's split
 // environment has client resources of their own; NeoForge has one resource set.
 val editorDir = rootProject.layout.projectDirectory.dir("target/built/packaged")
 val editorResources = if ("processClientResources" in tasks.names) "processClientResources" else "processResources"
 tasks.named<ProcessResources>(editorResources) {
     from(editorDir) {
-        into("codeling-editor")
+        into("halisoncode-editor")
         // pxt sub-webapps and the unused embed runner (spike item 6). The telemetry snippet is
         // removed by target/docfiles/apptracking.html, so ai.2.min.js is unused too.
         exclude(
@@ -75,16 +75,16 @@ tasks.named<ProcessResources>(editorResources) {
     // pxt hardcodes "Microsoft MakeCode" in the editor UI (issue #16), and its debug mode reruns the program on exit
     // (issue #217). Patch the copied main.js and fail the build when a pattern is gone, so a pxt upgrade cannot bring
     // them back unnoticed.
-    val mainJs = destinationDir.resolve("codeling-editor/main.js")
+    val mainJs = destinationDir.resolve("halisoncode-editor/main.js")
     doLast {
         val patches = listOf(
             // About box: one line with the link instead of "Microsoft MakeCode version: 13.3.1".
             "E(\"Microsoft MakeCode\",o.pxt,`https://github.com/Microsoft/pxt/releases/tag/v\${o.pxt}`)" to
                 "(0,i.jsx)(\"p\",{children:(0,i.jsx)(\"a\",{href:`https://github.com/Microsoft/pxt/releases/tag/v\${o.pxt}`,target:\"_blank\",rel:\"noopener noreferrer\",children:`pxt editor \${o.pxt} (MIT, Microsoft)`})})",
-            "lf(\"MakeCode {0} Logo, return to home page\",e.boardName)" to "lf(\"Codeling, return to home page\")",
-            "different version of Microsoft MakeCode." to "different version of the Codeling editor.",
+            "lf(\"MakeCode {0} Logo, return to home page\",e.boardName)" to "lf(\"Halison Code, return to home page\")",
+            "different version of Microsoft MakeCode." to "different version of the Halison Code editor.",
             // Screen-reader heading on the home screen.
-            "lf(\"MakeCode Home\")" to "lf(\"Codeling Home\")",
+            "lf(\"MakeCode Home\")" to "lf(\"Halison Code Home\")",
             // Issue #315: browsers say nb-NO, nn-NO or no, but the editor's Norwegian is locales/nb. Also for pxt's cookie.
             "r=s||i||a||p.defaultLocale||navigator.userLanguage||navigator.language;" to
                 "r=s||i||a||p.defaultLocale||navigator.userLanguage||navigator.language,/^(nb|nn|no)(-|$)/i.test(r||\"\")&&(r=\"nb\");",
