@@ -12,6 +12,7 @@ import halisoncode.platform.ClientPlatform;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -43,19 +44,31 @@ public final class HalisonCodeClient {
 
     /** The game has started: start the editor and relay server. */
     public static void started(Minecraft client) {
-        int port = Integer.getInteger("halisoncode.port", RelayServer.DEFAULT_PORT);
         EditorLauncher.deleteAll(EditorLauncher.DIR); // left by a crash
+        start(client);
+    }
+
+    private static int port() {
+        return Integer.getInteger("halisoncode.port", RelayServer.DEFAULT_PORT);
+    }
+
+    /** Starts the editor and relay server. Never on another port: the browser stores projects per address (issue #8). */
+    public static boolean start(Minecraft client) {
+        int port = port();
         try {
             relay = new RelayServer(port, new GameLink(client)).start();
             HalisonCode.LOG.info("Halison Code editor on http://127.0.0.1:{}/", port);
+            return true;
         } catch (Exception e) {
-            // shortcut: log only; show an in-game error when the port is busy (not done in step 2).
+            relay = null;
             HalisonCode.LOG.error("Halison Code could not start the editor server on port {}", port, e);
+            return false;
         }
     }
 
     public static void stopping() {
         if (relay != null) relay.close();
+        relay = null;
         EditorLauncher.deleteAll(EditorLauncher.DIR);
     }
 
@@ -92,7 +105,7 @@ public final class HalisonCodeClient {
         boolean paused = keepRunning() && client.isPaused();
         if (paused == toldPaused) return;
         toldPaused = paused;
-        relay.deliver(Protocol.control("notice", -1, paused ? "Minecraft is paused. Go back to the game and close the menu."
+        if (relay != null) relay.deliver(Protocol.control("notice", -1, paused ? "Minecraft is paused. Go back to the game and close the menu."
                 : "Minecraft is running again."));
     }
 
@@ -147,7 +160,10 @@ public final class HalisonCodeClient {
      * file, such as a snap or Flatpak browser on Linux (no access to /tmp).
      */
     public static int openEditor() {
-        if (relay == null) return 0;
+        if (relay == null && !start(Minecraft.getInstance())) { // the port may be free now
+            show(Messages.of("message.halisoncode.editor.port", port(), "/halisoncode", "-Dhalisoncode.port=" + (port() + 1)).withStyle(ChatFormatting.RED));
+            return 0;
+        }
         try {
             //? if >=26.3 {
             EditorLauncher.launch(EditorLauncher.DIR, relay.editorUrl(), Blaze3D::openPath);

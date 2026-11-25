@@ -90,6 +90,7 @@
   "message.halisoncode.direction.west": "west",
   "message.halisoncode.editor.copy": "[copy the editor link]",
   "message.halisoncode.editor.opening": "Opening the Halison Code editor in your browser. If it does not open, %s and paste it into the address bar",
+  "message.halisoncode.editor.port": "The editor cannot start, because port %s is in use, often by another Minecraft. Close that program and type %s again. To use another port, add %s to the game's Java arguments",
   "message.halisoncode.name.invalid": "A robot name starts with a letter and has at most %s letters, digits, _ or - (no spaces)",
   "message.halisoncode.name.reserved": "\"%s\" is a word the /robot commands use, choose another name",
   "message.halisoncode.name.taken": "You already have a robot called %s",
