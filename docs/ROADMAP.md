@@ -4,7 +4,7 @@ Status: proposed planning baseline, 24 November 2026. Development baseline: 0.0.
 
 ## Product intent and boundaries
 
-Halison Code is the programming environment; Halison Code for Minecraft is the proposed Minecraft mod identity; Kintro is the proposed robot identity. Names require clearance and approval (#58, #355). The product serves hobby players, learners and creators who want to programme Minecraft worlds, build structures, automate resources and coordinate robots. The editor supports Blocks, JavaScript and Python within actual PXT capabilities. Minecraft world programming must not require a robot where the capability is genuinely independent. Kintro retains survival resources, server authority and explicit robot selection. Use logical module boundaries before deciding on physical packaging. Narratimo Worlds and other targets remain independent optional integrations.
+Halison Code is the name of the mod and the editor ("the Halison Code editor" when the two must be told apart), and Kintro is the robot (owner's decision 2026-11-25, #355). "For Minecraft" is used in descriptions only. Clearance must be recorded on #58 before the names are shown in public. The product serves hobby players, learners and creators who want to programme Minecraft worlds, build structures, automate resources and coordinate robots. The editor supports Blocks, JavaScript and Python within actual PXT capabilities. Minecraft world programming must not require a robot where the capability is genuinely independent. Kintro retains survival resources, server authority and explicit robot selection. Use logical module boundaries before deciding on physical packaging. Narratimo Worlds and other targets remain independent optional integrations.
 
 ## How to read this plan
 
@@ -77,7 +77,7 @@ Reviewed naming evidence and owner decision; approved editor/mod/robot display i
 
 | Issue | Scope | Title |
 | --- | --- | --- |
-| [#58](https://github.com/halisonworks/mod-codeling/issues/58) | Core | Trademark and naming clearance for Halison Code for Minecraft, Halison Code and Kintro |
+| [#58](https://github.com/halisonworks/mod-codeling/issues/58) | Core | Trademark and naming clearance for Halison Code and Kintro |
 | [#343](https://github.com/halisonworks/mod-codeling/issues/343) | Core | Epic: Product identity and compatible migration from Codeling |
 | [#346](https://github.com/halisonworks/mod-codeling/issues/346) | Core | Feature: Naming clearance and public identity |
 | [#347](https://github.com/halisonworks/mod-codeling/issues/347) | Core | Feature: Halison Code editor identity |
