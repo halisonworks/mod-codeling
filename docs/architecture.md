@@ -523,7 +523,7 @@ Rough effort for one experienced developer, in weeks.
 8. **Closed (issue #188).** The relay is our own HTTP and WebSocket server on `java.net`, with no Netty, so it does not depend on what the game ships (section 4).
 9. Final name and trademark check.
 10. Disk-backed projects via `?ws=fs`: v1.1 or earlier, depending on spike item 5.
-11. Reuse rights of the nb/nn-NO community translations (section 11).
+11. **Closed (issue #59).** Reuse rights of the nb/nn-NO community translations: none found, so the editor has our own texts.
 12. **Closed (issue #27).** The raw line is `PlayerChatMessage.signedContent()` (NeoForge: `ServerChatEvent.getRawText()`), and both chat events run on the server thread (section 3).
 13. **Closed (issue #191).** Token in argv (security review 2026-11-10): `/halisoncode` opened the editor URL, token fragment included, with `xdg-open`, `open` or `rundll32` (1.21.1) through the game's URL opener, so other local users could read it with `ps`. It now opens a one-time launcher file in a directory only the user can read (section 3, step 3).
 
@@ -545,7 +545,7 @@ Rough effort for one experienced developer, in weeks.
 Resolved since the first draft: pxt origin and token flow, chat event, Norwegian translation existence, handler arity, UI-only block names and enum values (section 5), Netty presence on 26.3, `positions.create` base (player).
 
 1. Static-mode behaviour: **resolved (spike 2026-11-09)** for project storage, jar size and cross-browser token read. Still open: `?ws=fs` (spike item 5) and Safari/WebKit.
-2. Reuse rights of community nb/nn-NO translations.
+2. Reuse rights of community nb/nn-NO translations: **resolved (issue #59)**, they are not used.
 3. Yaw convention of `getOrientation` in Minecraft Education itself (its reference page is followed); that `positions.create` never resolves against the agent (inferred).
 4. Exact `PlayerChatMessage` accessor for the raw string; thread of the chat listener.
 5. Completeness of the id to `BlockState` table.
