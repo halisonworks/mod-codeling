@@ -1365,7 +1365,7 @@ namespace pxsim.player {
     }
 
     /**
-     * Which way you look, in degrees: south 0, west 90, north 180 (or -180), east -90.
+     * Which way you look, in degrees: south 0, west 90, north -180, east -90.
      */
     //% blockId=player_get_orientation block="player orientation"
     //% weight=89

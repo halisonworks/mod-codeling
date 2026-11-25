@@ -268,6 +268,19 @@ public class RelayGameTests {
         });
     }
 
+    // Issue #22: north is -180 only, also when the decimal rounds up to 180.
+    @GameTest
+    public void playerOrientationIsMinus180AtNorth(GameTestHelper helper) {
+        Browser b = browser(helper);
+        b.player().setYRot(179.97f);
+        b.send(player(1, b.start(), "getOrientation", "[]"));
+        helper.succeedWhen(() -> {
+            helper.assertTrue(b.find("result", 1) != null, "result");
+            helper.assertValueEqual(b.find("result", 1).get("value").getAsDouble(), -180.0, "orientation");
+            b.leave();
+        });
+    }
+
     // Issue #26: more than a robot queue's worth of waiting player calls is refused, as a full robot queue is.
     @GameTest
     public void playerCallsAreCapped(GameTestHelper helper) {

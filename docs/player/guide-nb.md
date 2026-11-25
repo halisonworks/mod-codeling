@@ -346,7 +346,7 @@ posisjon kan leses, og ingen andre kan flyttes.
 |---|---|---|
 | si i chatten (melding) | `player.say("Hei!")` | Viser meldingen i chatten din. Bare du ser den (i MakeCode ser alle den). Ren tekst, høyst 256 tegn. |
 | spiller posisjon i verden | `player.position()` | Der du står: blokken føttene dine er i, som en posisjon i verden. |
-| spiller retning | `player.getOrientation()` | Hvilken vei du ser, i grader: sør 0, vest 90, nord 180 (eller -180), øst -90. |
+| spiller retning | `player.getOrientation()` | Hvilken vei du ser, i grader: sør 0, vest 90, nord -180, øst -90. |
 | spiller navn | `player.name()` | Spillernavnet ditt. |
 | teleporter til (posisjon) | `player.teleport(pos(0, 10, 0))` | Flytter deg dit, i dimensjonen du er i. Bare i en enspillerverden (som verten) eller for en operatør på serveren; for alle andre nekter spillet med `NO_PERMISSION`. Utenfor verdensgrensen eller byggehøyden nekter det med `OUT_OF_RANGE`. |
 | når chatkommando (nøkkelord) | `player.onChat("jump", function (num1, num2, num3) { })` | Kjører koden sin når du skriver en chattelinje som begynner med nøkkelordet, for eksempel `jump 10`. Se "Reager på chat og død" under. |
