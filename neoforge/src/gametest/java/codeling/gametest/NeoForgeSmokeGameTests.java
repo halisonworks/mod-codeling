@@ -1,6 +1,7 @@
 package codeling.gametest;
 
 import codeling.Codeling;
+import codeling.Permission;
 import codeling.net.RelayPayloads;
 import codeling.net.ServerRelay;
 import codeling.neoforge.CodelingNeoForge;
@@ -14,6 +15,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
+import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,6 +86,9 @@ import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
 //? if >=1.21.5
 import net.neoforged.neoforge.registries.RegisterEvent;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
+import net.neoforged.neoforge.server.permission.handler.IPermissionHandler;
+import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 
 /**
  * Smoke GameTests for the NeoForge glue (issue #187): spawn, move, place, game rules (incl. the enum rule), payloads and
@@ -111,6 +117,7 @@ public final class NeoForgeSmokeGameTests {
         TESTS.put("adventure_owner_cannot_build", NeoForgeSmokeGameTests::adventureOwnerCannotBuild);
         TESTS.put("chat_line_for_the_program", NeoForgeSmokeGameTests::chatLineForTheProgram);
         TESTS.put("block_broken_for_the_program", NeoForgeSmokeGameTests::blockBrokenForTheProgram);
+        TESTS.put("permission_handler_decides", NeoForgeSmokeGameTests::permissionHandlerDecides);
     }
 
     private NeoForgeSmokeGameTests() {
@@ -418,5 +425,41 @@ public final class NeoForgeSmokeGameTests {
             helper.assertTrue(inbox.contains("{\"v\":2,\"t\":\"event\",\"name\":\"blockBroken\",\"args\":[1]}"), "event: " + inbox);
             helper.getLevel().getServer().getPlayerList().remove(player);
         });
+    }
+
+    // Issue #51: Codeling's permissions are registered, and what the server's permission handler answers is followed.
+    // NeoForge picks the handler from its server config, so the test swaps the field for one test player.
+    private static void permissionHandlerDecides(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        List<String> names = PermissionAPI.getRegisteredNodes().stream().map(PermissionNode::getNodeName).toList();
+        for (Permission p : Permission.values()) helper.assertTrue(names.contains(p.node()), p.node() + " is registered");
+        helper.assertTrue(Permission.ROBOT.allows(player), "robot by default");
+        helper.assertTrue(!Permission.TELEPORT.allows(player), "teleport by default");
+        try {
+            Field field = PermissionAPI.class.getDeclaredField("activeHandler");
+            field.setAccessible(true);
+            IPermissionHandler before = (IPermissionHandler) field.get(null);
+            // A proxy, because Stonecutter would rename the interface's getIdentifier as it renames the class.
+            field.set(null, Proxy.newProxyInstance(IPermissionHandler.class.getClassLoader(), new Class<?>[] {IPermissionHandler.class}, (proxy, method, args) -> {
+                Object value = method.invoke(before, args);
+                return method.getName().equals("getPermission") && args[0] == player ? (Object) !(Boolean) value : value;
+            }));
+            try {
+                helper.assertTrue(!Permission.ROBOT.allows(player), "robot refused");
+                helper.assertTrue(Permission.TELEPORT.allows(player), "teleport allowed");
+                List<String> inbox = new ArrayList<>();
+                ServerRelay.handle(player, "{\"v\":2,\"t\":\"control\",\"op\":\"start\"}", inbox::add);
+                long run = RobotManager.queue(player.getUUID()).run();
+                ServerRelay.handle(player, "{\"v\":2,\"t\":\"cmd\",\"id\":1,\"run\":" + run + ",\"op\":\"agent.move\",\"args\":[0,1]}", inbox::add);
+                helper.assertTrue(inbox.getLast().contains("NO_PERMISSION") && inbox.getLast().contains("codeling.robot"), "refused: " + inbox.getLast());
+            } finally {
+                field.set(null, before);
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+        helper.assertTrue(Permission.ROBOT.allows(player), "robot by default again");
+        helper.getLevel().getServer().getPlayerList().remove(player);
+        helper.succeed();
     }
 }

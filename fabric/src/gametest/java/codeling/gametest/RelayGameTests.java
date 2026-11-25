@@ -3,6 +3,7 @@ package codeling.gametest;
 import codeling.Codeling;
 import codeling.api.Signals;
 import codeling.McCompat;
+import codeling.Permission;
 import codeling.Report;
 import codeling.log.Log;
 import codeling.net.Protocol;
@@ -27,6 +28,7 @@ import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
@@ -304,6 +306,116 @@ public class RelayGameTests {
             helper.assertValueEqual(errorCode(b, 1), "NO_PERMISSION", "not an op");
             helper.assertValueEqual(b.player().blockPosition(), before, "not moved");
             b.leave();
+        });
+    }
+
+    private static String cmd(long id, long run, String op, String args) {
+        return "{\"v\":2,\"t\":\"cmd\",\"id\":" + id + ",\"run\":" + run + ",\"op\":\"" + op + "\",\"args\":" + args + "}";
+    }
+
+    // A fill of one block, east of the robot at START.
+    private static String fillOne(GameTestHelper helper, long id, long run) {
+        BlockPos p = helper.absolutePos(START.east());
+        String at = p.getX() + "," + p.getY() + "," + p.getZ();
+        return cmd(id, run, "blocks.fill", "[1," + at + "," + at + ",0]");
+    }
+
+    private static boolean maySeeRobotCommand(Browser b) {
+        return b.helper().getLevel().getServer().getCommands().getDispatcher().getRoot().getChild("robot").canUse(b.player().createCommandSourceStack());
+    }
+
+    // Issue #51: what the server's permission mod refuses. The calls that need no robot still work.
+    @GameTest(maxTicks = 100)
+    public void permissionModRefusesRobots(GameTestHelper helper) {
+        Browser b = browser(helper);
+        helper.assertTrue(maySeeRobotCommand(b), "/robot by default");
+        PermissionOverrides.set(b.player().getUUID(), Permission.ROBOT, false);
+        helper.assertTrue(!maySeeRobotCommand(b), "/robot is refused");
+        long run = b.start();
+        b.send(move(1, run, 1));
+        b.send(cmd(2, run, "agent.camera", "[0]"));
+        b.send(player(3, run, "name", "[]"));
+        helper.assertValueEqual(errorCode(b, 1), "NO_PERMISSION", "agent.move");
+        helper.assertTrue(b.find("error", 1).get("message").getAsString().contains("codeling.robot"), "the message names the permission");
+        helper.assertValueEqual(errorCode(b, 2), "NO_PERMISSION", "agent.camera");
+        PermissionOverrides.set(b.player().getUUID(), Permission.ROBOT, true);
+        helper.assertTrue(maySeeRobotCommand(b), "/robot is allowed again");
+        b.send(move(4, run, 1));
+        helper.succeedWhen(() -> {
+            helper.assertTrue(b.find("result", 3) != null, "player.name");
+            helper.assertTrue(b.find("result", 4) != null, "agent.move when allowed again");
+            PermissionOverrides.clear(b.player().getUUID());
+            b.leave();
+        });
+    }
+
+    // Issue #51: building is a permission of its own; the robot's other calls are not touched by it.
+    @GameTest(maxTicks = 100)
+    public void permissionModRefusesBuilding(GameTestHelper helper) {
+        Browser b = browser(helper);
+        PermissionOverrides.set(b.player().getUUID(), Permission.BUILD, false);
+        long run = b.start();
+        b.send(fillOne(helper, 1, run));
+        helper.assertValueEqual(errorCode(b, 1), "NO_PERMISSION", "blocks.fill");
+        b.send(move(2, run, 1));
+        helper.succeedWhen(() -> {
+            helper.assertTrue(b.find("result", 2) != null, "agent.move");
+            helper.assertBlockPresent(Blocks.AIR, START.east());
+            PermissionOverrides.clear(b.player().getUUID());
+            b.leave();
+        });
+    }
+
+    // Issue #51: items free by permission in survival, and refused in creative mode.
+    @GameTest(maxTicks = 100)
+    public void permissionModDecidesFreeItems(GameTestHelper helper) {
+        Browser allowed = browser(helper);
+        allowed.player().setGameMode(GameType.SURVIVAL);
+        PermissionOverrides.set(allowed.player().getUUID(), Permission.FREE_ITEMS, true);
+        long run = allowed.start();
+        allowed.send(cmd(1, run, "agent.setItem", "[1,5,1]"));
+        allowed.send(fillOne(helper, 2, run));
+        Browser refused = new Browser(helper, helper.makeMockServerPlayerInLevel(), new ArrayList<>());
+        refused.player().setGameMode(GameType.CREATIVE);
+        refused.player().snapTo(Vec3.atCenterOf(helper.absolutePos(START).above(100)));
+        RobotManager.spawn(helper.getLevel(), refused.player().getUUID(), Vec3.atBottomCenterOf(helper.absolutePos(START.south(4))), Direction.SOUTH);
+        PermissionOverrides.set(refused.player().getUUID(), Permission.FREE_ITEMS, false);
+        refused.send(cmd(3, refused.start(), "agent.setItem", "[1,5,1]"));
+        helper.succeedWhen(() -> {
+            helper.assertTrue(allowed.find("result", 1) != null, "setItem in survival");
+            helper.assertTrue(allowed.find("result", 2) != null, "blocks.fill in survival");
+            helper.assertBlockPresent(Blocks.STONE, START.east());
+            helper.assertValueEqual(RobotManager.robot(allowed.player().getUUID()).inventory().getItem(0).getCount(), 5, "the stone came free");
+            helper.assertValueEqual(errorCode(refused, 3), "NO_PERMISSION", "setItem in creative mode");
+            for (Browser b : List.of(allowed, refused)) {
+                PermissionOverrides.clear(b.player().getUUID());
+                b.leave();
+            }
+        });
+    }
+
+    // Issue #51: teleport by permission without operator rights, and refused for an operator.
+    @GameTest(maxTicks = 100)
+    public void permissionModDecidesTeleport(GameTestHelper helper) {
+        Browser b = browser(helper);
+        BlockPos to = helper.absolutePos(START.above(3));
+        String args = "[" + to.getX() + "," + to.getY() + "," + to.getZ() + "]";
+        PermissionOverrides.set(b.player().getUUID(), Permission.TELEPORT, true);
+        long run = b.start();
+        b.send(player(1, run, "teleport", args));
+        Browser op = new Browser(helper, helper.makeMockServerPlayerInLevel(), new ArrayList<>());
+        GameTestCompat.op(op.player());
+        PermissionOverrides.set(op.player().getUUID(), Permission.TELEPORT, false);
+        op.send(player(2, op.start(), "teleport", args));
+        helper.succeedWhen(() -> {
+            helper.assertTrue(b.find("result", 1) != null, "teleport answered");
+            helper.assertValueEqual(b.player().blockPosition(), to, "teleported");
+            helper.assertValueEqual(errorCode(op, 2), "NO_PERMISSION", "refused for an operator");
+            GameTestCompat.deop(op.player());
+            for (Browser each : List.of(b, op)) {
+                PermissionOverrides.clear(each.player().getUUID());
+                each.leave();
+            }
         });
     }
 

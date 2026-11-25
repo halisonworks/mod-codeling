@@ -1,6 +1,7 @@
 package codeling.neoforge;
 
 import codeling.Codeling;
+import codeling.Permission;
 import codeling.platform.Platform;
 import com.mojang.authlib.GameProfile;
 //? if >=1.21.11 {
@@ -14,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
 *///?}
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,6 +41,10 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.server.command.EnumArgument;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
+import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
+import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
+import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 
 /**
  * NeoForge freezes its registries after loading, so everything goes through one {@link DeferredRegister} per registry,
@@ -219,5 +225,24 @@ public final class NeoForgePlatform implements Platform {
     @Override
     public void send(ServerPlayer player, CustomPacketPayload payload) {
         PacketDistributor.sendToPlayer(player, payload);
+    }
+
+    private static final Map<Permission, PermissionNode<Boolean>> PERMISSIONS = new EnumMap<>(Permission.class);
+
+    static {
+        for (Permission p : Permission.values()) {
+            // No player means an offline one, which Codeling never asks about.
+            PERMISSIONS.put(p, new PermissionNode<>(Codeling.MOD_ID, p.path(), PermissionTypes.BOOLEAN,
+                    (player, uuid, context) -> player != null && p.byDefault(player)));
+        }
+    }
+
+    static void gatherPermissions(PermissionGatherEvent.Nodes event) {
+        PERMISSIONS.values().forEach(node -> event.addNodes(node));
+    }
+
+    @Override
+    public boolean allows(ServerPlayer player, Permission permission) {
+        return PermissionAPI.getPermission(player, PERMISSIONS.get(permission));
     }
 }

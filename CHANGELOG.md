@@ -6,6 +6,12 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Permissions (issue #51): with a permission mod, such as LuckPerms, a server decides per player who may use a robot
+  (`codeling.robot`), build with place, fill, shapes and maze (`codeling.build`), get items free (`codeling.free_items`) and
+  teleport (`codeling.teleport`). Without one nothing changes.
+
 ### Fixed
 
 - `player.getOrientation()` answers -180 also when you look just beside due north (issue #22). It could answer 180 there.
