@@ -244,7 +244,7 @@ Names and casing follow MakeCode so programs from minecraft.makecode.com paste i
 | `agent.teleport(pos: Position, facing: CompassDirection)` | V-EX, V-TYP | Not built (issue #23). Loaded chunks only; no limit on the distance to the owner (issue #200). |
 | `agent.getPosition(): Position` | V-HOC | `robot.getPosition()` gives a named robot's position (block since issue #243). |
 | `agent.goToRobot(robot: Robot): boolean`, `robot.goToRobot(other: Robot): boolean` | INF | **Built (issue #243).** Codeling extension; MakeCode's agent reference has no call to move to another agent. Op `agent.goToRobot [name]` (`""` is the default robot), a new op in `cmd`, so no protocol version change (an older server answers `BAD_ARGS` "unknown op"). The server resolves the target by the command's owner and the name only, in the moving robot's queue, then walks like `moveTo` to a free block next to it and faces it. Refusals: `BAD_ARGS` (no such robot; lists the owner's own names), `UNLOADED`, `OUT_OF_RANGE` (another dimension, or the path search cap). |
-| `agent.getOrientation(): number` | V-TYP | Heading in degrees. **Built (issue #22).** MakeCode's [reference page](https://minecraft.makecode.com/reference/agent/get-orientation) says 0 south, 90 west, -180 north, -90 east: Java's yaw folded to -180 to 180. Confirm in Minecraft Education. |
+| `agent.getOrientation(): number` | V-TYP | Heading in degrees. **Built (issue #22).** MakeCode's [reference page](https://minecraft.makecode.com/reference/agent/get-orientation) says 0 south, 90 west, -180 north, -90 east: Java's yaw folded to -180 to 180. Checked in game on 26.3, both loaders: a move forward goes the way the number says. Not compared with Minecraft Education. |
 | `agent.setAssist(assist: AgentAssist, on: boolean)` | V-EX, V-TYP | v1 supports `PLACE_ON_MOVE` only. |
 | `agent.place(direction: SixDirection)` | V-HOC | Places from the selected slot. |
 | `agent.destroy(direction: SixDirection)` | V-HOC | Drops go to robot inventory (proposal). Unbreakable blocks stay unbreakable (change from Bedrock). |
@@ -277,7 +277,7 @@ The built calls (issue #26) need no robot: `PlayerApi` answers them on the serve
 | `player.onChat(command: string, handler: (num1: number, num2: number, num3: number) => void)` | V-EX, V-TYP | Up to 3 numeric args: the words after the keyword, split on whitespace, each parsed with `parseInt`; non-numeric or missing become 0. Command `"*"` matches every message. **Built (issue #27):** a line runs the handlers of its first word and the `*` handlers. Keywords are one word of letters, digits, `-` and `_` (1 to 32 characters, case matters), at most 16 per run. Block "on chat command %command" with num1, num2 and num3 as draggable reporters (`optionalVariableArgs`). Delivery: section 3. |
 | `player.say(message: string)` | V-TYP | **Built (issue #26).** **Deliberate deviation:** MakeCode's `say` is a public chat line; ours is a system message to the owner only, a literal component (no formatting, click or hover), control characters and the section sign turned into spaces, at most 256 characters. |
 | `player.position(): Position` | V-EX | **Built (issue #26).** The owner's feet block, world coordinates. |
-| `player.getOrientation(): number` | V-EX | **Built (issue #26).** The owner's yaw wrapped to -180 to 180, one decimal; the same convention as `agent.getOrientation`. |
+| `player.getOrientation(): number` | V-EX | **Built (issue #26).** The owner's yaw rounded to one decimal, from -180 to 179.9; the same convention as `agent.getOrientation`. |
 | `player.name(): string` | V-TYP | **Built (issue #26).** |
 | `player.runChatCommand(command: string)` | V-EX | **Built (issue #27).** Runs the program's own `onChat` handlers in the simulator only, as a chat line would (first word, then up to three numbers); sends nothing to the game, never vanilla commands. Waits until the handlers have finished. |
 | `player.onDied(handler: () => void)` | V-TYP | **Built (issue #27).** No arguments. Server side: `ServerLivingEntityEvents.AFTER_DEATH` (NeoForge: `LivingDeathEvent`) filtered on the owner. |
@@ -519,7 +519,7 @@ Resolved since the first draft: pxt origin and token flow, chat event, Norwegian
 
 1. Static-mode behaviour: **resolved (spike 2026-11-09)** for project storage, jar size and cross-browser token read. Still open: `?ws=fs` (spike item 5) and Safari/WebKit.
 2. Reuse rights of community nb/nn-NO translations.
-3. Yaw convention of `getOrientation` (confirm in game); that `positions.create` never resolves against the agent (inferred).
+3. Yaw convention of `getOrientation` in Minecraft Education itself (its reference page is followed); that `positions.create` never resolves against the agent (inferred).
 4. Exact `PlayerChatMessage` accessor for the raw string; thread of the chat listener.
 5. Completeness of the id to `BlockState` table.
 6. ~~Long-term presence of `netty-codec-http` on Minecraft's classpath~~: no longer needed, the relay uses no Netty (issue #188).
