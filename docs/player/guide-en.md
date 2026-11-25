@@ -200,7 +200,7 @@ The error codes a program can catch:
 | Code | Why |
 |---|---|
 | `BAD_ARGS` | The command or a value is not valid, for example an item that is not in this Minecraft version. |
-| `NO_PERMISSION` | You may not do this here, for example "agent give" without creative mode, or the robot camera when the server turned it off. |
+| `NO_PERMISSION` | You may not do this here, for example "agent give" without creative mode, the robot camera when the server turned it off, or something the server does not let you do (the message names the permission). |
 | `RATE_LIMITED` | The robot has too many commands waiting. |
 | `PROTECTED` | Kept for protected areas. Today the game answers false instead (the action did nothing). |
 | `UNLOADED` | The robot or the block is in a part of the world that is not loaded, or the robot is not spawned. |
@@ -299,7 +299,7 @@ The robot stays where it is and only looks. A position or corner you give must b
 | agent space left in slot (slot) | `agent.getItemSpace(1)` | How many more fit. |
 | agent free slots | `agent.freeSlots()` | How many of the 27 slots are empty. |
 | agent is inventory full | `agent.isInventoryFull()` | True if no slot is empty. A stack that is not full can still take more of the same item. |
-| agent give (item) count (count) in slot (slot) | `agent.setItem(Item.Stone, 64, 1)` | Gives items. Only in creative mode or with the gamerule `codeling:free_items`. |
+| agent give (item) count (count) in slot (slot) | `agent.setItem(Item.Stone, 64, 1)` | Gives items. Only in creative mode, with the gamerule `codeling:free_items`, or when the server lets you. |
 | agent collect all | `agent.collectAll()` | Picks up items right next to it. An item that was just dropped can be picked up after a moment (half a second for the robot's own), and never one that is kept for another player. |
 | agent drop (direction) from slot (slot) amount (amount) | `agent.drop(SixDirection.Back, 1, 10)` | Drops some items. |
 | agent drop all (direction) | `agent.dropAll(SixDirection.Back)` | Drops everything. |
@@ -350,7 +350,7 @@ position can be read, and nobody else can be moved.
 | run chat command (text) | `player.runChatCommand("jump 10")` | Runs your own "on chat command" code for that keyword, as if you had typed it. It sends nothing to the chat or the game. |
 
 Game mode does not matter for these blocks: in spectator or adventure mode you can still use all of them (teleport
-still needs singleplayer or op).
+still needs singleplayer, op or the permission).
 
 #### React to chat and death
 
@@ -656,7 +656,7 @@ your default robot.
 | `/robot inspect <dir> [name]` | Shows the block number. |
 | `/robot detect <dir> [name]` | True if a block is in the way. |
 | `/robot slot <1-27> [name]` | Picks a slot. |
-| `/robot give <block> <count> [slot] [name]` | Gives items, for example `/robot give oak_planks 64`. Only in creative mode or with the gamerule `codeling:free_items`. |
+| `/robot give <block> <count> [slot] [name]` | Gives items, for example `/robot give oak_planks 64`. Only in creative mode, with the gamerule `codeling:free_items`, or when the server lets you. |
 | `/robot inventory [name]` | Opens the robot's inventory if you are close. Otherwise it lists the items. |
 | `/robot collect [name]` | Picks up items next to it. |
 | `/robot drop <dir> [name]` | Drops everything. |
@@ -719,7 +719,11 @@ These keep the game fast for everyone.
 - Only you and server ops can open your robot's inventory. Others see "This is not your robot" above the hotbar.
 - In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
-- A program's `player.say` goes to its own player only, and `player.teleport` works on a server only for ops.
+- With a permission mod, such as LuckPerms, the server decides per player: `codeling.robot` (use a robot; everyone from the
+  start), `codeling.build` (place, fill, shapes and maze; everyone), `codeling.free_items` (items and building free; creative
+  mode or the game rule) and `codeling.teleport` (the player's teleport; ops and the host of a singleplayer world). For
+  example `/lp user <player> permission set codeling.build false`. Without `codeling.robot`, `/robot` is an unknown command.
+- A program's `player.say` goes to its own player only, and `player.teleport` works on a server only for ops, or players the server lets.
 - A program hears only its own player's chat commands, death and broken blocks, its own robot's redstone signal and
   the day in its own player's world, never anything about another player. A chat line is held back from the chat
   only while your program runs and listens for its first word.

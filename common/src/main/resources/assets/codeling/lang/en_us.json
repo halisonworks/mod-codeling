@@ -28,7 +28,7 @@
   "commands.codeling.failed.unloaded": "%s cannot go there or reach that: that part of the world is not loaded. Go closer and try again",
   "commands.codeling.give": "Gave %s %s [%s] in slot %s",
   "commands.codeling.give.empty": "Emptied a slot of %s (slot %s)",
-  "commands.codeling.give.no_permission": "Giving items to a robot needs creative mode, or the game rule %s turned on",
+  "commands.codeling.give.no_permission": "Giving items to a robot needs creative mode, the game rule %s turned on, or the server's permission",
   "commands.codeling.give.unknown": "Unknown block or item \"%s\"",
   "commands.codeling.gravity.off": "%s can hover",
   "commands.codeling.gravity.on": "%s falls when there is no ground under it",

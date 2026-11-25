@@ -75,6 +75,7 @@ public final class CodelingNeoForge {
         game.addListener(EventPriority.LOWEST, (BreakBlockEvent event) -> Codeling.blockBroken(event.getPlayer(), event.getState()));
         //?} else
         /*game.addListener(EventPriority.LOWEST, (BreakEvent event) -> Codeling.blockBroken(event.getPlayer(), event.getState()));*/
+        game.addListener(NeoForgePlatform::gatherPermissions);
         game.addListener((RegisterCommandsEvent event) -> RobotCommands.register(event.getDispatcher()));
     }
 
