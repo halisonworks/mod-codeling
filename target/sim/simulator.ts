@@ -194,7 +194,7 @@ namespace pxsim {
                 const ws = new WebSocket(`ws://${window.location.host}/relay`);
                 this.ws = ws;
                 ws.onopen = () => this.send({ t: "hello", token, client: "0.0.1" });
-                ws.onerror = () => this.fail("Cannot reach the game", "Is Minecraft running with Codeling? " + REOPEN);
+                ws.onerror = () => this.fail("Cannot reach the game", "Is Minecraft running with Halison Code? " + REOPEN);
                 ws.onclose = () => this.fail("Connection to the game closed", REOPEN);
                 ws.onmessage = ev => {
                     const msg = JSON.parse(ev.data as string);

@@ -1,3 +1,3 @@
 # core
 
-Codeling robot API.
+Halison Code robot API.
