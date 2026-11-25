@@ -315,7 +315,7 @@ public class MultiRobotGameTests {
         ServerRelay.handle(player, "{\"v\":2,\"t\":\"cmd\",\"id\":1" + move + "}", r -> inbox.add(JsonParser.parseString(r).getAsJsonObject()));
         ServerRelay.handle(player, "{\"v\":2,\"t\":\"cmd\",\"id\":2" + move + ",\"robot\":\"Miner\"}", r -> inbox.add(JsonParser.parseString(r).getAsJsonObject()));
         // Five blocks take 20 ticks; one after the other would take 40.
-        helper.runAfterDelay(5 * RobotManager.TICKS_PER_BLOCK + 6, () -> {
+        helper.runAfterDelay(5 * Codeling.limits().ticksPerBlock() + 6, () -> {
             helper.assertValueEqual(agent.blockPosition(), helper.absolutePos(START.south(5)), "the default robot moved");
             helper.assertValueEqual(miner.blockPosition(), helper.absolutePos(START.east(3).south(5)), "Miner moved at the same time");
             helper.assertValueEqual(inbox.stream().filter(m -> m.get("t").getAsString().equals("result")).count(), 2L, "both answered: " + inbox);

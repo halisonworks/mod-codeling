@@ -13,6 +13,8 @@ import codeling.robot.RobotLinks;
 import codeling.robot.RobotManager;
 import codeling.robot.RobotQueue;
 import com.google.gson.JsonObject;
+import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -29,6 +31,18 @@ import net.minecraft.server.level.ServerPlayer;
 public final class ServerRelay {
     private static final Sessions SESSIONS = new Sessions(Protocol.HEARTBEAT_TIMEOUT_TICKS);
 
+    /** Messages that wait for a later tick, for each player. */
+    private static final int MAX_WAITING = 256;
+    private static final Map<UUID, Inbox> INBOXES = new HashMap<>();
+
+    private record Message(String json, Consumer<String> out) {
+    }
+
+    private static final class Inbox {
+        final ArrayDeque<Message> waiting = new ArrayDeque<>();
+        int handled;
+    }
+
     private ServerRelay() {
     }
 
@@ -36,12 +50,47 @@ public final class ServerRelay {
     public static void receive(ServerPlayer player, String json) {
         MinecraftServer server = player.level().getServer();
         UUID owner = player.getUUID();
-        handle(player, json, reply -> send(server, owner, reply));
+        receive(player, json, reply -> send(server, owner, reply));
+    }
+
+    /** At most {@link codeling.Limits#messagesPerTick} a tick for each player (issue #52); the rest wait, in order. */
+    public static void receive(ServerPlayer player, String json, Consumer<String> out) {
+        Inbox inbox = INBOXES.computeIfAbsent(player.getUUID(), o -> new Inbox());
+        if (inbox.waiting.isEmpty() && inbox.handled < Codeling.limits().messagesPerTick()) {
+            inbox.handled++;
+            handle(player, json, out);
+        } else if (inbox.waiting.size() < MAX_WAITING) {
+            inbox.waiting.add(new Message(json, out));
+        } else {
+            // The editor waits for answers, so it does not get here. Not answered: an answer costs as much as the message.
+            Codeling.LOG.warn("limits: {}'s browser sends too many messages, so some are dropped.", Log.person(player.getGameProfile().name()));
+        }
+    }
+
+    private static void tickInboxes(MinecraftServer server) {
+        int max = Codeling.limits().messagesPerTick();
+        for (UUID owner : java.util.List.copyOf(INBOXES.keySet())) {
+            Inbox inbox = INBOXES.get(owner);
+            ServerPlayer player = server.getPlayerList().getPlayer(owner);
+            inbox.handled = 0;
+            if (player == null || inbox.waiting.isEmpty()) INBOXES.remove(owner);
+            else while (inbox.handled < max && !inbox.waiting.isEmpty()) {
+                inbox.handled++;
+                Message m = inbox.waiting.poll();
+                try {
+                    handle(player, m.json, m.out);
+                } catch (RuntimeException e) {
+                    // As the game does for a message handled when it comes: a mistake of ours must not stop the server.
+                    Codeling.LOG.error("limits: a message that waited could not be handled.", e);
+                }
+            }
+        }
     }
 
     public static void playerLeft(ServerPlayer player) {
         UUID owner = player.getUUID();
         SESSIONS.remove(owner);
+        INBOXES.remove(owner);
         PlayerApi.playerLeft(owner);
         PlayerEvents.ended(owner);
         RobotManager.stop(owner, "the player left the game");
@@ -49,6 +98,7 @@ public final class ServerRelay {
 
     public static void serverStopped() {
         SESSIONS.clear();
+        INBOXES.clear();
         PlayerApi.serverStopped();
         PlayerEvents.serverStopped();
     }
@@ -182,6 +232,7 @@ public final class ServerRelay {
     }
 
     public static void tick(MinecraftServer server) {
+        tickInboxes(server);
         PlayerApi.tick();
         PlayerEvents.tick(server);
         for (Map.Entry<UUID, Sessions.Session> e : SESSIONS.expire(server.getTickCount())) {

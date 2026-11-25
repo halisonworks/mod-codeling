@@ -24,7 +24,7 @@ import net.minecraft.core.Direction;
  * (agent.goToRobot, issue #243: the target is the block another robot stands in). Unloaded blocks are never entered.
  */
 public final class RobotPath {
-    // shortcut: proposals (issue #46), like SCAN_BLOCKS_PER_TICK; move to server config with the other limits in step 4.
+    // shortcut: proposals (issue #46). They decide what a program can do, not how fast, so they are the same on every server.
     public static final int MAX_NODES = 8192;
 
     /** The world as the search sees it; RobotManager backs it with the level, JUnit with a few blocks. */

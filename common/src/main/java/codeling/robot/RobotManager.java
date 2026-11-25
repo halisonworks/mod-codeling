@@ -2,6 +2,7 @@ package codeling.robot;
 
 import codeling.McCompat;
 import codeling.Codeling;
+import codeling.Limits;
 import codeling.Messages;
 import codeling.Permission;
 import codeling.mixin.ItemEntityAccessor;
@@ -79,15 +80,10 @@ import net.minecraft.world.phys.Vec3;
  * robots (issue #140); per-robot queues, and the tick executor. Server thread only.
  */
 public final class RobotManager {
-    // shortcut: proposals from architecture section 8, move to server config when step 4 measures them.
-    public static final int ACTIONS_PER_TICK = 64;
-    public static final int TICKS_PER_BLOCK = 4;
-    // shortcut: proposal (issues #40 and #46), shared by all robots; a radius-32 search that finds nothing takes about 34 ticks.
-    public static final int SCAN_BLOCKS_PER_TICK = 8192;
-    // shortcut: proposal (issue #46), path nodes per tick for all robots; a search that hits RobotPath.MAX_NODES takes 8 ticks.
-    public static final int PATH_NODES_PER_TICK = 1024;
-    // shortcut: proposal (issue #90), blocks set or cleared per tick for all robots; a full 32768-block fill takes 128 ticks.
-    public static final int BUILD_BLOCKS_PER_TICK = 256;
+    // The limits per tick are the server's (issue #52, Limits). By the defaults a radius-32 search that finds nothing takes
+    // about 34 ticks, a path search that hits RobotPath.MAX_NODES 8, and a full 32768-block fill 128.
+    /** What one measuring command takes of the scan budget at once, at most: agent.measureGap looks both ways. */
+    private static final int MIN_SCAN = 2 * RobotCommand.MAX_MEASURE;
     /** BlockCategory in the editor, in order (RobotCommand.CATEGORIES). c:ores is the convention tag of Fabric and NeoForge, so modded ores match too. */
     private static final TagKey<Block> ORES = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", "ores"));
     private static final List<TagKey<Block>> CATEGORIES = List.of(BlockTags.LOGS, BlockTags.LEAVES, ORES,
@@ -105,6 +101,9 @@ public final class RobotManager {
     private static final Map<UUID, RobotQueue.Run> RUNS = new HashMap<>();
     private static final List<RobotEntity> STALE = new ArrayList<>();
     private static int roundRobin;
+    /** The player's part of the tick, while their robots act; what all robots used, for {@link TickCost}. */
+    private static long deadline;
+    private static int scanned, pathNodes;
     private static int scanLeft;
     private static int pathLeft;
     private static int buildLeft;
@@ -344,7 +343,7 @@ public final class RobotManager {
             throw new RobotException(Result.Code.UNLOADED, key.name().isEmpty() ? "robot is not loaded (or not spawned: /robot spawn)"
                     : "robot " + key.name() + " is not loaded (or not spawned: /robot spawn " + key.name() + ", see /robot list)");
         }
-        queue(key).submit(run, id, command, done);
+        queue(key).submit(run, id, command, Codeling.limits().queueLength(), done);
     }
 
     /** New editor run for all of the owner's robots: their queues are dropped and the shared run id is new. */
@@ -520,7 +519,7 @@ public final class RobotManager {
         if (lastTickNanos != 0 && start - lastTickNanos > 2_000_000_000L) pauseEnded((start - lastTickNanos) / 1e9);
         lastTickNanos = start;
         int actions = execute(server);
-        lastTick = new TickCost(System.nanoTime() - start, actions, SCAN_BLOCKS_PER_TICK - scanLeft, PATH_NODES_PER_TICK - pathLeft);
+        lastTick = new TickCost(System.nanoTime() - start, actions, scanned, pathNodes);
     }
 
     private static void pauseEnded(double seconds) {
@@ -532,11 +531,13 @@ public final class RobotManager {
         }
     }
 
-    // Runs one tick of every robot's queue and answers the number of actions used.
+    /**
+     * Runs one tick of every robot's queue and answers the number of actions used. The players whose robots have work
+     * share the tick's budgets and time equally, whatever number of robots they have (issue #52): each in turn gets an
+     * equal part of what is left, so what one does not use goes to the next. Who is first changes every tick.
+     */
     private static int execute(MinecraftServer server) {
-        scanLeft = SCAN_BLOCKS_PER_TICK;
-        pathLeft = PATH_NODES_PER_TICK;
-        buildLeft = BUILD_BLOCKS_PER_TICK;
+        scanned = pathNodes = 0;
         for (RobotEntity robot : STALE) {
             // Only an orphan still owns its items and drops them. Any other stale copy (an older save of a robot that
             // moved on, a structure-block copy) holds items that exist elsewhere, so dropping them would duplicate.
@@ -544,25 +545,48 @@ public final class RobotManager {
             robot.discard();
         }
         STALE.clear();
-        List<RobotEntity> robots = new ArrayList<>(LOADED.values());
-        int n = robots.size();
-        if (n == 0) return 0;
-        int budget = ACTIONS_PER_TICK;
-        int first = Math.floorMod(roundRobin++, n);
-        for (int i = 0; i < n; i++) {
-            RobotEntity robot = robots.get((first + i) % n);
-            RobotQueue queue = QUEUES.get(robot.key());
-            RobotQueue.Entry entry = queue == null || queue.paused() ? null : queue.head();
+        Map<UUID, List<RobotEntity>> ready = new LinkedHashMap<>();
+        for (RobotEntity robot : LOADED.values()) {
+            RobotQueue.Entry entry = next(robot);
             if (entry == null) continue;
-            if (entry.wait > 0) {
-                entry.wait--;
-                continue;
-            }
-            if (budget == 0) continue;
-            budget--;
-            step(robot, queue, entry);
+            if (entry.wait > 0) entry.wait--;
+            else ready.computeIfAbsent(robot.owner(), o -> new ArrayList<>()).add(robot);
         }
-        return ACTIONS_PER_TICK - budget;
+        if (ready.isEmpty()) return 0;
+        Limits limits = Codeling.limits();
+        List<List<RobotEntity>> players = new ArrayList<>(ready.values());
+        int n = players.size(), turn = roundRobin++;
+        int actions = limits.actionsPerTick(), scan = limits.scanBlocksPerTick(), path = limits.pathNodesPerTick(), build = limits.buildBlocksPerTick();
+        long now = System.nanoTime(), end = now + limits.millisPerTick() * 1_000_000L;
+        for (int i = 0; i < n && (i == 0 || now < end); i++, now = System.nanoTime()) {
+            List<RobotEntity> robots = players.get(Math.floorMod(turn + i, n));
+            int m = robots.size(), first = Math.floorMod(turn / n, m);
+            int mine = Limits.share(actions, n - i, 1);
+            int scanShare = scanLeft = Limits.share(scan, n - i, MIN_SCAN);
+            int pathShare = pathLeft = Limits.share(path, n - i, 1);
+            int buildShare = buildLeft = Limits.share(build, n - i, 1);
+            deadline = now + (end - now) / (n - i);
+            for (int j = 0; j < Math.min(m, mine) && (j == 0 || System.nanoTime() < deadline); j++) {
+                RobotEntity robot = robots.get((first + j) % m);
+                RobotQueue.Entry entry = next(robot);
+                // Gone when an earlier robot's action this tick stopped the program or removed the robot.
+                if (entry == null || robot.isRemoved()) continue;
+                actions--;
+                step(robot, QUEUES.get(robot.key()), entry);
+            }
+            scan -= scanShare - scanLeft;
+            path -= pathShare - pathLeft;
+            build -= buildShare - buildLeft;
+        }
+        scanned = limits.scanBlocksPerTick() - scan;
+        pathNodes = limits.pathNodesPerTick() - path;
+        return limits.actionsPerTick() - actions;
+    }
+
+    // What the robot is to do now, or null.
+    private static RobotQueue.Entry next(RobotEntity robot) {
+        RobotQueue queue = QUEUES.get(robot.key());
+        return queue == null || queue.paused() ? null : queue.head();
     }
 
     // One action step: one block of a move, or a whole other action.
@@ -656,7 +680,7 @@ public final class RobotManager {
 
     /**
      * One block of a move in dir, the same for agent.move and each step of agent.moveTo and followPath: answers
-     * {@code blocked} when blocked, true after the last block, else waits {@link #TICKS_PER_BLOCK} ticks (and falls
+     * {@code blocked} when blocked, true after the last block, else waits {@link Limits#ticksPerBlock} ticks (and falls
      * first in gravity mode).
      */
     private static void moveOne(RobotEntity robot, RobotQueue queue, RobotQueue.Entry entry, Direction dir, boolean last, Result blocked) {
@@ -689,7 +713,7 @@ public final class RobotManager {
         } else if (last) {
             queue.finish(Result.ok(true));
         } else {
-            entry.wait = TICKS_PER_BLOCK - 1;
+            entry.wait = Codeling.limits().ticksPerBlock() - 1;
         }
     }
 
@@ -871,7 +895,7 @@ public final class RobotManager {
      * Each block is set through the FakePlayer like agent.place (and cleared like agent.destroy, drops go into the
      * robot), so claim and protection mods apply. The blocks come from the robot's inventory, any slot, unless the
      * owner gets items free (setItem's rule, see {@link #freeItems}); with no block left the command ends there.
-     * Keep only fills air and replaceable blocks. Works over ticks: at most {@link #BUILD_BLOCKS_PER_TICK} blocks set or
+     * Keep only fills air and replaceable blocks. Works over ticks: at most {@link Limits#buildBlocksPerTick} blocks set or
      * cleared and the scan budget for the blocks looked at. Answers the number of blocks changed.
      */
     private static void build(RobotEntity robot, RobotQueue queue, RobotQueue.Entry entry) throws RobotException {
@@ -895,7 +919,8 @@ public final class RobotManager {
                         : Codeling.freeItems(robot.level().getServer()) ? "it builds free of charge because game rule codeling:free_items is on"
                         : "it builds free of charge because the owner is in creative mode or has the permission codeling.free_items");
         boolean overwrite = c.op() != RobotCommand.Op.FILL || c.h() != RobotShapes.KEEP;
-        for (; buildLeft > 0 && scanLeft > 0 && entry.scan.hasNext(); scanLeft--) {
+        // A block at least, then as long as this player's part of the tick's time lasts: drops that lie about make it slow.
+        for (boolean first = true; buildLeft > 0 && scanLeft > 0 && entry.scan.hasNext() && (first || System.nanoTime() < deadline); scanLeft--, first = false) {
             BlockPos pos = entry.scan.next().immutable();
             entry.looked++;
             int action = switch (c.op()) {
@@ -952,7 +977,7 @@ public final class RobotManager {
     }
 
     /**
-     * agent.moveTo: plans the path first (over several ticks, at most {@link #PATH_NODES_PER_TICK} nodes per tick for
+     * agent.moveTo: plans the path first (over several ticks, at most {@link Limits#pathNodesPerTick} nodes per tick for
      * all robots together), then walks it with {@link #moveOne}, one normal move per step, opening closed wooden doors
      * and gates on the way through the FakePlayer. Answers false when there is no path, or when the world changed so
      * the robot is not where the path says. agent.goHome walks to the home the same way; /robot come teleports instead
