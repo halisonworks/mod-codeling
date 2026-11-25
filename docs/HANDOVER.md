@@ -1,4 +1,4 @@
-# Claude Code handover: Codeling / Halison Code for Minecraft
+# Claude Code handover: Codeling / Halison Code
 
 Date: 24 November 2026. Repository: `halisonworks/mod-codeling`. Planning PR: [#411](https://github.com/halisonworks/mod-codeling/pull/411), merged to `develop` on 25 November 2026. This is a maintainer handover, not permission to merge, publish, rename or change security policy.
 
@@ -19,7 +19,7 @@ Start by reading [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## 3. Product decisions and boundaries
 
-Halison Code is the proposed editor identity, Halison Code for Minecraft the proposed mod identity, Kintro the proposed robot identity. Owner agreed the product direction; naming clearance and distribution compliance still require #58/#355. Retain Codeling for the 0.1.0 beta unless the owner changes that decision. Do not rename mod IDs, commands, packages, repository, origin, storage keys or saved entity IDs simply to match branding.
+Halison Code is the name of the mod and the editor ("the Halison Code editor" when the two must be told apart), and Kintro is the robot (owner's decision 2026-11-25, #355). "For Minecraft" is used in descriptions only. Naming clearance (#58) and distribution compliance must be recorded before the names are shown in public. Retain Codeling for the 0.1.0 beta unless the owner changes that decision. Do not rename mod IDs, commands, packages, repository, origin, storage keys or saved entity IDs simply to match branding.
 
 General Minecraft programming is a first-class capability, not all code requires a robot. Kintro is a resource-aware survival automation capability. Establish logical boundaries and capability registration first; a physical split into two JARs, editor repository extraction or a second target needs separate evidence and approval. Preserve existing projects, inventory, robot identity and server authority.
 
