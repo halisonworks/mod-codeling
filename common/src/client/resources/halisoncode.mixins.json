@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "halisoncode.client.mixin",
+  "compatibilityLevel": "${mixin_java}",
+  "client": [
+    "CameraMixin",
+    "MouseHandlerMixin",
+    "PauseOnLostFocusMixin"${extra_client_mixins}
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

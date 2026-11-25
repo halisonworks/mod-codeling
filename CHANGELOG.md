@@ -1,10 +1,46 @@
 # Changelog
 
-Every user-visible change to Codeling is listed here. The format follows
+Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the mod version follows
 [Semantic Versioning](https://semver.org/) (see "Versioning" in [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## [Unreleased]
+
+## [0.0.6] - 2026-11-26
+
+The sixth pre-release, for testing. Codeling is now called Halison Code.
+
+**Update the server and every client at the same time.** A 0.0.5 client cannot join a server with this version, and a client
+with this version cannot join a 0.0.5 server (tested on Minecraft 26.3, Fabric and NeoForge). The game then says that
+there are unknown registry entries or keys, not that the mod must be updated.
+
+### Added
+
+- Permissions (issue #51): with a permission mod, such as LuckPerms, a server decides per player who may use a robot
+  (`halisoncode.robot`), build with place, fill, shapes and maze (`halisoncode.build`), get items free (`halisoncode.free_items`) and
+  teleport (`halisoncode.teleport`). Without one nothing changes.
+- Server limits in `config/halisoncode-server.json` (issue #52): how much robots may do each tick, how long they may take, and how
+  many messages a player's browser may send. Robots use at most about 10 ms of a tick from the start; before, a build that
+  broke blocks over a pile of items could stop the server for longer.
+
+### Changed
+
+- When another program uses the editor's port, `/halisoncode` says so and what to do, and tries the same port again (issue #8).
+  Before, it did nothing.
+- Codeling is now Halison Code, and the robot is called Kintro (issues #356, #359 and #422). The mod id is `halisoncode`, the
+  editor opens with `/halisoncode`, and the entity is `halisoncode:kintro`. Game rules, permissions, the server config
+  (`config/halisoncode-server.json`), jar files and the robot's player name (`HalisonCode[<owner>]`) follow. `/robot` is as before.
+  **Robots, game rules, settings and editor projects from 0.0.5 and before are not carried over.** Before you change: empty
+  your robots, copy your programs' JavaScript to a text file (old project files cannot be imported), and take the old jar out of the `mods` folder.
+- The project is now at `github.com/halisonworks/mod-halisoncode` (issue #349). The links in the mod list and the downloads in
+  `scripts/setup-multimc.ps1` use the new address.
+- Players share each tick equally, whatever number of robots they have (issue #52). Before, a player with 16 robots got 16
+  times as much as a player with one.
+- 19 Norwegian editor texts have new wording (issue #59).
+
+### Fixed
+
+- `player.getOrientation()` answers -180 also when you look just beside due north (issue #22). It could answer 180 there.
 
 ## [0.0.5] - 2026-11-24
 

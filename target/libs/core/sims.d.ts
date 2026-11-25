@@ -586,13 +586,13 @@ declare namespace agent {
     function isInventoryFull(): boolean;
 
     /**
-     * Put blocks or items in a slot, replacing what is there (creative mode or the gamerule codeling:free_items only). Air empties it.
+     * Put blocks or items in a slot, replacing what is there (creative mode or the gamerule halisoncode:free_items only). Air empties it.
      * @param blockOrItem the item or block, eg: Item.Stone
      * @param count how many, eg: 64
      * @param slot slot 1 to 27, eg: 1
      */
     //% blockId=agent_set_item block="agent give %blockOrItem|count %count|in slot %slot"
-    //% blockOrItem.shadow=codeling_item count.min=1 count.max=64 slot.min=1 slot.max=27
+    //% blockOrItem.shadow=halisoncode_item count.min=1 count.max=64 slot.min=1 slot.max=27
     //% group="Inventory" weight=67
     //% shim=agent::setItemAsync promise
     function setItem(blockOrItem: number, count: number, slot: number): void;
@@ -671,7 +671,7 @@ declare namespace agent {
      * @param count how many at most, eg: 64
      */
     //% blockId=agent_take_item block="agent take from %direction|item %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Containers" weight=58
     //% shim=agent::takeItemAsync promise
     function takeItem(direction: SixDirection, item: number, count: number): number;
@@ -682,7 +682,7 @@ declare namespace agent {
      * @param item what to count, eg: Item.Cobblestone
      */
     //% blockId=agent_container_count block="agent count in container %direction|of %item"
-    //% item.shadow=codeling_item
+    //% item.shadow=halisoncode_item
     //% group="Containers" weight=57
     //% shim=agent::containerCountAsync promise
     function containerCount(direction: SixDirection, item: number): number;
@@ -714,7 +714,7 @@ declare namespace agent {
      * @param count how many at least, eg: 4
      */
     //% blockId=agent_craft block="agent craft %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Crafting" weight=54
     //% shim=agent::craftAsync promise
     function craft(item: number, count: number): number;
@@ -725,7 +725,7 @@ declare namespace agent {
      * @param count how many at least, eg: 4
      */
     //% blockId=agent_can_craft block="agent can craft %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Crafting" weight=53
     //% shim=agent::canCraftAsync promise
     function canCraft(item: number, count: number): boolean;
@@ -736,7 +736,7 @@ declare namespace agent {
      * @param count how many at least, eg: 4
      */
     //% blockId=agent_stonecut block="agent stonecut %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Crafting" weight=52
     //% shim=agent::stonecutAsync promise
     function stonecut(item: number, count: number): number;
@@ -1113,7 +1113,7 @@ declare namespace player {
     function position(): Position;
 
     /**
-     * Which way you look, in degrees: south 0, west 90, north 180 (or -180), east -90.
+     * Which way you look, in degrees: south 0, west 90, north -180, east -90.
      */
     //% blockId=player_get_orientation block="player orientation"
     //% weight=89
@@ -1143,7 +1143,7 @@ declare namespace player {
     /**
      * Run code when you type a chat command: a chat line that starts with the keyword, for example "jump 10". The
      * line is then not shown in the chat. The words after the keyword are num1, num2 and num3: whole numbers, or 0
-     * when missing or not a number. Use * as the keyword to get every chat line. /codeling chat jump 10 does the same.
+     * when missing or not a number. Use * as the keyword to get every chat line. /halisoncode chat jump 10 does the same.
      * @param command the keyword, one word, eg: "jump"
      * @param handler the code to run
      */
@@ -1205,7 +1205,7 @@ declare namespace gameplay {
 declare namespace signals {
     /**
      * Run code when a signal with this name comes to you: from another mod on the server (a QR code scanned, a
-     * checkpoint reached) or from /codeling signal. value is the number it carries, 0 when it has none. Names are one
+     * checkpoint reached) or from /halisoncode signal. value is the number it carries, 0 when it has none. Names are one
      * word of letters, digits, - and _, and case matters. A program with handlers keeps running until you press Stop.
      * @param name the signal's name, eg: "qr-forest"
      * @param handler the code to run
@@ -1254,7 +1254,7 @@ declare namespace blocks {
      * @param operator how to fill, eg: FillOperation.Replace
      */
     //% blockId=blocks_fill block="fill with %block|from %from=positions_pos|to %to=positions_pos|%operator"
-    //% block.shadow=codeling_block weight=90
+    //% block.shadow=halisoncode_block weight=90
     //% shim=blocks::fillAsync promise
     function fill(block: number, from: Position, to: Position, operator: FillOperation): void;
 
@@ -1264,7 +1264,7 @@ declare namespace blocks {
      * @param position where to place it
      */
     //% blockId=blocks_place block="place %block|at %position=positions_pos"
-    //% block.shadow=codeling_block weight=89
+    //% block.shadow=halisoncode_block weight=89
     //% shim=blocks::placeAsync promise
     function place(block: number, position: Position): void;
 
@@ -1275,7 +1275,7 @@ declare namespace blocks {
      * @param handler the code to run
      */
     //% blockId=blocks_on_block_broken block="on %block broken"
-    //% block.shadow=codeling_block weight=88
+    //% block.shadow=halisoncode_block weight=88
     //% shim=blocks::onBlockBroken
     function onBlockBroken(block: number, handler: () => void): void;
 
@@ -1288,7 +1288,7 @@ declare namespace shapes {
      * @param to where the line ends
      */
     //% blockId=shapes_line block="line of %block|from %from=positions_pos|to %to=positions_pos"
-    //% block.shadow=codeling_block weight=90
+    //% block.shadow=halisoncode_block weight=90
     //% shim=shapes::lineAsync promise
     function line(block: number, from: Position, to: Position): void;
 
@@ -1302,7 +1302,7 @@ declare namespace shapes {
      * @param operator how to fill, eg: ShapeOperation.Replace
      */
     //% blockId=shapes_circle block="circle of %block|center %center=positions_pos|radius %radius|around %orientation|%operator"
-    //% block.shadow=codeling_block radius.min=1 radius.max=32 weight=89
+    //% block.shadow=halisoncode_block radius.min=1 radius.max=32 weight=89
     //% shim=shapes::circleAsync promise
     function circle(block: number, center: Position, radius: number, orientation: Axis, operator: ShapeOperation): void;
 
@@ -1315,7 +1315,7 @@ declare namespace shapes {
      * @param operator how to fill, eg: ShapeOperation.Replace
      */
     //% blockId=shapes_sphere block="sphere of %block|center %center=positions_pos|radius %radius|%operator"
-    //% block.shadow=codeling_block radius.min=1 radius.max=15 weight=88
+    //% block.shadow=halisoncode_block radius.min=1 radius.max=15 weight=88
     //% shim=shapes::sphereAsync promise
     function sphere(block: number, center: Position, radius: number, operator: ShapeOperation): void;
 
@@ -1333,7 +1333,7 @@ declare namespace shapes {
      * @param seed the maze number, eg: 42
      */
     //% blockId=shapes_maze block="maze at %corner=positions_pos|width %width|length %length|walls of %wall|floor of %floor||seed %seed"
-    //% wall.shadow=codeling_block floor.shadow=codeling_block width.min=5 width.max=32 length.min=5 length.max=32 weight=87
+    //% wall.shadow=halisoncode_block floor.shadow=halisoncode_block width.min=5 width.max=32 length.min=5 length.max=32 weight=87
     //% shim=shapes::mazeAsync promise
     function maze(corner: Position, width: number, length: number, wall: number, floor: number, seed?: number): void;
 
@@ -1398,7 +1398,7 @@ declare namespace builder {
      * @param block the block, eg: Block.Stone
      */
     //% blockId=builder_place block="builder place %block"
-    //% block.shadow=codeling_block weight=94
+    //% block.shadow=halisoncode_block weight=94
     //% shim=builder::placeAsync promise
     function place(block: number): void;
 
@@ -1407,7 +1407,7 @@ declare namespace builder {
      * @param block the block, eg: Block.Stone
      */
     //% blockId=builder_line block="builder line from mark with %block"
-    //% block.shadow=codeling_block weight=93
+    //% block.shadow=halisoncode_block weight=93
     //% shim=builder::lineAsync promise
     function line(block: number): void;
 
@@ -1417,7 +1417,7 @@ declare namespace builder {
      * @param operator how to fill, eg: FillOperation.Replace
      */
     //% blockId=builder_fill block="builder fill from mark with %block|%operator"
-    //% block.shadow=codeling_block weight=92
+    //% block.shadow=halisoncode_block weight=92
     //% shim=builder::fillAsync promise
     function fill(block: number, operator: FillOperation): void;
 

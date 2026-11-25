@@ -1,4 +1,4 @@
-// Editor test suite (issue #136): drives the Codeling editor in headless Chromium against the standalone relay.
+// Editor test suite (issue #136): drives the Halison Code editor in headless Chromium against the standalone relay.
 // Run it with ./gradlew :fabric:26.3:editorTest (not part of `build`). It checks:
 //   1. every toolbox block from target/libs/core: JavaScript to Blocks to Python to Blocks to JavaScript, no grey
 //      blocks, no changed or lost arguments, and a test program for every block (programs/blocks.mjs);
@@ -18,11 +18,12 @@
 //      heartbeat goes on, continue runs to the end, Exit Debug Mode and /robot stop end a stopped program, breakpoints
 //      in Python and JavaScript, slow motion gives the normal robot log, and an uncaught robot error or failed assert
 //      marks its block;
-//   7. saved projects from before commit d506004 (fixtures/) load with their Block values intact;
+//   7. saved projects from before commit d506004 (fixtures/) load with their Block values intact, and projects saved by the
+//      editor before (issue #357) open, unchanged, and run;
 //   8. the Examples gallery (issue #216): a card per example program, in English and Norwegian, that opens its program,
 //      with no request to another host;
-//   9. branding: the header names Codeling once, the About box says pxt editor and not Microsoft MakeCode, and a new
-//      project opens without the README side panel. Screenshots go to CODELING_SHOTS (default fabric/versions/26.3/build/editor-test).
+//   9. branding: the header names Halison Code once, the About box says pxt editor and not Microsoft MakeCode, and a new
+//      project opens without the README side panel. Screenshots go to HALISONCODE_SHOTS (default fabric/versions/26.3/build/editor-test).
 // The relay token stays in this process (lib/relay.mjs). Output: progress lines, then one summary line.
 import { chromium } from "playwright-core";
 import { mkdirSync, readFileSync, readdirSync } from "node:fs";
@@ -35,12 +36,13 @@ import { EXAMPLES, galleryCards } from "./programs/examples.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const core = join(here, "..", "target", "libs", "core");
-const shots = process.env.CODELING_SHOTS ?? join(here, "..", "fabric", "versions", "26.3", "build", "editor-test");
-const port = Number(process.env.CODELING_TEST_PORT ?? 25591);
+const shots = process.env.HALISONCODE_SHOTS ?? join(here, "..", "fabric", "versions", "26.3", "build", "editor-test");
+const port = Number(process.env.HALISONCODE_TEST_PORT ?? 25591);
 const failures = [];
 const counts = { blocks: 0, programs: 0, fixtures: 0, checks: 0 };
 
 const step = text => console.log(`# ${text}`);
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const fail = (what, why) => {
     failures.push(`${what}: ${why}`);
     console.log(`FAIL ${what}: ${why}`);
@@ -612,7 +614,6 @@ async function debugSection(page) {
     const stopped = async () => await page.locator(".debugtoolbar .dbg-pause-resume.play").count() > 0
         && await (page.frames().find(f => f.url().includes("simulator"))
             ?.evaluate(() => !!window.pxsim?.runtime?.pausedOnBreakpoint).catch(() => false) ?? false);
-    const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     const enter = async () => {
         // pxt restarts the program in debug mode without a new robot log, so the old lines go first.
         await editor.clearLog(page);
@@ -628,13 +629,13 @@ async function debugSection(page) {
     // the block the debugger marked (issue #235). pxt's tick events show when the type check is done.
     await page.evaluate(() => {
         const tick = pxt.tickEvent;
-        window.codelingTicks = [];
-        pxt.tickEvent = (id, ...rest) => { window.codelingTicks.push(id); return tick(id, ...rest); };
+        window.halisonCodeTicks = [];
+        pxt.tickEvent = (id, ...rest) => { window.halisonCodeTicks.push(id); return tick(id, ...rest); };
     });
     const toBlocks = async () => {
-        await page.evaluate(() => { window.codelingTicks.length = 0; });
+        await page.evaluate(() => { window.halisonCodeTicks.length = 0; });
         await editor.toBlocks(page);
-        await until(page, () => page.evaluate(() => window.codelingTicks.includes("typecheck.complete")), t => t,
+        await until(page, () => page.evaluate(() => window.halisonCodeTicks.includes("typecheck.complete")), t => t,
             "the editor saves and type-checks the new blocks");
     };
     const sayBreakpoint = () => page.locator(".blocklyWorkspace g.blocklyBlock[data-id][class^=agent_say] > .blocklyIconGroup").first().click();
@@ -713,7 +714,7 @@ async function debugSection(page) {
     await until(page, stopped, s => s, "the program stops at the say breakpoint");
     await page.evaluate(() => new Promise(done => {
         const ws = new WebSocket(`ws://${location.host}/relay`);
-        ws.onopen = () => ws.send(JSON.stringify({ t: "hello", token: localStorage.getItem("codeling/local_token"), client: "suite", v: 2 }));
+        ws.onopen = () => ws.send(JSON.stringify({ t: "hello", token: localStorage.getItem("halisoncode/local_token"), client: "suite", v: 2 }));
         ws.onmessage = () => { ws.close(); done(); };
     }));
     const dialog = page.locator(".ui.modal:visible, .common-modal:visible").first();
@@ -808,7 +809,7 @@ function projectFile(name, blocks, ts) {
     const config = { name, dependencies: { core: "*" }, description: "", files: ["main.blocks", "main.ts", "README.md"] };
     const files = { "main.blocks": blocks, "main.ts": ts, "README.md": "", "pxt.json": JSON.stringify(config) };
     // pxt reads a project file that starts with "{" as plain JSON (no LZMA); cloudId names our target.
-    return JSON.stringify({ meta: { cloudId: "pxt/codeling", targetVersions: { target: SAVED_BY }, editor: "blocksprj", name },
+    return JSON.stringify({ meta: { cloudId: "pxt/halisoncode", targetVersions: { target: SAVED_BY }, editor: "blocksprj", name },
         source: JSON.stringify(files) });
 }
 
@@ -826,6 +827,68 @@ async function fixturesSection(page) {
         check(js.trim() === expected.trim(), file, changedLines(expected, js));
         if (failures.length === before) counts.fixtures++;
     }
+}
+
+// Issue #357: a browser that holds projects saved before still shows them on the home screen, and each
+// opens in the language it was left in, unchanged, and runs as it did there. The same for their project files. pxt
+// finds the projects by the target's id (pxtarget.json), so this fails when a rename changes it.
+async function savedProjectsSection(browser, url) {
+    const file = "saved-projects.json";
+    const saved = JSON.parse(readFileSync(join(here, "fixtures", file), "utf8"));
+    const origins = [{ origin: new URL(url).origin, localStorage: [], indexedDB: saved.indexedDB }];
+    const context = await browser.newContext({ locale: "en-US", viewport: { width: 1280, height: 800 }, storageState: { cookies: [], origins } });
+    const page = await context.newPage();
+    page.setDefaultTimeout(60000);
+    const headers = async () => {
+        const { origins: [now] } = await context.storageState({ indexedDB: true });
+        const stores = now.indexedDB.find(db => db.name === saved.indexedDB[0].name)?.stores ?? [];
+        return Object.fromEntries((stores.find(s => s.name === "headers")?.records ?? []).map(r => [r.value.id, r.value]));
+    };
+    const home = async () => {
+        await page.goto("about:blank");
+        await page.goto(url);
+        await page.locator(".newprojectcard").first().waitFor();
+    };
+    await home();
+    const names = saved.projects.map(p => p.name).sort();
+    const ids = Object.fromEntries(saved.indexedDB[0].stores.find(s => s.name === "headers").records.map(r => [r.value.name, r.value.id]));
+    const shown = (await editor.projects(page)).sort();
+    check(same(shown, names), file, `projects on the home screen ${JSON.stringify(shown)}, expected ${JSON.stringify(names)}`);
+    for (const p of saved.projects) {
+        for (const how of ["opened", "imported"]) {
+            step(`saved before: ${p.name}, ${how}`);
+            const before = failures.length;
+            const what = `${file}: ${p.name} ${how}`;
+            if (how === "imported") await home();
+            const got = await editor.openSaved(page, p.name, p.view, how === "imported" ? Buffer.from(p.mkcd.base64, "base64") : undefined);
+            if (p.view === "blocks") {
+                // Sorted: a saved workspace lists its stacks in another order than the fresh conversion the fixture was read from.
+                check(same([...got].sort(), [...p.blocks].sort()), what, `blocks ${JSON.stringify(got)}, expected ${JSON.stringify(p.blocks)}`);
+                const grey = await editor.greyBlocks(page);
+                check(grey.length === 0, what, `grey blocks: ${JSON.stringify(grey)}`);
+            } else {
+                check(got === p.text, what, changedLines(p.text, got));
+            }
+            const log = await editor.run(page, p.log.length);
+            check(same(log, p.log), what, `logged ${JSON.stringify(log)}, expected ${JSON.stringify(p.log)}`);
+            await editor.stop(page);
+            // Not for the opened one: the look in JavaScript becomes the project's saved view, which is checked below.
+            if (p.view === "blocks" && how === "imported") {
+                const main = saved.indexedDB[0].stores.find(s => s.name === "texts").records.find(r => r.value.id === ids[p.name]).value.files["main.ts"];
+                const js = await editor.toJavaScript(page);
+                check(js.trim() === main.trim(), what, changedLines(main, js));
+            }
+            if (failures.length === before) counts.fixtures++;
+        }
+        await home();
+    }
+    const now = await headers();
+    for (const { value: was } of saved.indexedDB[0].stores.find(s => s.name === "headers").records) {
+        for (const key of ["name", "editor", "target", "path"]) {
+            check(now[was.id]?.[key] === was[key], file, `${was.name}: ${key} is ${now[was.id]?.[key]}, was ${was[key]}`);
+        }
+    }
+    await context.close();
 }
 
 // Issue #216: the home screen's Examples gallery has one card per tested program (EXAMPLES reads its programs from the
@@ -906,7 +969,8 @@ async function brandingSection(page) {
         .filter(e => e.offsetParent !== null && [...e.childNodes].some(n => n.nodeType === 3 && /\S/.test(n.textContent)))
         .map(e => e.textContent.trim()));
     const header = names.join(" | ");
-    check(names.filter(n => /codeling/i.test(n)).length === 1, "header", `"Codeling" should show once, header texts: ${header}`);
+    check(names.filter(n => /halison code/i.test(n)).length === 1, "header", `"Halison Code" should show once, header texts: ${header}`);
+    check(await page.title() === "Halison Code", "title", `the page title is ${await page.title()}`);
     check(!/makecode|microsoft/i.test(header), "header", `header mentions MakeCode or Microsoft: ${header}`);
     const sideDocs = await page.locator("#sidedocs:visible, #sidedocsframe:visible, #sidedocsbar:visible").count();
     check(sideDocs === 0, "new project", "the README side panel is open");
@@ -933,11 +997,11 @@ async function main() {
         const page = await (await browser.newContext({ locale: "en-US", viewport: { width: 1280, height: 800 } })).newPage();
         page.setDefaultTimeout(60000);
         page.__editorUrl = relay.url;
-        // Issue #191: open the launcher file as /codeling does; it must land on the editor with the token stored.
+        // Issue #191: open the launcher file as /halisoncode does; it must land on the editor with the token stored.
         step("open the editor through the launcher file");
         await page.goto(pathToFileURL(relay.launcher).href);
         await page.waitForURL(u => u.origin === new URL(relay.url).origin);
-        const stored = await page.waitForFunction(() => localStorage.getItem("codeling/local_token")).then(h => h.jsonValue());
+        const stored = await page.waitForFunction(() => localStorage.getItem("halisoncode/local_token")).then(h => h.jsonValue());
         check(relay.url.endsWith("#local_token=" + stored), "launcher", "the editor did not store this run's token");
         step("new project");
         await editor.newProject(page);
@@ -953,6 +1017,7 @@ async function main() {
         await errorsSection(page);
         await debugSection(page);
         await fixturesSection(page);
+        await savedProjectsSection(browser, relay.url);
         await gallerySection(browser, relay.url);
         step("header, About box, side panel");
         await brandingSection(page);

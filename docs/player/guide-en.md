@@ -1,31 +1,33 @@
-# Codeling player guide
+# Halison Code player guide
 
 Norsk: [guide-nb.md](guide-nb.md)
 
-Codeling is a mod for Minecraft Java Edition. You get a small robot in your world.
+Halison Code is a mod for Minecraft Java Edition. You get a small robot, Kintro, in your world.
 You program it in your web browser with blocks, JavaScript or Python.
 Each block you run makes the robot do one thing in the game.
 
-Codeling is not made by Microsoft, Mojang or the MakeCode team. See [Disclaimer](#disclaimer).
+Up to version 0.0.5 the mod was called Codeling. Robots, their items, settings and editor projects from then are not carried over: empty your robots first, and copy your programs' JavaScript to a text file (old project files cannot be imported).
+
+Halison Code is not made by Microsoft, Mojang or the MakeCode team. See [Disclaimer](#disclaimer).
 
 ## What you need
 
 - Minecraft Java Edition, version 1.21.1 to 1.21.11 or 26.1 to 26.3, on a computer (Windows, macOS or Linux).
 - A mod loader: Fabric Loader 0.20.1 or newer with Fabric API for your Minecraft version, or the newest NeoForge for your Minecraft version (26.3.0.102 or newer for 26.3, 21.1.265 or newer for 1.21.1).
-- The Codeling mod file for your loader and Minecraft version (a `.jar` file). The name says which one it is:
+- The Halison Code mod file for your loader and Minecraft version (a `.jar` file). The name says which one it is:
 
   | Minecraft | Fabric | NeoForge |
   |---|---|---|
-  | 26.3 | `codeling-fabric-26.3-...jar` | `codeling-neoforge-26.3-...jar` |
-  | 26.2 | `codeling-fabric-26.2-...jar` | `codeling-neoforge-26.2-...jar` |
-  | 26.1 to 26.1.2 | `codeling-fabric-26.1.2-...jar` | `codeling-neoforge-26.1.2-...jar` |
-  | 1.21.11 | `codeling-fabric-1.21.11-...jar` | `codeling-neoforge-1.21.11-...jar` |
-  | 1.21.9 to 1.21.10 | `codeling-fabric-1.21.10-...jar` | `codeling-neoforge-1.21.10-...jar` |
-  | 1.21.6 to 1.21.8 | `codeling-fabric-1.21.8-...jar` | `codeling-neoforge-1.21.8-...jar` |
-  | 1.21.5 | `codeling-fabric-1.21.5-...jar` | `codeling-neoforge-1.21.5-...jar` |
-  | 1.21.4 | `codeling-fabric-1.21.4-...jar` | `codeling-neoforge-1.21.4-...jar` |
-  | 1.21.2 to 1.21.3 | `codeling-fabric-1.21.3-...jar` | `codeling-neoforge-1.21.3-...jar` |
-  | 1.21.1 | `codeling-fabric-1.21.1-...jar` | `codeling-neoforge-1.21.1-...jar` |
+  | 26.3 | `halisoncode-fabric-26.3-...jar` | `halisoncode-neoforge-26.3-...jar` |
+  | 26.2 | `halisoncode-fabric-26.2-...jar` | `halisoncode-neoforge-26.2-...jar` |
+  | 26.1 to 26.1.2 | `halisoncode-fabric-26.1.2-...jar` | `halisoncode-neoforge-26.1.2-...jar` |
+  | 1.21.11 | `halisoncode-fabric-1.21.11-...jar` | `halisoncode-neoforge-1.21.11-...jar` |
+  | 1.21.9 to 1.21.10 | `halisoncode-fabric-1.21.10-...jar` | `halisoncode-neoforge-1.21.10-...jar` |
+  | 1.21.6 to 1.21.8 | `halisoncode-fabric-1.21.8-...jar` | `halisoncode-neoforge-1.21.8-...jar` |
+  | 1.21.5 | `halisoncode-fabric-1.21.5-...jar` | `halisoncode-neoforge-1.21.5-...jar` |
+  | 1.21.4 | `halisoncode-fabric-1.21.4-...jar` | `halisoncode-neoforge-1.21.4-...jar` |
+  | 1.21.2 to 1.21.3 | `halisoncode-fabric-1.21.3-...jar` | `halisoncode-neoforge-1.21.3-...jar` |
+  | 1.21.1 | `halisoncode-fabric-1.21.1-...jar` | `halisoncode-neoforge-1.21.1-...jar` |
 - A web browser (Chrome, Edge or Firefox).
 
 A parent can do the install. It takes about ten minutes. The steps below say 26.3; on another version, pick that version in the installers and use the files for it.
@@ -39,7 +41,7 @@ On older Minecraft versions the editor still lists blocks and items that came la
 3. Run the installer. Pick "Client", Minecraft version 26.3, and press "Install".
 4. Open the Minecraft Launcher once and start the new "fabric-loader-26.3" profile. Close the game again. This creates the `mods` folder.
 5. Download Fabric API for 26.3 from https://modrinth.com/mod/fabric-api.
-6. Put the Fabric API `.jar` file and the Codeling `.jar` file in the `mods` folder:
+6. Put the Fabric API `.jar` file and the Halison Code `.jar` file in the `mods` folder:
    - Windows: press Win+R, type `%appdata%\.minecraft\mods` and press Enter.
    - macOS: `~/Library/Application Support/minecraft/mods`
    - Linux: `~/.minecraft/mods`
@@ -53,14 +55,14 @@ Use these steps instead if you play with NeoForge. NeoForge needs no Fabric API.
 2. Go to https://neoforged.net/ and download the NeoForge installer for Minecraft 26.3.
 3. Run the installer. Pick "Install client" and press "Proceed".
 4. Open the Minecraft Launcher once and start the new NeoForge profile. Close the game again. This creates the `mods` folder.
-5. Put the file `codeling-neoforge-26.3-...jar` in the `mods` folder (the same folders as in step 6 above).
+5. Put the file `halisoncode-neoforge-26.3-...jar` in the `mods` folder (the same folders as in step 6 above).
 6. Start Minecraft with the NeoForge profile.
 
 ## Open the editor
 
-1. Open a world (singleplayer, or a server that has Codeling, see [Multiplayer](#multiplayer)).
-2. Press T to open chat. Type `/codeling` and press Enter.
-3. Your browser opens the Codeling editor. The link only works on this computer, and only until you close Minecraft.
+1. Open a world (singleplayer, or a server that has Halison Code, see [Multiplayer](#multiplayer)).
+2. Press T to open chat. Type `/halisoncode` and press Enter.
+3. Your browser opens the Halison Code editor. The link only works on this computer, and only until you close Minecraft.
 4. While a program runs, the game keeps going when you click on the browser. If you open the pause menu (Escape), the game pauses and the robot waits: the log under the simulator says "Minecraft is paused. Go back to the game and close the menu." Close the menu and the robot goes on.
 
 ## Spawn the robot
@@ -200,7 +202,7 @@ The error codes a program can catch:
 | Code | Why |
 |---|---|
 | `BAD_ARGS` | The command or a value is not valid, for example an item that is not in this Minecraft version. |
-| `NO_PERMISSION` | You may not do this here, for example "agent give" without creative mode, or the robot camera when the server turned it off. |
+| `NO_PERMISSION` | You may not do this here, for example "agent give" without creative mode, the robot camera when the server turned it off, or something the server does not let you do (the message names the permission). |
 | `RATE_LIMITED` | The robot has too many commands waiting. |
 | `PROTECTED` | Kept for protected areas. Today the game answers false instead (the action did nothing). |
 | `UNLOADED` | The robot or the block is in a part of the world that is not loaded, or the robot is not spawned. |
@@ -299,7 +301,7 @@ The robot stays where it is and only looks. A position or corner you give must b
 | agent space left in slot (slot) | `agent.getItemSpace(1)` | How many more fit. |
 | agent free slots | `agent.freeSlots()` | How many of the 27 slots are empty. |
 | agent is inventory full | `agent.isInventoryFull()` | True if no slot is empty. A stack that is not full can still take more of the same item. |
-| agent give (item) count (count) in slot (slot) | `agent.setItem(Item.Stone, 64, 1)` | Gives items. Only in creative mode or with the gamerule `codeling:free_items`. |
+| agent give (item) count (count) in slot (slot) | `agent.setItem(Item.Stone, 64, 1)` | Gives items. Only in creative mode, with the gamerule `halisoncode:free_items`, or when the server lets you. |
 | agent collect all | `agent.collectAll()` | Picks up items right next to it. An item that was just dropped can be picked up after a moment (half a second for the robot's own), and never one that is kept for another player. |
 | agent drop (direction) from slot (slot) amount (amount) | `agent.drop(SixDirection.Back, 1, 10)` | Drops some items. |
 | agent drop all (direction) | `agent.dropAll(SixDirection.Back)` | Drops everything. |
@@ -342,7 +344,7 @@ position can be read, and nobody else can be moved.
 |---|---|---|
 | say (message) | `player.say("Hi!")` | Shows the message in your chat. Only you see it (in MakeCode everyone does). Plain text, at most 256 characters. |
 | player world position | `player.position()` | Where you stand: the block your feet are in, as a world position. |
-| player orientation | `player.getOrientation()` | Which way you look, in degrees: south 0, west 90, north 180 (or -180), east -90. |
+| player orientation | `player.getOrientation()` | Which way you look, in degrees: south 0, west 90, north -180, east -90. |
 | player name | `player.name()` | Your player name. |
 | teleport to (position) | `player.teleport(pos(0, 10, 0))` | Moves you there, in the dimension you are in. Only in a singleplayer world (as its host) or for a server op; for anyone else the game refuses with `NO_PERMISSION`. Outside the world border or the build height it refuses with `OUT_OF_RANGE`. |
 | on chat command (keyword) | `player.onChat("jump", function (num1, num2, num3) { })` | Runs its code when you type a chat line that starts with the keyword, for example `jump 10`. See "React to chat and death" below. |
@@ -350,7 +352,7 @@ position can be read, and nobody else can be moved.
 | run chat command (text) | `player.runChatCommand("jump 10")` | Runs your own "on chat command" code for that keyword, as if you had typed it. It sends nothing to the chat or the game. |
 
 Game mode does not matter for these blocks: in spectator or adventure mode you can still use all of them (teleport
-still needs singleplayer or op).
+still needs singleplayer, op or the permission).
 
 #### React to chat and death
 
@@ -370,7 +372,7 @@ player.onChat("jump", function (num1, num2, num3) {
 - A line that starts with your keyword is not shown in the chat; it goes to your program only. Every other line is
   sent as usual. Lines from other players never reach your program, and your program never sees the words of a line,
   only the keyword and the numbers.
-- If the server has a chat plugin that takes chat lines first, type `/codeling chat jump 10` instead.
+- If the server has a chat plugin that takes chat lines first, type `/halisoncode chat jump 10` instead.
 - A program with "on chat command" or "on player died" keeps running after its last line, so it can react. Press the
   stop button in the editor, or type `/robot stop`, to end it. From then on your chat lines are shown as usual again.
 - At most 16 chat commands wait for your program; more at once are dropped.
@@ -426,7 +428,7 @@ while (gameplay.timeOfDay() < 12000) {
 
 A signal is a name, such as `qr-forest` or `lamp-red`. Another mod on the server can send one to you, for example
 when you scan a QR code at a museum post or reach a checkpoint, and your program can send one to the other mods, for
-example to switch a lamp. An op can send one with `/codeling signal` (see "Chat commands" below), so a command block
+example to switch a lamp. An op can send one with `/halisoncode signal` (see "Chat commands" below), so a command block
 or a map can send signals without any other mod.
 
 | Block | JavaScript | What it does |
@@ -486,7 +488,7 @@ signals.send("lamp-red")
 | builder line from mark with (block), builder fill from mark with (block) (how) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Builds from the mark to the builder. |
 | builder place (block), builder position | `builder.place(Block.Torch)` | Places a block where the builder is, or tells where it is. |
 
-The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."); in creative mode, or with the gamerule `codeling:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
+The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
 
 The Console category has "say (text)" (`console.log("text")`). It writes to the log under the simulator.
 
@@ -510,9 +512,9 @@ The robot keeps its left hand on the wall until it walks out of the exit on the 
 
 ## Several robots
 
-A world can let every player have more than one robot. The game rule `codeling:max_robots` says how many (1 to 16,
+A world can let every player have more than one robot. The game rule `halisoncode:max_robots` says how many (1 to 16,
 the robot without a name counts as one). It is 1 at first, so everything works with one robot as before. An op turns
-it up, for example `/gamerule codeling:max_robots 4`. Turning it down again never removes robots; it only stops new ones.
+it up, for example `/gamerule halisoncode:max_robots 4`. Turning it down again never removes robots; it only stops new ones.
 
 - `/robot spawn Miner` makes a robot called Miner at your feet. A name starts with a letter and has at most 16
   letters, digits, `_` or `-`. Your robots all have different names (Miner and miner count as the same name).
@@ -582,7 +584,7 @@ player.onChat("both", function (num1, num2, num3) {
 })
 ```
 
-1. Let the world have three robots (`/gamerule codeling:max_robots 3`, your default robot counts as one). Then
+1. Let the world have three robots (`/gamerule halisoncode:max_robots 3`, your default robot counts as one). Then
    `/robot spawn Miner` and `/robot spawn Builder`.
 2. Put blocks in Builder: right-click it, or `/robot give stone 64 1 Builder` in creative mode. It builds with the
    slot it has picked (`/robot slot 1 Builder`).
@@ -636,13 +638,13 @@ your default robot.
 
 | Command | What it does |
 |---|---|
-| `/codeling` | Opens the editor in your browser. |
-| `/codeling chat <text>` | Sends a chat line to your own running program's "on chat command" code, as typing it in the chat would. Works on servers whose chat plugins take chat lines first. Says so when no program of yours is listening. |
-| `/codeling signal <players> <name> [number]` | Sends a signal to the programs of the players named (for example `@a` or a player name), with the number (0 without one). Ops only, and command blocks. It says how many programs got it and names the players it did not reach. |
-| `/codeling log on [minutes]` and `/codeling log off` | Extended logging in your own game for 15 minutes (or 1 to 60). See "Report a problem". |
-| `/codeling report` | Writes what a bug report needs to `logs/codeling-report.txt` in the game's folder. |
-| `/codeling server log on [minutes]`, `/codeling server log off` and `/codeling server report` | The same for the server. Ops only, and the server console. |
-| `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `codeling:max_robots`. |
+| `/halisoncode` | Opens the editor in your browser. |
+| `/halisoncode chat <text>` | Sends a chat line to your own running program's "on chat command" code, as typing it in the chat would. Works on servers whose chat plugins take chat lines first. Says so when no program of yours is listening. |
+| `/halisoncode signal <players> <name> [number]` | Sends a signal to the programs of the players named (for example `@a` or a player name), with the number (0 without one). Ops only, and command blocks. It says how many programs got it and names the players it did not reach. |
+| `/halisoncode log on [minutes]` and `/halisoncode log off` | Extended logging in your own game for 15 minutes (or 1 to 60). See "Report a problem". |
+| `/halisoncode report` | Writes what a bug report needs to `logs/halisoncode-report.txt` in the game's folder. |
+| `/halisoncode server log on [minutes]`, `/halisoncode server log off` and `/halisoncode server report` | The same for the server. Ops only, and the server console. |
+| `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `halisoncode:max_robots`. |
 | `/robot list` | Your robots and where they are. |
 | `/robot remove <name>` | Removes a robot. Its items go to you. `agent` is your default robot; removing it also stops your program. |
 | `/robot rename <name> <new name>` | Renames a robot. `agent` is your default robot, and `/robot rename <new name>` renames it too. |
@@ -656,7 +658,7 @@ your default robot.
 | `/robot inspect <dir> [name]` | Shows the block number. |
 | `/robot detect <dir> [name]` | True if a block is in the way. |
 | `/robot slot <1-27> [name]` | Picks a slot. |
-| `/robot give <block> <count> [slot] [name]` | Gives items, for example `/robot give oak_planks 64`. Only in creative mode or with the gamerule `codeling:free_items`. |
+| `/robot give <block> <count> [slot] [name]` | Gives items, for example `/robot give oak_planks 64`. Only in creative mode, with the gamerule `halisoncode:free_items`, or when the server lets you. |
 | `/robot inventory [name]` | Opens the robot's inventory if you are close. Otherwise it lists the items. |
 | `/robot collect [name]` | Picks up items next to it. |
 | `/robot drop <dir> [name]` | Drops everything. |
@@ -672,7 +674,7 @@ You can also right-click the robot to open its inventory.
 
 ### Robot camera
 
-`/robot camera` shows the world through your robot's eyes. You can also give it a key: in Options, Controls, Key Binds, find "Robot camera" under Codeling (it has no key at first). The same key, `/robot camera` or `/robot camera off` takes you back. Escape opens the pause menu (so you can switch to the editor) and leaves the camera on.
+`/robot camera` shows the world through your robot's eyes. You can also give it a key: in Options, Controls, Key Binds, find "Robot camera" under Halison Code (it has no key at first). The same key, `/robot camera` or `/robot camera off` takes you back. Escape opens the pause menu (so you can switch to the editor) and leaves the camera on.
 
 While you look through the robot, your own body stays where it is and does not move. The top left corner shows "Robot camera" and the robot's name. The camera only works while the robot is in the same dimension and close enough that your game has its part of the world loaded. It ends by itself when the robot is removed, goes too far away or changes dimension.
 
@@ -690,7 +692,7 @@ Use `/robot color 3366FF` for a custom primary panel color, or `/robot color res
 
 These keep the game fast for everyone.
 
-- One robot per player, unless the game rule `codeling:max_robots` allows more (at most 16).
+- One robot per player, unless the game rule `halisoncode:max_robots` allows more (at most 16).
 - `move` goes at most 64 blocks per command. Each block takes 4 game ticks (0.2 seconds).
 - `find nearest` and the measuring blocks look at most 32 blocks away from the robot.
 - Fill and shapes build at most 32 blocks away from the robot, at most 32768 blocks in one go, 256 blocks per tick.
@@ -707,43 +709,50 @@ These keep the game fast for everyone.
 
 ## Multiplayer
 
-- The server needs Codeling for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Codeling too.
-- Use the same Codeling version on the server and on every client. Mixing versions is not supported and has not been tested.
+- The server needs Halison Code for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Halison Code too.
+- Use the same Halison Code version on the server and on every client. Mixing versions is not supported and has not been tested.
 - Only you can program your robot. Nobody else can send it commands. This goes for robots with a name too: a name
   only ever picks one of your own robots.
-- `/gamerule codeling:max_robots <1-16>` sets how many robots each player may have (1, the default, is one robot
+- `/gamerule halisoncode:max_robots <1-16>` sets how many robots each player may have (1, the default, is one robot
   without a name).
-- `/gamerule codeling:pause_on_lost_focus false` keeps the game of the player who runs the world (singleplayer, or opened
+- `/gamerule halisoncode:pause_on_lost_focus false` keeps the game of the player who runs the world (singleplayer, or opened
   to LAN) from pausing when its window loses focus. Escape still pauses. `true`, the default, is as the player's own
   F3+P says.
 - Only you and server ops can open your robot's inventory. Others see "This is not your robot" above the hotbar.
-- In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule codeling:free_items true`. Otherwise put items in the robot through its inventory screen.
+- In survival the robot gathers its own resources. "agent give" and `/robot give` only work in creative mode, or when the world has `/gamerule halisoncode:free_items true`. Otherwise put items in the robot through its inventory screen.
 - Ops can stop all robots with `/robot stop all`.
-- A program's `player.say` goes to its own player only, and `player.teleport` works on a server only for ops.
+- The server's `config/halisoncode-server.json` says how much robots may do each tick (game, not program, speed). It is made
+  the first time a world or server with Halison Code runs, and read when it starts. Players share it equally, whatever number
+  of robots they have; on a busy server a robot may wait a little before it goes on.
+- With a permission mod, such as LuckPerms, the server decides per player: `halisoncode.robot` (use a robot; everyone from the
+  start), `halisoncode.build` (place, fill, shapes and maze; everyone), `halisoncode.free_items` (items and building free; creative
+  mode or the game rule) and `halisoncode.teleport` (the player's teleport; ops and the host of a singleplayer world). For
+  example `/lp user <player> permission set halisoncode.build false`. Without `halisoncode.robot`, `/robot` is an unknown command.
+- A program's `player.say` goes to its own player only, and `player.teleport` works on a server only for ops, or players the server lets.
 - A program hears only its own player's chat commands, death and broken blocks, its own robot's redstone signal and
   the day in its own player's world, never anything about another player. A chat line is held back from the chat
   only while your program runs and listens for its first word.
 - A signal reaches only the program of the player it was sent to. A program's "send signal" goes to the server's
   other mods only, never to another player, and carries the name only.
-- The gamerule `codeling:robot_camera` decides who may use the robot camera: `owner` (the default: every player through their own robot), `ops` (only ops) or `off` (nobody). For example `/gamerule codeling:robot_camera off`. On NeoForge 26.3 the Edit Game Rules screen shows this rule as a text field: type `off`, `owner` or `ops` (on NeoForge 1.21.1 the screen leaves it out; use the command). The server checks this, and the camera ends at once when the rule takes it away.
+- The gamerule `halisoncode:robot_camera` decides who may use the robot camera: `owner` (the default: every player through their own robot), `ops` (only ops) or `off` (nobody). For example `/gamerule halisoncode:robot_camera off`. On NeoForge 26.3 the Edit Game Rules screen shows this rule as a text field: type `off`, `owner` or `ops` (on NeoForge 1.21.1 the screen leaves it out; use the command). The server checks this, and the camera ends at once when the rule takes it away.
 - The robot breaks and uses things as if it were you. If the server protects an area, the robot cannot change it either.
 
 ## Troubleshooting
 
 | Problem | What to do |
 |---|---|
-| "Editor link expired" | Minecraft was restarted after you opened the tab. Type `/codeling` again. |
+| "Editor link expired" | Minecraft was restarted after you opened the tab. Type `/halisoncode` again. |
 | "Not in a world" | Open a world first, then press Run again. |
-| "This server does not have Codeling installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
+| "This server does not have Halison Code installed" | The server needs the mod. Ask the server owner, or play in singleplayer. |
 | The robot does nothing while you are in the browser, and the log says "Minecraft is paused" | The pause menu is open in the game. Go back to the game and close it; the robot goes on by itself. |
-| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. Or turn it off for this world with `/gamerule codeling:pause_on_lost_focus false` (ops, so cheats must be on). |
-| "Robot is not loaded (or not spawned: /robot spawn)" | Type `/robot spawn`, or walk closer to the robot. |
+| The game pauses when you click on the browser, before you press Run | Press F3+P in the game (Fn+F3+P on some laptops). Then the game does not pause when you leave its window. Press F3+P again to turn it back. Or turn it off for this world with `/gamerule halisoncode:pause_on_lost_focus false` (ops, so cheats must be on). |
+| "Kintro is not loaded. Go near it, or use /robot spawn to bring it to you" | Type `/robot spawn`, or walk closer to the robot. |
 | "robot Miner is not loaded (or not spawned: /robot spawn Miner, see /robot list)" | Check the name with `/robot list`. Walk closer to the robot, or type `/robot spawn Miner`. |
-| "This world allows one robot per player" | Robots with names need the game rule `codeling:max_robots` above 1. Ask an op. |
-| `/codeling` does nothing | Another program uses port 25580, often a second Minecraft with Codeling. Close it and restart Minecraft. The game log says "Codeling could not start the editor server on port 25580". To find the program on Windows, type `netstat -ano \| findstr 25580` in a command prompt: the last number is its PID in Task Manager (Details). On macOS and Linux, type `lsof -i :25580`. |
-| `/codeling` is an unknown command | Your own game does not have Codeling. Install the same version as the server, for the same loader and Minecraft version. |
-| The server refuses you when you join, and names Codeling | Your own game does not have Codeling. Install it as in the row above. |
-| A firewall or antivirus program asks about Minecraft or Java | Codeling does not need it. The editor is only reachable from your own computer, so never open port 25580 in a firewall or router. Minecraft itself may ask when you open a world to others. |
+| "This world allows one robot per player" | Robots with names need the game rule `halisoncode:max_robots` above 1. Ask an op. |
+| "The editor cannot start, because port 25580 is in use" | Another program uses the port, often a second Minecraft with Halison Code. Close it and type `/halisoncode` again. Or add `-Dhalisoncode.port=25581` to the Java arguments in your launcher, and restart Minecraft. The editor on another port has its own projects. To find the program on Windows, type `netstat -ano \| findstr 25580` in a command prompt: the last number is its PID in Task Manager (Details). On macOS and Linux, type `lsof -i :25580`. |
+| `/halisoncode` is an unknown command | Your own game does not have Halison Code. Install the same version as the server, for the same loader and Minecraft version. |
+| The server refuses you when you join, and names Halison Code | Your own game does not have Halison Code. Install it as in the row above. |
+| A firewall or antivirus program asks about Minecraft or Java | Halison Code does not need it. The editor is only reachable from your own computer, so never open port 25580 in a firewall or router. Minecraft itself may ask when you open a world to others. |
 | Your programs are gone | They are saved in one browser on one computer. Open the editor in the browser you used before. See [Questions and answers](#questions-and-answers). |
 | The blocks look old after an update | Press Ctrl+F5 in the browser. |
 | "Program stopped" | `/robot stop`, `/robot spawn`, a closed tab or leaving the world stopped it. Press Run again. |
@@ -761,25 +770,25 @@ computer or a private window does not have them. Clearing the browser's data for
 keep a copy, press the save button beside the project's name. You get a `.mkcd` file. "Import" on the editor's home
 screen opens it again.
 
-**Does it work offline?** Yes, when Codeling is installed. The editor comes from the mod and needs no internet. Only
+**Does it work offline?** Yes, when Halison Code is installed. The editor comes from the mod and needs no internet. Only
 some links, such as the terms and privacy pages, go to the internet. A server on the internet needs it as usual.
 
 ## Report a problem
 
-1. Type `/codeling log on`. Codeling then writes more to the game's log for 15 minutes. It goes off by itself.
+1. Type `/halisoncode log on`. Halison Code then writes more to the game's log for 15 minutes. It goes off by itself.
 2. Do again what went wrong.
-3. Type `/codeling report` and click "[copy the report]". The report is also in `logs/codeling-report.txt`.
-4. Read through it. Codeling leaves out player names, robot names, chat and what robots say where it knows them. Remove
+3. Type `/halisoncode report` and click "[copy the report]". The report is also in `logs/halisoncode-report.txt`.
+4. Read through it. Halison Code leaves out player names, robot names, chat and what robots say where it knows them. Remove
    the rest you do not want others to see.
-5. Paste it in [a bug report](https://github.com/halisonworks/mod-codeling/issues/new/choose). What you write there is public.
+5. Paste it in [a bug report](https://github.com/halisonworks/mod-halisoncode/issues/new/choose). What you write there is public.
    If you are a child, ask an adult to help you.
 
-On somebody else's server, the owner does the same with `/codeling server log on` and `/codeling server report`. Codeling
+On somebody else's server, the owner does the same with `/halisoncode server log on` and `/halisoncode server report`. Halison Code
 never sends anything by itself.
 
 ## Disclaimer
 
-Codeling is a fan project. It is not affiliated with or endorsed by Microsoft, Mojang or the Microsoft MakeCode team.
+Halison Code is a fan project. It is not affiliated with or endorsed by Microsoft, Mojang or the Microsoft MakeCode team.
 Minecraft is a trademark of Mojang Synergies AB (Microsoft).
 The editor is built with pxt, Microsoft's open-source MakeCode toolkit, which is MIT-licensed.
-Codeling itself is MIT-licensed. Details and licence texts: [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md) and [LICENSE](../../LICENSE).
+Halison Code itself is MIT-licensed. Details and licence texts: [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md) and [LICENSE](../../LICENSE).

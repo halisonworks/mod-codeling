@@ -1,18 +1,18 @@
-// Opens the Codeling editor in headless Chromium, puts a JavaScript program in, presses Run and waits until the
+// Opens the Halison Code editor in headless Chromium, puts a JavaScript program in, presses Run and waits until the
 // simulator's robot log contains a text. Used by EditorEndToEndClientGameTest (issue #135).
 //
 // The editor URL (it holds the session token) comes on stdin, never in argv or the environment, and is never printed.
-// Settings: CODELING_PROGRAM (JavaScript source), CODELING_EXPECT (text the robot log must contain),
-// CODELING_TIMEOUT_MS (default 60000), CODELING_SHOTS (optional folder for a screenshot when it ends).
+// Settings: HALISONCODE_PROGRAM (JavaScript source), HALISONCODE_EXPECT (text the robot log must contain),
+// HALISONCODE_TIMEOUT_MS (default 60000), HALISONCODE_SHOTS (optional folder for a screenshot when it ends).
 // Output: one JSON line {"ok": true|false, "log": "...", "error": "..."}; lines starting with "# " are progress.
 import { chromium } from "playwright-core";
 import { createInterface } from "node:readline";
 
 const URL_PATTERN = /http:\/\/127\.0\.0\.1:\d+\/#local_token=[A-Za-z0-9_-]+/;
-const program = process.env.CODELING_PROGRAM ?? "";
-const expect = process.env.CODELING_EXPECT ?? "";
-const timeout = Number(process.env.CODELING_TIMEOUT_MS ?? 60000);
-const shots = process.env.CODELING_SHOTS;
+const program = process.env.HALISONCODE_PROGRAM ?? "";
+const expect = process.env.HALISONCODE_EXPECT ?? "";
+const timeout = Number(process.env.HALISONCODE_TIMEOUT_MS ?? 60000);
+const shots = process.env.HALISONCODE_SHOTS;
 
 const step = text => console.log(`# ${text}`);
 

@@ -1,8 +1,8 @@
 {
-  "name": "codeling-e2e",
+  "name": "halisoncode-e2e",
   "version": "0.0.1",
   "private": true,
-  "description": "Drives the Codeling editor in headless Chromium for the end-to-end client GameTest",
+  "description": "Drives the Halison Code editor in headless Chromium for the end-to-end client GameTest",
   "license": "MIT",
   "type": "module",
   "dependencies": {

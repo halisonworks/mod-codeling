@@ -12,7 +12,7 @@ val mc = stonecutter.current.version
 // The version whose full test set runs (client GameTests, editor suite, standalone relay); see README "Build".
 val isMain = mc == "26.3"
 val javaRelease = property("java_version").toString().toInt()
-// codeling.mixins.json: Mixin's compatibility level follows the Java version, and before 26.3 one mixin more
+// halisoncode.mixins.json: Mixin's compatibility level follows the Java version, and before 26.3 one mixin more
 // (GameRendererMixin hides the hand while the robot camera is on; 26.3 does that from the level render state).
 val mixinProps = mapOf(
     "mixin_java" to "JAVA_$javaRelease",
@@ -28,7 +28,7 @@ loom {
     // Loom only generates IntelliJ run configs for the root project by default; :fabric:<version> is a subproject.
     runs { configureEach { generateRunConfig = true } }
     mods {
-        register("codeling") {
+        register("halisoncode") {
             sourceSet(sourceSets.main.get())
             sourceSet(sourceSets["client"])
         }
@@ -46,7 +46,7 @@ apply(from = rootProject.file("gradle/loader.gradle.kts"))
 fabricApi {
     configureTests {
         createSourceSet = true
-        modId = "codeling-gametest"
+        modId = "halisoncode-gametest"
         enableClientGameTests = isMain
     }
 }
@@ -60,6 +60,12 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("loader_version").get()}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_api_version").toString()}")
     implementation(project(":core"))
+    // Permissions (issue #51): part of Fabric API from 26.1.2. Before that an optional mod, not in our jar; the dev runs
+    // have it, so the GameTests check it.
+    findProperty("permissions_api_version")?.let {
+        modCompileOnly("me.lucko:fabric-permissions-api:$it") { isTransitive = false }
+        add("modLocalRuntime", "me.lucko:fabric-permissions-api:$it") { (this as ModuleDependency).isTransitive = false }
+    }
 
     testImplementation(sourceSets["client"].output)
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
@@ -82,7 +88,7 @@ tasks.named<JavaCompile>("compileClientJava") { source(commonSrc("client", "java
 tasks.named<ProcessResources>("processClientResources") {
     from(commonSrc("client", "resources"))
     inputs.properties(mixinProps)
-    filesMatching("codeling.mixins.json") { expand(mixinProps) }
+    filesMatching("halisoncode.mixins.json") { expand(mixinProps) }
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -95,14 +101,14 @@ tasks.named<ProcessResources>("processResources") {
     inputs.properties(props)
     inputs.properties(mixinProps)
     filesMatching("fabric.mod.json") { expand(props) }
-    filesMatching("codeling-common.mixins.json") { expand(mixinProps) }
+    filesMatching("halisoncode-common.mixins.json") { expand(mixinProps) }
 }
 
 // The GameTest environments in src/gametest are written in the game rule format of 1.21.11 and later ("rules": {id:
 // value}). 1.21.5 to 1.21.10 read lists of {rule, value} in bool_rules and int_rules, so those versions get converted
 // copies. (1.21.1 has no test environments.)
 if (stonecutter.current.parsed >= "1.21.5" && stonecutter.current.parsed < "1.21.11") {
-    val envDir = "data/codeling-gametest/test_environment"
+    val envDir = "data/halisoncode-gametest/test_environment"
     val envSource = rootProject.file("fabric/src/gametest/resources/$envDir")
     val converted = layout.buildDirectory.dir("generated/testEnvironments")
     val convertTestEnvironments = tasks.register("convertTestEnvironments") {
@@ -150,7 +156,7 @@ if (isMain) {
     // The end-to-end client GameTest (issue #135) drives the editor with e2e/editor-run.mjs (Node, pinned playwright-core).
     val e2eDir = rootProject.layout.projectDirectory.dir("e2e")
     val installE2e = tasks.register<Exec>("installE2e") {
-        group = "codeling"
+        group = "halisoncode"
         description = "npm ci in e2e/ for the end-to-end client GameTest"
         workingDir = e2eDir.asFile
         commandLine(if (System.getProperty("os.name").lowercase().contains("win")) listOf("cmd", "/c", "npm ci --no-audit --no-fund") else listOf("sh", "-c", "npm ci --no-audit --no-fund"))
@@ -158,7 +164,7 @@ if (isMain) {
         outputs.dir(e2eDir.dir("node_modules"))
     }
     loom.runs.named("clientGameTest") {
-        property("codeling.e2eDir", e2eDir.asFile.absolutePath)
+        property("halisoncode.e2eDir", e2eDir.asFile.absolutePath)
     }
     tasks.named("runClientGameTest") { dependsOn(installE2e) }
     // Editor test suite (issue #136): e2e/editor-suite.mjs drives the editor in headless Chromium against the standalone
@@ -166,7 +172,7 @@ if (isMain) {
     // of `build`; build the target first (target/built/packaged), as for the jar. The editor is the same for every
     // Minecraft version, so the suite runs once, here.
     tasks.register<Exec>("editorTest") {
-        group = "codeling"
+        group = "halisoncode"
         description = "Editor suite: round trip of every block, example programs, old project fixtures, branding (headless Chromium)"
         val relayClasspath = sourceSets["client"].runtimeClasspath
         dependsOn(installE2e, relayClasspath)
@@ -174,33 +180,33 @@ if (isMain) {
         commandLine("node", "editor-suite.mjs")
         val java = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(javaRelease) }
         doFirst {
-            environment("CODELING_JAVA", java.get().executablePath.asFile.absolutePath)
-            environment("CODELING_RELAY_CLASSPATH", relayClasspath.asPath)
+            environment("HALISONCODE_JAVA", java.get().executablePath.asFile.absolutePath)
+            environment("HALISONCODE_RELAY_CLASSPATH", relayClasspath.asPath)
         }
     }
 
     // Runs the relay and editor server without Minecraft: ./gradlew :fabric:26.3:runRelay --args="--print-url"
     tasks.register<JavaExec>("runRelay") {
-        group = "codeling"
+        group = "halisoncode"
         description = "Start the editor + relay server standalone (no Minecraft)"
         classpath = sourceSets["client"].runtimeClasspath
-        mainClass = "codeling.relay.StandaloneRelay"
+        mainClass = "halisoncode.relay.StandaloneRelay"
         javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(javaRelease) }
     }
 } else {
     // The client GameTests need fabric-client-gametest-api-v1 (1.21.5 and later); they only run on the main version.
     tasks.named<JavaCompile>("compileGametestJava") {
-        exclude("**/RobotClientGameTest.java", "**/EditorEndToEndClientGameTest.java")
+        exclude("**/RobotClientGameTest.java", "**/EditorEndToEndClientGameTest.java", "**/EditorPortClientGameTest.java")
     }
     // No client GameTest API in Fabric API for this version: ./gradlew :fabric:1.21.1:runClientSmoke starts the client
     // once (a game window, not part of `build`), checks that the camera mixins were merged and the relay serves the
-    // editor, logs "Codeling client smoke: OK" and quits (codeling.gametest.FabricClientSmoke). Same idea as
+    // editor, logs "Halison Code client smoke: OK" and quits (halisoncode.gametest.FabricClientSmoke). Same idea as
     // :neoforge:<version>:runClientSmoke.
     loom.runs.register("clientSmoke") {
         client()
         source(sourceSets["gametest"])
         runDir("build/run/clientSmoke")
-        property("codeling.clientSmoke", "true")
+        property("halisoncode.clientSmoke", "true")
         ideConfigGenerated(false)
     }
 }

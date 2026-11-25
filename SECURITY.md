@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Codeling has only pre-releases so far (0.0.1, 0.0.2, 0.0.3, 0.0.4 and 0.0.5). The current `develop` branch gets security fixes, and so
+Halison Code has only pre-releases so far (0.0.1, 0.0.2, 0.0.3, 0.0.4, 0.0.5 and 0.0.6). The current `develop` branch gets security fixes, and so
 does the latest release, as follows.
 
 The latest release for each supported Minecraft version (now 26.3, 26.2, 26.1 to 26.1.2, 1.21.1 and 1.21.2 to 1.21.11,
@@ -17,15 +17,15 @@ Report it privately through GitHub: open the repository's **Security** tab and c
 
 Please include:
 
-- the Codeling version, the loader (Fabric or NeoForge) and the Minecraft version,
+- the Halison Code version, the loader (Fabric or NeoForge) and the Minecraft version,
 - singleplayer or a dedicated server,
 - the steps to reproduce, and what an attacker gains,
-- a proof of concept if you have one, and the report from `/codeling report` (type `/codeling log on` first). Remove the
+- a proof of concept if you have one, and the report from `/halisoncode report` (type `/halisoncode log on` first). Remove the
   editor token from anything you send.
 
 ## What to expect
 
-Codeling is a volunteer project, so handling is best effort. We aim to acknowledge a report within 7 days. We then
+Halison Code is a volunteer project, so handling is best effort. We aim to acknowledge a report within 7 days. We then
 keep you updated in the report, agree on a disclosure date with you, and credit you in the advisory unless you ask
 us not to.
 
@@ -33,7 +33,7 @@ us not to.
 
 In scope:
 
-- **The local relay** (`core/src/main/java/codeling/relay/RelayServer.java`): the HTTP and WebSocket server the client
+- **The local relay** (`core/src/main/java/halisoncode/relay/RelayServer.java`): the HTTP and WebSocket server the client
   mod runs on `127.0.0.1` for the editor. For example: reaching it from another machine or from another website,
   getting around the `Host` check (DNS rebinding defence) or the `Origin` check on the WebSocket upgrade, getting around
   the Content-Security-Policy or the framing headers, reading files outside the packaged editor, or crashing or
@@ -41,8 +41,8 @@ In scope:
 - **The editor token**: guessing it, reading it from another origin, finding it in a log, a file another user can read
   or a process command line, or a session
   accepted without it. It is made per game session with `SecureRandom` and compared in constant time.
-- **Server-side command validation** (`core/src/main/java/codeling/robot/RobotCommand.java` and
-  `common/src/main/java/codeling/robot/RobotManager.java`): a payload that controls another player's robot, gets past
+- **Server-side command validation** (`core/src/main/java/halisoncode/robot/RobotCommand.java` and
+  `common/src/main/java/halisoncode/robot/RobotManager.java`): a payload that controls another player's robot, gets past
   the argument and range checks, or gets around the per-tick budgets.
 - **Claim and protection mod bypass**: robots change the world through a FakePlayer with the owner's UUID, so claim
   mods apply. A robot that changes blocks or inventories its owner could not is in scope.
@@ -55,7 +55,7 @@ Out of scope:
 - A player's own program misbehaving inside the limits the server allows (for example a robot that digs up its
   owner's own house).
 - Server operators using operator commands (`/robot stop all`, game rules) as intended.
-- Bugs in Minecraft, Fabric, NeoForge, other mods or the browser, unless Codeling makes them exploitable. Report those
+- Bugs in Minecraft, Fabric, NeoForge, other mods or the browser, unless Halison Code makes them exploitable. Report those
   upstream.
 - Denial of service that needs more traffic than one local browser can send, and findings from automated scanners
   without a working attack.

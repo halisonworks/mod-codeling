@@ -2,7 +2,7 @@
 /// <reference path="../libs/core/blocks.d.ts"/>
 
 namespace pxsim {
-    // Position kinds, the same numbers as codeling.robot.Positions.
+    // Position kinds, the same numbers as halisoncode.robot.Positions.
     const WORLD = 0, RELATIVE = 1, LOCAL = 2;
 
     /**
@@ -276,7 +276,7 @@ namespace pxsim.agent {
         return call("agent.followPath", [block || 0, side || 0]);
     }
 
-    // Every function below sends the op and args exactly as codeling.net.Protocol and RobotCommand.parse decode them.
+    // Every function below sends the op and args exactly as halisoncode.net.Protocol and RobotCommand.parse decode them.
 
     /**
      * Sends one command, logs the result and returns the server's value. Also used by Position.toWorld. The robot is
@@ -738,13 +738,13 @@ namespace pxsim.agent {
     }
 
     /**
-     * Put blocks or items in a slot, replacing what is there (creative mode or the gamerule codeling:free_items only). Air empties it.
+     * Put blocks or items in a slot, replacing what is there (creative mode or the gamerule halisoncode:free_items only). Air empties it.
      * @param blockOrItem the item or block, eg: Item.Stone
      * @param count how many, eg: 64
      * @param slot slot 1 to 27, eg: 1
      */
     //% blockId=agent_set_item block="agent give %blockOrItem|count %count|in slot %slot"
-    //% blockOrItem.shadow=codeling_item count.min=1 count.max=64 slot.min=1 slot.max=27
+    //% blockOrItem.shadow=halisoncode_item count.min=1 count.max=64 slot.min=1 slot.max=27
     //% group="Inventory" weight=67
     export function setItemAsync(blockOrItem: number, count: number, slot: number): Promise<void> {
         return call("agent.setItem", [blockOrItem, count, slot]);
@@ -830,7 +830,7 @@ namespace pxsim.agent {
      * @param count how many at most, eg: 64
      */
     //% blockId=agent_take_item block="agent take from %direction|item %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Containers" weight=58
     export function takeItemAsync(direction: SixDirection, item: number, count: number): Promise<number> {
         return call("agent.takeItem", [direction, item, count]);
@@ -842,7 +842,7 @@ namespace pxsim.agent {
      * @param item what to count, eg: Item.Cobblestone
      */
     //% blockId=agent_container_count block="agent count in container %direction|of %item"
-    //% item.shadow=codeling_item
+    //% item.shadow=halisoncode_item
     //% group="Containers" weight=57
     export function containerCountAsync(direction: SixDirection, item: number): Promise<number> {
         return call("agent.containerCount", [direction, item]);
@@ -877,7 +877,7 @@ namespace pxsim.agent {
      * @param count how many at least, eg: 4
      */
     //% blockId=agent_craft block="agent craft %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Crafting" weight=54
     export function craftAsync(item: number, count: number): Promise<number> {
         return call("agent.craft", [item, count]);
@@ -889,7 +889,7 @@ namespace pxsim.agent {
      * @param count how many at least, eg: 4
      */
     //% blockId=agent_can_craft block="agent can craft %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Crafting" weight=53
     export function canCraftAsync(item: number, count: number): Promise<boolean> {
         return call("agent.canCraft", [item, count]);
@@ -901,7 +901,7 @@ namespace pxsim.agent {
      * @param count how many at least, eg: 4
      */
     //% blockId=agent_stonecut block="agent stonecut %item|amount %count"
-    //% item.shadow=codeling_item count.min=1 count.max=64
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
     //% group="Crafting" weight=52
     export function stonecutAsync(item: number, count: number): Promise<number> {
         return call("agent.stonecut", [item, count]);
@@ -1365,7 +1365,7 @@ namespace pxsim.player {
     }
 
     /**
-     * Which way you look, in degrees: south 0, west 90, north 180 (or -180), east -90.
+     * Which way you look, in degrees: south 0, west 90, north -180, east -90.
      */
     //% blockId=player_get_orientation block="player orientation"
     //% weight=89
@@ -1401,7 +1401,7 @@ namespace pxsim.player {
     /**
      * Run code when you type a chat command: a chat line that starts with the keyword, for example "jump 10". The
      * line is then not shown in the chat. The words after the keyword are num1, num2 and num3: whole numbers, or 0
-     * when missing or not a number. Use * as the keyword to get every chat line. /codeling chat jump 10 does the same.
+     * when missing or not a number. Use * as the keyword to get every chat line. /halisoncode chat jump 10 does the same.
      * @param command the keyword, one word, eg: "jump"
      * @param handler the code to run
      */
@@ -1467,12 +1467,12 @@ namespace pxsim.gameplay {
     }
 }
 
-// Issue #249: named signals. Another mod on the server (or an operator with /codeling signal) sends one to you, and
+// Issue #249: named signals. Another mod on the server (or an operator with /halisoncode signal) sends one to you, and
 // your program can send a name to other mods. Never to another player's program, and never any text but the name.
 namespace pxsim.signals {
     /**
      * Run code when a signal with this name comes to you: from another mod on the server (a QR code scanned, a
-     * checkpoint reached) or from /codeling signal. value is the number it carries, 0 when it has none. Names are one
+     * checkpoint reached) or from /halisoncode signal. value is the number it carries, 0 when it has none. Names are one
      * word of letters, digits, - and _, and case matters. A program with handlers keeps running until you press Stop.
      * @param name the signal's name, eg: "qr-forest"
      * @param handler the code to run
@@ -1515,7 +1515,7 @@ namespace pxsim.robots {
 
 // Building (issue #90): MakeCode's blocks.fill and blocks.place, shapes and builder, with our own declarations. The game
 // sets every block through the robot's FakePlayer (claim mods apply), within 32 blocks of the robot, from the robot's
-// inventory unless you get items free (creative mode or the gamerule codeling:free_items), at most 32768 blocks per call.
+// inventory unless you get items free (creative mode or the gamerule halisoncode:free_items), at most 32768 blocks per call.
 
 namespace pxsim.blocks {
     /**
@@ -1528,7 +1528,7 @@ namespace pxsim.blocks {
      * @param operator how to fill, eg: FillOperation.Replace
      */
     //% blockId=blocks_fill block="fill with %block|from %from=positions_pos|to %to=positions_pos|%operator"
-    //% block.shadow=codeling_block weight=90
+    //% block.shadow=halisoncode_block weight=90
     export async function fillAsync(block: number, from: Position, to: Position, operator: FillOperation): Promise<void> {
         const p = await from.toWorldAsync();
         const q = await to.toWorldAsync();
@@ -1541,7 +1541,7 @@ namespace pxsim.blocks {
      * @param position where to place it
      */
     //% blockId=blocks_place block="place %block|at %position=positions_pos"
-    //% block.shadow=codeling_block weight=89
+    //% block.shadow=halisoncode_block weight=89
     export async function placeAsync(block: number, position: Position): Promise<void> {
         const p = await position.toWorldAsync();
         await agent.call("blocks.fill", [block, p.x, p.y, p.z, p.x, p.y, p.z, FillOperation.Replace]);
@@ -1554,7 +1554,7 @@ namespace pxsim.blocks {
      * @param handler the code to run
      */
     //% blockId=blocks_on_block_broken block="on %block broken"
-    //% block.shadow=codeling_block weight=88
+    //% block.shadow=halisoncode_block weight=88
     export function onBlockBroken(block: number, handler: () => void): void {
         board().onBlockBroken(block, handler as any as RefAction);
     }
@@ -1568,7 +1568,7 @@ namespace pxsim.shapes {
      * @param to where the line ends
      */
     //% blockId=shapes_line block="line of %block|from %from=positions_pos|to %to=positions_pos"
-    //% block.shadow=codeling_block weight=90
+    //% block.shadow=halisoncode_block weight=90
     export async function lineAsync(block: number, from: Position, to: Position): Promise<void> {
         const p = await from.toWorldAsync();
         const q = await to.toWorldAsync();
@@ -1585,7 +1585,7 @@ namespace pxsim.shapes {
      * @param operator how to fill, eg: ShapeOperation.Replace
      */
     //% blockId=shapes_circle block="circle of %block|center %center=positions_pos|radius %radius|around %orientation|%operator"
-    //% block.shadow=codeling_block radius.min=1 radius.max=32 weight=89
+    //% block.shadow=halisoncode_block radius.min=1 radius.max=32 weight=89
     export async function circleAsync(block: number, center: Position, radius: number, orientation: Axis, operator: ShapeOperation): Promise<void> {
         const p = await center.toWorldAsync();
         await agent.call("shapes.circle", [block, p.x, p.y, p.z, radius, orientation, operator]);
@@ -1600,7 +1600,7 @@ namespace pxsim.shapes {
      * @param operator how to fill, eg: ShapeOperation.Replace
      */
     //% blockId=shapes_sphere block="sphere of %block|center %center=positions_pos|radius %radius|%operator"
-    //% block.shadow=codeling_block radius.min=1 radius.max=15 weight=88
+    //% block.shadow=halisoncode_block radius.min=1 radius.max=15 weight=88
     export async function sphereAsync(block: number, center: Position, radius: number, operator: ShapeOperation): Promise<void> {
         const p = await center.toWorldAsync();
         await agent.call("shapes.sphere", [block, p.x, p.y, p.z, radius, operator]);
@@ -1620,7 +1620,7 @@ namespace pxsim.shapes {
      * @param seed the maze number, eg: 42
      */
     //% blockId=shapes_maze block="maze at %corner=positions_pos|width %width|length %length|walls of %wall|floor of %floor||seed %seed"
-    //% wall.shadow=codeling_block floor.shadow=codeling_block width.min=5 width.max=32 length.min=5 length.max=32 weight=87
+    //% wall.shadow=halisoncode_block floor.shadow=halisoncode_block width.min=5 width.max=32 length.min=5 length.max=32 weight=87
     export async function mazeAsync(corner: Position, width: number, length: number, wall: number, floor: number, seed?: number): Promise<void> {
         const p = await corner.toWorldAsync();
         const args = [p.x, p.y, p.z, width, length, wall, floor];
@@ -1715,7 +1715,7 @@ namespace pxsim.builder {
      * @param block the block, eg: Block.Stone
      */
     //% blockId=builder_place block="builder place %block"
-    //% block.shadow=codeling_block weight=94
+    //% block.shadow=halisoncode_block weight=94
     export async function placeAsync(block: number): Promise<void> {
         const b = await state();
         await blocks.placeAsync(block, b.at);
@@ -1726,7 +1726,7 @@ namespace pxsim.builder {
      * @param block the block, eg: Block.Stone
      */
     //% blockId=builder_line block="builder line from mark with %block"
-    //% block.shadow=codeling_block weight=93
+    //% block.shadow=halisoncode_block weight=93
     export async function lineAsync(block: number): Promise<void> {
         const b = await state();
         await shapes.lineAsync(block, b.marks[b.marks.length - 1] || b.at, b.at);
@@ -1738,7 +1738,7 @@ namespace pxsim.builder {
      * @param operator how to fill, eg: FillOperation.Replace
      */
     //% blockId=builder_fill block="builder fill from mark with %block|%operator"
-    //% block.shadow=codeling_block weight=92
+    //% block.shadow=halisoncode_block weight=92
     export async function fillAsync(block: number, operator: FillOperation): Promise<void> {
         const b = await state();
         await blocks.fillAsync(block, b.marks[b.marks.length - 1] || b.at, b.at, operator);

@@ -125,14 +125,14 @@ namespace pxsim {
         }
     }
 
-    const TARGET_ID = "codeling";
+    const TARGET_ID = "halisoncode";
     // The robot log keeps the newest lines only, so a program that runs for hours does not slow the tab down (issue #283).
     const LOG_LINES = 1000;
     // Version 2 (issue #141): cmd may name one of the player's robots in "robot".
     const PROTOCOL = 2;
     // shortcut: 3 s keeps well inside the server's 10 s heartbeat timeout; read limits.heartbeatTimeoutMs if it ever changes.
     const HEARTBEAT_MS = 3000;
-    const REOPEN = "Open the editor from the game again with /codeling.";
+    const REOPEN = "Open the editor from the game again with /halisoncode.";
 
     /**
      * A robot command the game refused (issue #218). The program gets the text "CODE: message" as the thrown value.
@@ -194,7 +194,7 @@ namespace pxsim {
                 const ws = new WebSocket(`ws://${window.location.host}/relay`);
                 this.ws = ws;
                 ws.onopen = () => this.send({ t: "hello", token, client: "0.0.1" });
-                ws.onerror = () => this.fail("Cannot reach the game", "Is Minecraft running with Codeling? " + REOPEN);
+                ws.onerror = () => this.fail("Cannot reach the game", "Is Minecraft running with Halison Code? " + REOPEN);
                 ws.onclose = () => this.fail("Connection to the game closed", REOPEN);
                 ws.onmessage = ev => {
                     const msg = JSON.parse(ev.data as string);

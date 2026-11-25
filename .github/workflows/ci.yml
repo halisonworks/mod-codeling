@@ -98,7 +98,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: codeling-jar
+          name: halisoncode-jar
           path: fabric/versions/26.3/build/libs/*.jar
 
       - name: Upload packaged editor (for the NeoForge and client GameTests jobs)
@@ -149,11 +149,11 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: codeling-neoforge-jar
+          name: halisoncode-neoforge-jar
           path: neoforge/versions/26.3/build/libs/*.jar
 
   # Minecraft 1.21.1 (#189): the jar of each loader, built from the same sources by Stonecutter, and its GameTests
-  # (`build` runs them through `check`: all 116 Codeling GameTests on Fabric, the 6 smoke GameTests on NeoForge).
+  # (`build` runs them through `check`: all 116 Halison Code GameTests on Fabric, the 6 smoke GameTests on NeoForge).
   # Gradle provisions Java 21 through the foojay resolver. The client smokes open a game window, so they stay local.
   mc-1-21-1:
     needs: build
@@ -198,7 +198,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: codeling-${{ matrix.loader }}-1.21.1-jar
+          name: halisoncode-${{ matrix.loader }}-1.21.1-jar
           path: ${{ matrix.loader }}/versions/1.21.1/build/libs/*.jar
 
   # The other Minecraft versions (#206 to #213), the same way as 1.21.1. A job of its own so that the required
@@ -247,7 +247,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: codeling-${{ matrix.loader }}-${{ matrix.mc }}-jar
+          name: halisoncode-${{ matrix.loader }}-${{ matrix.mc }}-jar
           path: ${{ matrix.loader }}/versions/${{ matrix.mc }}/build/libs/*.jar
 
   # Client GameTests start a real Minecraft client (2 to 3 GB), so they run on main and on demand only.
