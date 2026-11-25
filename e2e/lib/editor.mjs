@@ -90,15 +90,37 @@ export function greyBlocks(page) {
 
 // Loads a saved project file (.mkcd) the way a player does by dropping it on the editor (pxt's own import path).
 export async function dropFile(page, name, xml) {
-    await page.evaluate(([fileName, text]) => {
+    await drop(page, name, Buffer.from(xml));
+    await page.locator(".blocks-menuitem.selected").first().waitFor();
+    await settle(page, () => blockTypes(page), types => types.length > 1, "imported Blocks");
+}
+
+function drop(page, name, bytes) {
+    return page.evaluate(([fileName, values]) => {
         const data = new DataTransfer();
-        data.items.add(new File([text], fileName, { type: "application/octet-stream" }));
+        data.items.add(new File([new Uint8Array(values)], fileName, { type: "application/octet-stream" }));
         for (const type of ["dragenter", "dragover", "drop"]) {
             document.body.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: data }));
         }
-    }, [name, xml]);
-    await page.locator(".blocks-menuitem.selected").first().waitFor();
-    await settle(page, () => blockTypes(page), types => types.length > 1, "imported Blocks");
+    }, [name, [...bytes]]);
+}
+
+// The names of the projects on the home screen.
+export function projects(page) {
+    return settle(page, () => page.locator(".ui.card.file:visible .header").allInnerTexts().then(all => all.map(n => n.trim()).filter(Boolean)),
+        all => all.length > 0, "the projects");
+}
+
+// Opens a project from the home screen, or (with `bytes`) drops its project file, and waits until the editor shows it
+// in `view` ("blocks", "javascript" or "python"). Returns its text, or the types of its blocks.
+export async function openSaved(page, name, view, bytes) {
+    if (bytes) await drop(page, `${name}.mkcd`, bytes);
+    else await page.locator(".ui.card.file:visible").filter({ has: page.getByText(name, { exact: true }) }).first().click();
+    await page.locator(`#editortoggle > .${view}-menuitem.selected`).first().waitFor();
+    await settle(page, () => page.locator("#fileNameInput2").first().inputValue(), n => n === name, `project ${name}`);
+    await noDialog(page, `open ${name}`);
+    if (view === "blocks") return settle(page, () => blockTypes(page), types => types.length > 1, `Blocks of ${name}`);
+    return settle(page, () => source(page, view === "python" ? "py" : "ts"), t => t.trim().length > 0, `text of ${name}`);
 }
 
 // The simulator's robot log, one entry per line; without `times` the lines lose their "12:34:56.789 " time.

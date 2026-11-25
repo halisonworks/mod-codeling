@@ -18,7 +18,8 @@
 //      heartbeat goes on, continue runs to the end, Exit Debug Mode and /robot stop end a stopped program, breakpoints
 //      in Python and JavaScript, slow motion gives the normal robot log, and an uncaught robot error or failed assert
 //      marks its block;
-//   7. saved projects from before commit d506004 (fixtures/) load with their Block values intact;
+//   7. saved projects from before commit d506004 (fixtures/) load with their Block values intact, and projects saved by the
+//      released 0.0.5 (issue #357) open, unchanged, and run;
 //   8. the Examples gallery (issue #216): a card per example program, in English and Norwegian, that opens its program,
 //      with no request to another host;
 //   9. branding: the header names Codeling once, the About box says pxt editor and not Microsoft MakeCode, and a new
@@ -41,6 +42,7 @@ const failures = [];
 const counts = { blocks: 0, programs: 0, fixtures: 0, checks: 0 };
 
 const step = text => console.log(`# ${text}`);
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const fail = (what, why) => {
     failures.push(`${what}: ${why}`);
     console.log(`FAIL ${what}: ${why}`);
@@ -612,7 +614,6 @@ async function debugSection(page) {
     const stopped = async () => await page.locator(".debugtoolbar .dbg-pause-resume.play").count() > 0
         && await (page.frames().find(f => f.url().includes("simulator"))
             ?.evaluate(() => !!window.pxsim?.runtime?.pausedOnBreakpoint).catch(() => false) ?? false);
-    const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     const enter = async () => {
         // pxt restarts the program in debug mode without a new robot log, so the old lines go first.
         await editor.clearLog(page);
@@ -828,6 +829,68 @@ async function fixturesSection(page) {
     }
 }
 
+// Issue #357: a browser that holds projects saved by the released 0.0.5 still shows them on the home screen, and each
+// opens in the language it was left in, unchanged, and runs as it did there. The same for their project files. pxt
+// finds the projects by the target's id (pxtarget.json), so this fails when a rename changes it.
+async function savedProjectsSection(browser, url) {
+    const file = "projects-0.0.5.json";
+    const saved = JSON.parse(readFileSync(join(here, "fixtures", file), "utf8"));
+    const origins = [{ origin: new URL(url).origin, localStorage: [], indexedDB: saved.indexedDB }];
+    const context = await browser.newContext({ locale: "en-US", viewport: { width: 1280, height: 800 }, storageState: { cookies: [], origins } });
+    const page = await context.newPage();
+    page.setDefaultTimeout(60000);
+    const headers = async () => {
+        const { origins: [now] } = await context.storageState({ indexedDB: true });
+        const stores = now.indexedDB.find(db => db.name === saved.indexedDB[0].name)?.stores ?? [];
+        return Object.fromEntries((stores.find(s => s.name === "headers")?.records ?? []).map(r => [r.value.id, r.value]));
+    };
+    const home = async () => {
+        await page.goto("about:blank");
+        await page.goto(url);
+        await page.locator(".newprojectcard").first().waitFor();
+    };
+    await home();
+    const names = saved.projects.map(p => p.name).sort();
+    const ids = Object.fromEntries(saved.indexedDB[0].stores.find(s => s.name === "headers").records.map(r => [r.value.name, r.value.id]));
+    const shown = (await editor.projects(page)).sort();
+    check(same(shown, names), file, `projects on the home screen ${JSON.stringify(shown)}, expected ${JSON.stringify(names)}`);
+    for (const p of saved.projects) {
+        for (const how of ["opened", "imported"]) {
+            step(`saved by 0.0.5: ${p.name}, ${how}`);
+            const before = failures.length;
+            const what = `${file}: ${p.name} ${how}`;
+            if (how === "imported") await home();
+            const got = await editor.openSaved(page, p.name, p.view, how === "imported" ? Buffer.from(p.mkcd.base64, "base64") : undefined);
+            if (p.view === "blocks") {
+                // Sorted: a saved workspace lists its stacks in another order than the fresh conversion the fixture was read from.
+                check(same([...got].sort(), [...p.blocks].sort()), what, `blocks ${JSON.stringify(got)}, expected ${JSON.stringify(p.blocks)}`);
+                const grey = await editor.greyBlocks(page);
+                check(grey.length === 0, what, `grey blocks: ${JSON.stringify(grey)}`);
+            } else {
+                check(got === p.text, what, changedLines(p.text, got));
+            }
+            const log = await editor.run(page, p.log.length);
+            check(same(log, p.log), what, `logged ${JSON.stringify(log)}, expected ${JSON.stringify(p.log)}`);
+            await editor.stop(page);
+            // Not for the opened one: the look in JavaScript becomes the project's saved view, which is checked below.
+            if (p.view === "blocks" && how === "imported") {
+                const main = saved.indexedDB[0].stores.find(s => s.name === "texts").records.find(r => r.value.id === ids[p.name]).value.files["main.ts"];
+                const js = await editor.toJavaScript(page);
+                check(js.trim() === main.trim(), what, changedLines(main, js));
+            }
+            if (failures.length === before) counts.fixtures++;
+        }
+        await home();
+    }
+    const now = await headers();
+    for (const { value: was } of saved.indexedDB[0].stores.find(s => s.name === "headers").records) {
+        for (const key of ["name", "editor", "target", "path"]) {
+            check(now[was.id]?.[key] === was[key], file, `${was.name}: ${key} is ${now[was.id]?.[key]}, was ${was[key]}`);
+        }
+    }
+    await context.close();
+}
+
 // Issue #216: the home screen's Examples gallery has one card per tested program (EXAMPLES reads its programs from the
 // gallery's pages), each card opens a project with that program, the Norwegian cards show with ?lang=nb, and no
 // request leaves the relay. Each language gets its own context: pxt keeps the chosen language in the browser.
@@ -953,6 +1016,7 @@ async function main() {
         await errorsSection(page);
         await debugSection(page);
         await fixturesSection(page);
+        await savedProjectsSection(browser, relay.url);
         await gallerySection(browser, relay.url);
         step("header, About box, side panel");
         await brandingSection(page);
