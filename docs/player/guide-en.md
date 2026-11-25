@@ -342,7 +342,7 @@ position can be read, and nobody else can be moved.
 |---|---|---|
 | say (message) | `player.say("Hi!")` | Shows the message in your chat. Only you see it (in MakeCode everyone does). Plain text, at most 256 characters. |
 | player world position | `player.position()` | Where you stand: the block your feet are in, as a world position. |
-| player orientation | `player.getOrientation()` | Which way you look, in degrees: south 0, west 90, north 180 (or -180), east -90. |
+| player orientation | `player.getOrientation()` | Which way you look, in degrees: south 0, west 90, north -180, east -90. |
 | player name | `player.name()` | Your player name. |
 | teleport to (position) | `player.teleport(pos(0, 10, 0))` | Moves you there, in the dimension you are in. Only in a singleplayer world (as its host) or for a server op; for anyone else the game refuses with `NO_PERMISSION`. Outside the world border or the build height it refuses with `OUT_OF_RANGE`. |
 | on chat command (keyword) | `player.onChat("jump", function (num1, num2, num3) { })` | Runs its code when you type a chat line that starts with the keyword, for example `jump 10`. See "React to chat and death" below. |

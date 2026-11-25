@@ -90,8 +90,9 @@ final class PlayerApi {
                 BlockPos pos = player.blockPosition();
                 yield Result.ok(List.of(pos.getX(), pos.getY(), pos.getZ()));
             }
-            // MakeCode's convention, as agent.getOrientation: south 0, west 90, north -180 (or 180), east -90; one decimal.
-            case PLAYER_ORIENTATION -> Result.ok(Math.round(Mth.wrapDegrees(player.getYRot()) * 10) / 10.0);
+            // MakeCode's convention, as agent.getOrientation: south 0, west 90, north -180, east -90; one decimal.
+            // Rounded first: 179.97 becomes 180, which is north and answers -180.
+            case PLAYER_ORIENTATION -> Result.ok(Mth.wrapDegrees(Math.round(Mth.wrapDegrees(player.getYRot()) * 10) / 10.0));
             case PLAYER_NAME -> Result.ok(player.getGameProfile().name());
             case PLAYER_TELEPORT -> teleport(player, new BlockPos(c.a(), c.b(), c.c()));
             // Issue #87: what the owner sees anyway. The time is the Overworld's clock in every dimension (as /time query daytime).

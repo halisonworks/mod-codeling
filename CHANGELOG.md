@@ -6,6 +6,10 @@ Every user-visible change to Codeling is listed here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `player.getOrientation()` answers -180 also when you look just beside due north (issue #22). It could answer 180 there.
+
 ## [0.0.5] - 2026-11-24
 
 The fifth pre-release, for testing.
