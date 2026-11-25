@@ -1,4 +1,4 @@
-// Editor test suite (issue #136): drives the Codeling editor in headless Chromium against the standalone relay.
+// Editor test suite (issue #136): drives the Halison Code editor in headless Chromium against the standalone relay.
 // Run it with ./gradlew :fabric:26.3:editorTest (not part of `build`). It checks:
 //   1. every toolbox block from target/libs/core: JavaScript to Blocks to Python to Blocks to JavaScript, no grey
 //      blocks, no changed or lost arguments, and a test program for every block (programs/blocks.mjs);
@@ -22,7 +22,7 @@
 //      released 0.0.5 (issue #357) open, unchanged, and run;
 //   8. the Examples gallery (issue #216): a card per example program, in English and Norwegian, that opens its program,
 //      with no request to another host;
-//   9. branding: the header names Codeling once, the About box says pxt editor and not Microsoft MakeCode, and a new
+//   9. branding: the header names Halison Code once, the About box says pxt editor and not Microsoft MakeCode, and a new
 //      project opens without the README side panel. Screenshots go to CODELING_SHOTS (default fabric/versions/26.3/build/editor-test).
 // The relay token stays in this process (lib/relay.mjs). Output: progress lines, then one summary line.
 import { chromium } from "playwright-core";
@@ -969,7 +969,9 @@ async function brandingSection(page) {
         .filter(e => e.offsetParent !== null && [...e.childNodes].some(n => n.nodeType === 3 && /\S/.test(n.textContent)))
         .map(e => e.textContent.trim()));
     const header = names.join(" | ");
-    check(names.filter(n => /codeling/i.test(n)).length === 1, "header", `"Codeling" should show once, header texts: ${header}`);
+    check(names.filter(n => /halison code/i.test(n)).length === 1, "header", `"Halison Code" should show once, header texts: ${header}`);
+    check(!/codeling/i.test(header), "header", `the header has the old name: ${header}`);
+    check(await page.title() === "Halison Code", "title", `the page title is ${await page.title()}`);
     check(!/makecode|microsoft/i.test(header), "header", `header mentions MakeCode or Microsoft: ${header}`);
     const sideDocs = await page.locator("#sidedocs:visible, #sidedocsframe:visible, #sidedocsbar:visible").count();
     check(sideDocs === 0, "new project", "the README side panel is open");
