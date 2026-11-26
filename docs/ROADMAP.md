@@ -170,7 +170,7 @@ Representative adaptive navigation, bounded working area, status and explicit pr
 
 | Issue | Scope | Title |
 | --- | --- | --- |
-| [#33](https://github.com/halisonworks/mod-halisoncode/issues/33) | Core | Epic: Robot movement and navigation (Codeling extensions) |
+| [#33](https://github.com/halisonworks/mod-halisoncode/issues/33) | Core | Epic: Robot movement and navigation (Halison Code extensions) |
 | [#43](https://github.com/halisonworks/mod-halisoncode/issues/43) | Core | Block names and categories in inspect and detect |
 | [#88](https://github.com/halisonworks/mod-halisoncode/issues/88) | Core | Scan the area around the robot |
 | [#158](https://github.com/halisonworks/mod-halisoncode/issues/158) | Core | Sensors and radar |

@@ -5,7 +5,7 @@ Up to 0.0.5 it was called Codeling. Robots, settings and projects from then are 
 The editor is a custom pxt target that runs in your browser and is served by the mod on `127.0.0.1`.
 Each robot command goes over a local WebSocket to the mod.
 
-**Status: pre-release (0.0.6), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
+**Status: pre-release (0.0.7), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
 Plan: [docs/architecture.md](docs/architecture.md).
 
 Not approved by or associated with Mojang or Microsoft. The editor is based on Microsoft MakeCode (pxt), MIT licence.
