@@ -168,6 +168,48 @@ public class MultiRobotGameTests {
         helper.succeed();
     }
 
+    // Issue #437: a player on a chest (0.875 high) has the chest at the feet. /robot spawn, with and without a name, puts
+    // the robot in the free block above, so setHome is above the chest and storeItems(Down, 0) fills it. A slab and a
+    // path go the same way; on a full block the robot stands where the player does.
+    @GameTest(maxTicks = 100, environment = MORE)
+    public void spawnOnAChestGoesOnTopOfIt(GameTestHelper helper) {
+        ServerPlayer player = player(helper);
+        BlockPos chest = START.east(2);
+        helper.setBlock(chest, Blocks.CHEST);
+        player.snapTo(Vec3.atBottomCenterOf(helper.absolutePos(chest)).add(0, 0.875, 0));
+        helper.assertValueEqual(player.blockPosition(), helper.absolutePos(chest), "the chest is the block at the feet");
+        run(player, "robot spawn");
+        run(player, "robot spawn Baerer");
+        RobotEntity agent = RobotManager.robot(player.getUUID());
+        RobotEntity baerer = RobotManager.robot(key(player, "Baerer"));
+        helper.assertValueEqual(agent.blockPosition(), helper.absolutePos(chest.above()), "agent on top of the chest");
+        helper.assertValueEqual(baerer.blockPosition(), helper.absolutePos(chest.above()), "Baerer on top of the chest");
+        BlockPos slab = START.south(2);
+        helper.setBlock(slab, Blocks.STONE_SLAB);
+        helper.assertValueEqual(RobotManager.spawnBlock(helper.getLevel(), helper.absolutePos(slab)), helper.absolutePos(slab.above()), "on a slab");
+        BlockPos path = START.south(3);
+        helper.setBlock(path, Blocks.DIRT_PATH);
+        helper.assertValueEqual(RobotManager.spawnBlock(helper.getLevel(), helper.absolutePos(path)), helper.absolutePos(path.above()), "on a path");
+        helper.assertValueEqual(RobotManager.spawnBlock(helper.getLevel(), helper.absolutePos(START)), helper.absolutePos(START), "in a free block");
+        agent.inventory().setItem(0, new ItemStack(Items.COBBLESTONE, 5));
+        RobotLinks.Key key = key(player, "");
+        List<Result> results = new ArrayList<>();
+        try {
+            RobotManager.submit(key, RobotManager.queue(key).run(), RobotCommand.parse("agent.setHome", List.of()), results::add);
+            RobotManager.submit(key, RobotManager.queue(key).run(), RobotCommand.parse("agent.storeItems", List.of(RobotCommand.DOWN, 0)), results::add);
+        } catch (RobotException e) {
+            helper.fail("rejected: " + e.result());
+        }
+        helper.runAfterDelay(40, () -> {
+            helper.assertValueEqual(results, List.of(Result.ok(null), Result.ok(true)), "setHome, then storeItems(Down, 0)");
+            helper.assertTrue(agent.home() != null && agent.home().pos().equals(helper.absolutePos(chest.above())), "home above the chest: " + agent.home());
+            var box = (net.minecraft.world.level.block.entity.ChestBlockEntity) helper.getLevel().getBlockEntity(helper.absolutePos(chest));
+            helper.assertValueEqual(box.getItem(0).getCount(), 5, "cobblestone in the chest");
+            leave(helper, player);
+            helper.succeed();
+        });
+    }
+
     // Issue #297: /gamerule turns the pause on lost focus off and on again; the client reads it (RobotClientGameTest).
     @GameTest(maxTicks = 100)
     public void pauseOnLostFocusRule(GameTestHelper helper) {

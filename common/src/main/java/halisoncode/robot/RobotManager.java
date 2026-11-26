@@ -1183,6 +1183,14 @@ public final class RobotManager {
      * Outside the build height, or a block with a collision shape (water, lava and grass tufts let the robot through).
      * An open door or trapdoor lets the robot through too, as it lets a player through; an open gate has no shape.
      */
+    /**
+     * Issue #437: the block a robot spawned at the player's feet goes in. A player on a chest, slab, path or other
+     * block lower than a full block has that block at the feet, so the robot goes in the free block above it instead.
+     */
+    public static BlockPos spawnBlock(Level level, BlockPos feet) {
+        return blocked(level, feet) ? feet.above() : feet;
+    }
+
     private static boolean blocked(Level level, BlockPos pos) {
         if (level.isOutsideBuildHeight(pos)) return true;
         BlockState state = level.getBlockState(pos);
