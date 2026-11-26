@@ -517,7 +517,8 @@ the robot without a name counts as one). It is 1 at first, so everything works w
 it up, for example `/gamerule halisoncode:max_robots 4`. Turning it down again never removes robots; it only stops new ones.
 
 - `/robot spawn Miner` makes a robot called Miner at your feet. A name starts with a letter and has at most 16
-  letters, digits, `_` or `-`. Your robots all have different names (Miner and miner count as the same name).
+  letters (any letter, also æ, ø and å), digits, `_` or `-`. Your robots all have different names (Miner and miner
+  count as the same name).
 - Your first robot, the one without a name, stays your default robot. In programs it is `agent`, so old programs
   and saved worlds work as before.
 - Each robot has its own inventory, slot, home, gravity and assist, and is saved with the world.

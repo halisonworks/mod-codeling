@@ -49,8 +49,11 @@ class ProtocolTest {
     void robotNameRules() {
         assertNull(RobotCommand.nameProblem("Miner"));
         assertNull(RobotCommand.nameProblem("bot-2_b"));
+        assertNull(RobotCommand.nameProblem("Bærer"));
+        assertNull(RobotCommand.nameProblem("Åse_2"));
+        assertNull(RobotCommand.nameProblem("Mïner"));
         assertNull(RobotCommand.nameProblem("a".repeat(RobotCommand.MAX_NAME)));
-        for (String bad : new String[] {null, "", "2bots", "_x", "two words", "Mïner", "a.b", "a".repeat(RobotCommand.MAX_NAME + 1), "all", "Off", "follow", "on"}) {
+        for (String bad : new String[] {null, "", "2bots", "_x", "two words", "Bær er", "a.b", "a!", "a".repeat(RobotCommand.MAX_NAME + 1), "all", "Off", "follow", "on"}) {
             assertNotNull(RobotCommand.nameProblem(bad), "accepted " + bad);
         }
     }

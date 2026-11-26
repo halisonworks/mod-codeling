@@ -156,9 +156,7 @@ public final class RobotCommands {
                 .then(Commands.literal("list").executes(RobotCommands::list))
                 .then(Commands.literal("remove").then(robotName().executes(RobotCommands::remove)))
                 // rename <name>: the default robot's name; rename <robot> <name>: that robot's name.
-                .then(Commands.literal("rename").then(robotName().executes(RobotCommands::renameDefault)
-                        .then(Commands.argument("name", StringArgumentType.word())
-                                .executes(c -> rename(c, name(c), StringArgumentType.getString(c, "name"))))))
+                .then(Commands.literal("rename").then(robotName().executes(RobotCommands::rename)))
                 .then(Commands.literal("nametag")
                         .then(named(Commands.literal("on"), c -> nametag(c, true)))
                         .then(named(Commands.literal("off"), c -> nametag(c, false))))
@@ -201,8 +199,10 @@ public final class RobotCommands {
         return reached;
     }
 
+    // Issue #435: the robot name is the rest of the line, because a word argument takes A to Z only and Bærer would be a
+    // parser error before the name rules can answer. It is always the last argument; rename splits its two names itself.
     private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack, String> robotName() {
-        return Commands.argument(ROBOT, StringArgumentType.word()).suggests(MY_ROBOTS);
+        return Commands.argument(ROBOT, StringArgumentType.greedyString()).suggests(MY_ROBOTS);
     }
 
     /** The command, and the same command with a robot name after it. */
@@ -219,7 +219,7 @@ public final class RobotCommands {
     /** The robot name the command was given as it was written, or "" when there is none. */
     private static String typed(CommandContext<CommandSourceStack> c) {
         try {
-            return StringArgumentType.getString(c, ROBOT);
+            return StringArgumentType.getString(c, ROBOT).strip();
         } catch (IllegalArgumentException e) {
             return "";
         }
@@ -398,12 +398,16 @@ public final class RobotCommands {
         return 1;
     }
 
-    // Issue #293: one word that is one of the player's robots is a rename without the new name, not a name for the default robot.
-    private static int renameDefault(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+    // rename <name> names the default robot; rename <robot> <name> names that robot. The names are one argument (issue
+    // #435), split here. Issue #293: one word that is one of the player's robots is a rename without the new name, not a
+    // name for the default robot. More than two words go to the name rules as one name, which say no spaces.
+    private static int rename(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         UUID owner = c.getSource().getPlayerOrException().getUUID();
-        String word = typed(c);
+        String[] words = typed(c).split("\\s+");
         RobotLinks links = RobotLinks.get(c.getSource().getServer());
-        if (links.robot(new RobotLinks.Key(owner, links.resolve(owner, word))) != null) {
+        if (words.length == 2) return rename(c, links.resolve(owner, words[0]), words[1]);
+        String word = typed(c);
+        if (words.length == 1 && links.robot(new RobotLinks.Key(owner, links.resolve(owner, word))) != null) {
             return Messages.failure(c.getSource(), Messages.of("commands.halisoncode.rename.no_name", "/robot rename " + word + " <name>"));
         }
         return rename(c, "", word);
