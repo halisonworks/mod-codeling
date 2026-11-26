@@ -6,6 +6,12 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Added
+
+- The game's messages in Norwegian (issue #275): with the game set to Norsk bokmål, chat replies to `/robot` and
+  `/halisoncode`, the game rules and the key names are in Norwegian. What the robot says over its head and the robot
+  log stay English for now. CONTRIBUTING.md says how to add another language.
+
 ### Changed
 
 - Building in survival (issue #438): when the robot runs out of blocks during fill, place, line, shapes, maze or

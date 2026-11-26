@@ -56,9 +56,25 @@ class PlayerMessageTest {
     }
 
     private static JsonObject english() throws IOException {
-        try (InputStream in = PlayerMessageTest.class.getResourceAsStream("/assets/halisoncode/lang/en_us.json")) {
+        return lang("en_us");
+    }
+
+    private static JsonObject lang(String name) throws IOException {
+        try (InputStream in = PlayerMessageTest.class.getResourceAsStream("/assets/halisoncode/lang/" + name + ".json")) {
             return JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
         }
+    }
+
+    // Issue #275: a translation has every English key and no other, and the same number of %s in each text, so no
+    // argument is lost or shown twice.
+    @Test
+    void norwegianHasEveryKeyWithTheSameArguments() throws IOException {
+        JsonObject english = english(), norwegian = lang("nb_no");
+        assertEquals(new java.util.TreeSet<>(english.keySet()), new java.util.TreeSet<>(norwegian.keySet()), "keys");
+        List<String> wrong = english.keySet().stream()
+                .filter(k -> english.get(k).getAsString().split("%s", -1).length != norwegian.get(k).getAsString().split("%s", -1).length)
+                .sorted().toList();
+        assertEquals(List.of(), wrong, "texts with another number of %s");
     }
 
     @Test
