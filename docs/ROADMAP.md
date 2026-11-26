@@ -18,8 +18,8 @@ Halison Code is the name of the mod and the editor ("the Halison Code editor" wh
 
 | Version | Outcome | Core issues | Optional issues |
 | --- | --- | ---: | ---: |
-| 0.1.0 | Reliable companion | 22 | 8 |
-| 0.2.0 | Product identity | 12 | 0 |
+| 0.1.0 | Reliable companion | 22 | 1 |
+| 0.2.0 | Product identity | 12 | 7 |
 | 0.3.0 | Modular Minecraft programming | 19 | 1 |
 | 0.4.0 | Resource automation | 23 | 17 |
 | 0.5.0 | Intelligent automation | 10 | 13 |
@@ -62,20 +62,20 @@ Fresh installation, baseline editor connection and supported Blocks/JS/Python ex
 | [#284](https://github.com/halisonworks/mod-halisoncode/issues/284) | Core | Robot animation reads its JSON again for every frame |
 | [#272](https://github.com/halisonworks/mod-halisoncode/issues/272) | Core | Server admin guide |
 | [#273](https://github.com/halisonworks/mod-halisoncode/issues/273) | Core | One reference for commands and game rules |
-| [#7](https://github.com/halisonworks/mod-halisoncode/issues/7) | Optional | As a player, I open the editor with a key instead of typing /codeling |
+| [#297](https://github.com/halisonworks/mod-halisoncode/issues/297) | Optional | Game rule for pausing when the game window loses focus |
+
+### 0.2.0: Product identity
+
+Reviewed naming evidence and owner decision; approved editor/mod/robot display identity, legacy project and world compatibility, distribution and reversible upgrade path. The owner approved the names and moved the visible rename to 0.1.0 (2026-11-25). Seven optional issues of 0.1.0 moved here on 2026-11-26 (owner).
+
+| Issue | Scope | Title |
+| [#7](https://github.com/halisonworks/mod-halisoncode/issues/7) | Optional | As a player, I open the editor with a key instead of typing /halisoncode |
 | [#9](https://github.com/halisonworks/mod-halisoncode/issues/9) | Optional | As a player, my editor reconnects after the game restarts the relay |
 | [#56](https://github.com/halisonworks/mod-halisoncode/issues/56) | Optional | Clean up stale robot links |
 | [#79](https://github.com/halisonworks/mod-halisoncode/issues/79) | Optional | Visible feedback from the robot |
 | [#81](https://github.com/halisonworks/mod-halisoncode/issues/81) | Optional | As a player, I see and hear what my robot does |
 | [#82](https://github.com/halisonworks/mod-halisoncode/issues/82) | Optional | As a player, I see which block my robot inspects |
 | [#285](https://github.com/halisonworks/mod-halisoncode/issues/285) | Optional | Programs may run slower while Minecraft is in the background: measure first |
-| [#297](https://github.com/halisonworks/mod-halisoncode/issues/297) | Optional | Game rule for pausing when the game window loses focus |
-
-### 0.2.0: Product identity
-
-Reviewed naming evidence and owner decision; approved editor/mod/robot display identity, legacy project and world compatibility, distribution and reversible upgrade path. The owner approved the names and moved the visible rename to 0.1.0 (2026-11-25).
-
-| Issue | Scope | Title |
 | --- | --- | --- |
 | [#58](https://github.com/halisonworks/mod-halisoncode/issues/58) | Core | Trademark and naming clearance for Halison Code and Kintro |
 | [#343](https://github.com/halisonworks/mod-halisoncode/issues/343) | Core | Epic: Product identity and compatible migration from Codeling |
