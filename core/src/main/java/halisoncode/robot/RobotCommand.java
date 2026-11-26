@@ -139,14 +139,17 @@ public record RobotCommand(Op op, int a, int b, int c, int d, int e, int f, int 
     /** CameraMode in the editor: Off 0, Eyes 1, Follow 2 (RobotCamera.OFF, EYES, FOLLOW). */
     public static final int CAMERA_MODES = 3;
     // shortcut: 16 fits a name tag and a chat line; raise it if players ask for longer names.
-    /** Robot names (issue #140): a letter, then letters, digits, _ or -, this many at most. The default robot has the empty name. */
+    /**
+     * Robot names (issue #140): a letter, then letters, digits, _ or -, this many at most. The default robot has the empty
+     * name. Any letter counts (issue #435), so Bærer and Åse are names.
+     */
     public static final int MAX_NAME = 16;
     /** Words the /robot commands use themselves (stop all, camera follow, camera off, nametag on), so no robot is called that. */
     private static final List<String> RESERVED_NAMES = List.of("all", "follow", "off", "on");
 
     /** Why {@code name} cannot be a robot's name, or null when it can. Plain rules, so programs and commands agree. */
     public static String nameProblem(String name) {
-        if (name == null || !name.matches("[A-Za-z][A-Za-z0-9_-]{0," + (MAX_NAME - 1) + "}")) {
+        if (name == null || !name.matches("\\p{L}[\\p{L}\\p{N}_-]{0," + (MAX_NAME - 1) + "}")) {
             return "A robot name starts with a letter and has at most " + MAX_NAME + " letters, digits, _ or - (no spaces)";
         }
         if (reservedName(name)) return "\"" + name + "\" is a word the /robot commands use, choose another name";

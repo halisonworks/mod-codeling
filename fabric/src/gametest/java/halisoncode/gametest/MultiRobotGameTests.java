@@ -353,6 +353,28 @@ public class MultiRobotGameTests {
     }
 
     // Issue #151: /robot rename and a name tag rename a robot; the default robot only shows a name and stays agent.
+    // Issue #435: Norwegian letters in names, typed in commands: spawn, a command with the name last, rename of a named
+    // robot and of the default robot. A name with a space is answered with the name rules, not a parser error.
+    @GameTest(maxTicks = 100, environment = MORE)
+    public void namesWithNorwegianLetters(GameTestHelper helper) {
+        ServerPlayer player = player(helper);
+        run(player, "robot spawn");
+        List<String> spawned = run(player, "robot spawn Bærer");
+        RobotEntity baerer = RobotManager.robot(key(player, "Bærer"));
+        helper.assertTrue(baerer != null, "Bærer spawned: " + spawned);
+        helper.assertValueEqual(baerer.getCustomName().getString(), "Bærer", "name tag");
+        helper.assertTrue(run(player, "robot status Bærer").toString().contains("Bærer"), "a command with the name last");
+        run(player, "robot rename Bærer Åse");
+        helper.assertTrue(RobotManager.robot(key(player, "Åse")) == baerer && RobotManager.robot(key(player, "Bærer")) == null, "renamed to Åse");
+        run(player, "robot rename Øyvind");
+        helper.assertValueEqual(RobotManager.robot(player.getUUID()).getCustomName().getString(), "Øyvind", "the default robot renamed");
+        List<String> spaced = run(player, "robot spawn Bær er");
+        helper.assertTrue(spaced.toString().contains("starts with a letter"), "the name rules answer: " + spaced);
+        helper.assertTrue(RobotManager.robot(key(player, "Bær er")) == null, "no robot with a space");
+        leave(helper, player);
+        helper.succeed();
+    }
+
     @GameTest(maxTicks = 100, environment = MORE)
     public void renameByCommandAndNameTag(GameTestHelper helper) {
         ServerPlayer player = player(helper);

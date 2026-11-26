@@ -524,8 +524,8 @@ for eksempel `/gamerule halisoncode:max_robots 4`. Skrur man den ned igjen, fors
 ikke flere.
 
 - `/robot spawn Miner` lager en robot som heter Miner, ved føttene dine. Et navn begynner med en bokstav og har høyst
-  16 bokstaver, sifre, `_` eller `-` (bare a til z, ikke æ, ø og å). Robotene dine har ulike navn (Miner og miner er
-  samme navn).
+  16 bokstaver, sifre, `_` eller `-`, også æ, ø og å (Bærer). Robotene dine har ulike navn (Miner og miner er samme
+  navn).
 - Den første roboten din, den uten navn, er fortsatt standardroboten din. I programmer heter den `agent`, så gamle
   programmer og lagrede verdener virker som før.
 - Hver robot har sitt eget inventar, sin egen plass, sitt eget hjem, sin egen tyngdekraft og hjelp, og lagres med
