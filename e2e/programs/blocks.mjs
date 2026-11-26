@@ -3,7 +3,8 @@
 // Each program is written the way the editor formats JavaScript, so a round trip must give back the same text.
 // Values differ from the blocks' defaults, so an argument that falls back to its default shows up as a change.
 // Calls with more than three arguments come back one argument per line, so they are written that way.
-// Reporters are put in a variable: a bare call of a value block is grey in Blocks. Names are unique per program.
+// Reporters are put in a variable. An action that answers a value also has a statement block (issue #433), so its bare
+// call is that block. Names are unique per program.
 export const BLOCK_PROGRAMS = {
     // First: Blocks writes event blocks before the code on start, in this order.
     gameplay_on_day_start: "gameplay.onDayStart(function () {\n    agent.say(\"Morning\")\n})",
@@ -15,10 +16,13 @@ export const BLOCK_PROGRAMS = {
     agent_move: "agent.move(SixDirection.Back, 2)",
     agent_turn: "agent.turn(TurnDirection.Right)",
     agent_move_to: "let movedTo = agent.moveTo(pos(0, 0, 5))",
+    agent_move_to_statement: "agent.moveTo(pos(3, 0, 2))",
     agent_set_home: "agent.setHome()",
     agent_camera: "agent.camera(CameraMode.Eyes)",
     agent_go_home: "let wentHome = agent.goHome()",
+    agent_go_home_statement: "agent.goHome()",
     agent_follow_path: "let stopped = agent.followPath(Block.Cobblestone, TurnDirection.Right)",
+    agent_follow_path_statement: "agent.followPath(Block.OakPlanks, TurnDirection.Left)",
     agent_path_stop: "let wantedStop = PathStop.Junction",
     agent_place: "agent.place(SixDirection.Back)",
     agent_destroy: "agent.destroy(SixDirection.Up)",
@@ -62,20 +66,26 @@ export const BLOCK_PROGRAMS = {
     agent_drop_all: "agent.dropAll(SixDirection.Right)",
     agent_transfer: "agent.transfer(9, 10, 11)",
     agent_store_items: "let stored = agent.storeItems(SixDirection.Down, 12)",
+    agent_store_items_statement: "agent.storeItems(SixDirection.Up, 19)",
     agent_take_items: "let tookStack = agent.takeItems(SixDirection.Back, 13, 14)",
+    agent_take_items_statement: "agent.takeItems(SixDirection.Left, 20, 21)",
     agent_take_item: "let tookCoal = agent.takeItem(SixDirection.Up, Item.Coal, 15)",
+    agent_take_item_statement: "agent.takeItem(SixDirection.Right, Item.Charcoal, 22)",
     agent_container_count: "let sandstoneInChest = agent.containerCount(SixDirection.Down, Block.Sandstone)",
     agent_container_size: "let chestSize = agent.containerSize(SixDirection.Left)",
     agent_sort_container: "agent.sortContainer(SixDirection.Right)",
     agent_craft: "let sticksMade = agent.craft(Item.Stick, 16)",
+    agent_craft_statement: "agent.craft(Item.Torch, 23)",
     agent_can_craft: "let canMakePlanks = agent.canCraft(Item.OakPlanks, 17)",
     agent_stonecut: "let bricksCut = agent.stonecut(Item.StoneBricks, 18)",
+    agent_stonecut_statement: "agent.stonecut(Item.StoneBrickStairs, 24)",
     agent_say: "agent.say(\"Hello there\")",
     robots_get: "let digger = robots.get(\"Digger\")",
     robot_move: "digger.move(SixDirection.Back, 3)",
     robot_turn: "digger.turn(TurnDirection.Right)",
     robot_move_to: "let diggerArrived = digger.moveTo(pos(1, 0, 4))",
     agent_go_to_robot: "let metDigger = agent.goToRobot(digger)",
+    agent_go_to_robot_statement: "agent.goToRobot(digger)",
     robot_go_to_robot: "let diggerMetBuilder = digger.goToRobot(robots.get(\"Builder\"))",
     robot_get_position: "let diggerAt = digger.getPosition()",
     robot_place: "digger.place(SixDirection.Down)",
