@@ -497,7 +497,7 @@ declare namespace agent {
 
     /**
      * True if every block in the box between two corners is air or something a block can replace (grass, a snow
-     * layer, water). At most 32 blocks on each side.
+     * layer, water). A torch, flower or sign makes it false. At most 32 blocks on each side.
      * @param corner1 one corner
      * @param corner2 the opposite corner
      */
@@ -507,12 +507,13 @@ declare namespace agent {
     function isAreaFree(corner1: Position, corner2: Position): boolean;
 
     /**
-     * How many blocks in the box between two corners are not air or replaceable, so a program can decide whether to
-     * clear it first. At most 32 blocks on each side.
+     * How many blocks in the box between two corners are not air or replaceable (grass, a snow layer, water), so a
+     * program can decide whether to clear it first. Torches, flowers and signs count too: they are in the way of a
+     * block (issue #436). At most 32 blocks on each side.
      * @param corner1 one corner
      * @param corner2 the opposite corner
      */
-    //% blockId=agent_count_solid block="agent count solid blocks|from %corner1=positions_pos|to %corner2=positions_pos"
+    //% blockId=agent_count_solid block="agent count blocks|from %corner1=positions_pos|to %corner2=positions_pos"
     //% group="Measuring" weight=68
     //% shim=agent::countSolidAsync promise
     function countSolid(corner1: Position, corner2: Position): number;

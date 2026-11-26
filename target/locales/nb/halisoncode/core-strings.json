@@ -395,7 +395,7 @@
   "agent.containerCount|block": "robot tell i beholder %direction|av %item",
   "agent.containerSize|block": "robot beholderstørrelse %direction",
   "agent.countNearby|block": "robot tell i nærheten %kind|innen %radius",
-  "agent.countSolid|block": "robot tell faste blokker|fra %corner1=positions_pos|til %corner2=positions_pos",
+  "agent.countSolid|block": "robot tell blokker|fra %corner1=positions_pos|til %corner2=positions_pos",
   "agent.craft|block": "robot lag %item|antall %count",
   "agent.destroy|block": "robot ødelegg %direction",
   "agent.detectEntity|block": "robot oppdag %kind|%direction",
