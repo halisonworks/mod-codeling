@@ -293,8 +293,8 @@ Roboten blir stående og ser bare. En posisjon eller et hjørne du gir, må vær
 | robot mål åpning (akse) opptil (maks) | `agent.measureGap(Axis.X, 32)` | Hvor bred dalen eller gangen er der roboten står. |
 | robot bakkehøyde ved (posisjon) | `agent.groundHeight(pos(0, 0, 5))` | Hvor høyt bakken er der. Løv teller ikke. |
 | robot høydeprofil (retning) lengde (lengde) | `agent.heightProfile(SixDirection.Forward, 16)` | En liste med bakkehøyder langs en linje. |
-| robot er området fritt fra (hjørne) til (hjørne) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | Sann hvis ingenting er i boksen (gress og snø går fint). Høyst 32 blokker hver vei. |
-| robot tell faste blokker fra (hjørne) til (hjørne) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | Hvor mange blokker som er i boksen. |
+| robot er området fritt fra (hjørne) til (hjørne) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | Sann hvis ingenting er i boksen (gress og snø går fint, en fakkel gjør ikke det). Høyst 32 blokker hver vei. |
+| robot tell blokker fra (hjørne) til (hjørne) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | Hvor mange blokker som er i boksen: alt unntatt luft, gress, snø og vann, så fakler, blomster og skilt telles også. |
 | robot finn ytterkanter fremover opptil (maks) | `agent.findBounds(32)` | De to ytre hjørnene av bygget foran, eller ingenting. |
 
 ### Inventar

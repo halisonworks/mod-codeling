@@ -289,8 +289,8 @@ The robot stays where it is and only looks. A position or corner you give must b
 | agent measure gap (axis) up to (max) | `agent.measureGap(Axis.X, 32)` | How wide the valley or corridor is where the robot stands. |
 | agent ground height at (position) | `agent.groundHeight(pos(0, 0, 5))` | The height of the ground there. Leaves do not count. |
 | agent height profile (direction) length (length) | `agent.heightProfile(SixDirection.Forward, 16)` | A list of ground heights along a line. |
-| agent is area free from (corner) to (corner) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | True if nothing is in the box (grass and snow are fine). At most 32 blocks each way. |
-| agent count solid blocks from (corner) to (corner) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | How many blocks are in the box. |
+| agent is area free from (corner) to (corner) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | True if nothing is in the box (grass and snow are fine; a torch is not). At most 32 blocks each way. |
+| agent count blocks from (corner) to (corner) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | How many blocks are in the box: everything except air, grass, snow and water, so torches, flowers and signs count too. |
 | agent find bounds forward up to (max) | `agent.findBounds(32)` | The two outer corners of the building in front, or nothing. |
 
 ### Inventory
