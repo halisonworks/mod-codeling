@@ -9,7 +9,7 @@ plugins {
 }
 
 val mc = stonecutter.current.version
-// The version whose full test set runs (client GameTests, editor suite, standalone relay); see README "Build".
+// The version whose full test set runs (client GameTests, editor suite, standalone relay); see docs/development.md "Build".
 val isMain = mc == "26.3"
 val javaRelease = property("java_version").toString().toInt()
 // halisoncode.mixins.json: Mixin's compatibility level follows the Java version, and before 26.3 one mixin more
