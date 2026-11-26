@@ -303,7 +303,7 @@ public final class RobotCommands {
                 name.isEmpty() ? "" : " for robot \"" + name + "\"", String.format(java.util.Locale.ROOT, "%.2f", player.getX()), String.format(java.util.Locale.ROOT, "%.2f", player.getY()),
                 String.format(java.util.Locale.ROOT, "%.2f", player.getZ()), player.blockPosition().toShortString().replace(",", ""), McCompat.dimension(McCompat.level(player)).getPath(),
                 player.getDirection().getName());
-        RobotManager.spawn(McCompat.level(player), key(c), Vec3.atBottomCenterOf(player.blockPosition()), player.getDirection());
+        RobotManager.spawn(McCompat.level(player), key(c), Vec3.atBottomCenterOf(RobotManager.spawnBlock(McCompat.level(player), player.blockPosition())), player.getDirection());
         Messages.success(c.getSource(), Messages.of("commands.halisoncode.spawn", robot(c), direction(player.getDirection().getName())));
         return 1;
     }
