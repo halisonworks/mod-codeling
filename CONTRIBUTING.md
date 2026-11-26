@@ -199,7 +199,7 @@ A new op touches every layer. Follow an existing one end to end; `agent.freeSlot
    - a GameTest in `fabric/src/gametest/java/halisoncode/gametest/RobotGameTests.java`,
    - one line in `e2e/programs/blocks.mjs` keyed by the `blockId`, written the way the editor formats it, with values that differ from the block's defaults. The editor suite fails when a visible block has no line.
 7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/halisoncode/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/halisoncode/lang/en_us.json`, and code sends them with `halisoncode.Messages` (the kinds are in [docs/architecture.md](docs/architecture.md), "Messages to the player"; `PlayerMessageTest` fails otherwise).
-8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/halisoncode/robot/RobotCommands.java` and in the same tables.
+8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/commands.md](docs/commands.md), [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/halisoncode/robot/RobotCommands.java` and in the same tables.
 
 A change to how old Blocks files load needs a patch rule in `target/editor/extension.ts`, a version bump in `target/package.json` and `target/package-lock.json`, and a fixture in `e2e/fixtures/`.
 

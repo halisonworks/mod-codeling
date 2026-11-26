@@ -644,6 +644,8 @@ dine, `/robot nametag on` viser dem igjen; legg til et navn for å endre bare é
 
 ## Chattekommandoer
 
+Alle kommandoer og spilleregler står også i [én liste](../commands.md) (på engelsk).
+
 Et robotnavn til slutt i en kommando (vist som `[navn]`) velger en av robotene dine. Uten navn gjelder kommandoen
 standardroboten din.
 
@@ -720,6 +722,8 @@ Grensene holder spillet raskt for alle.
 - Programmet kjører i nettleseren din. Lukker du fanen eller forlater verdenen, stopper programmet. Etter 10 sekunder uten kontakt stopper spillet roboten.
 
 ## Flerspiller
+
+Kjører du en server, les [veiledningen for serveradministratorer](../server-admin.md) (på engelsk).
 
 - Serveren trenger Halison Code for sin modlaster (Fabric Loader og Fabric API, eller NeoForge). Alle som blir med på serveren, trenger samme modlaster og Halison Code også.
 - Bruk samme Halison Code-versjon på serveren og hos alle spillerne. Å blande versjoner er ikke støttet og ikke testet.
