@@ -211,6 +211,7 @@ Feilkodene et program kan fange:
 | `PROTECTED` | Satt av til beskyttede områder. I dag svarer spillet false i stedet (handlingen gjorde ingenting). |
 | `UNLOADED` | Roboten eller blokken er i en del av verden som ikke er lastet, eller roboten er ikke laget. |
 | `OUT_OF_RANGE` | Et tall er for stort eller for lite, for eksempel en flytting på mer enn 64 blokker eller en plass over 27. |
+| `NO_ITEMS` | Roboten gikk tom for blokker mens den bygde (fyll, plasser, linje, former, labyrint eller byggmester), for eksempel `NO_ITEMS: I ran out of oak planks after 90 blocks.` Blokkene den satt, blir stående. Gi roboten flere og bygg videre. |
 
 Disse avslutter programmet og kan ikke fanges: stoppknappen, `/robot stop`, "Avslutt feilsøking", tapt kontakt
 med spillet, `STOPPED` (spillet stoppet roboten) og `VERSION` (editoren er eldre enn spillet; last den inn på nytt).
@@ -292,8 +293,8 @@ Roboten blir stående og ser bare. En posisjon eller et hjørne du gir, må vær
 | robot mål åpning (akse) opptil (maks) | `agent.measureGap(Axis.X, 32)` | Hvor bred dalen eller gangen er der roboten står. |
 | robot bakkehøyde ved (posisjon) | `agent.groundHeight(pos(0, 0, 5))` | Hvor høyt bakken er der. Løv teller ikke. |
 | robot høydeprofil (retning) lengde (lengde) | `agent.heightProfile(SixDirection.Forward, 16)` | En liste med bakkehøyder langs en linje. |
-| robot er området fritt fra (hjørne) til (hjørne) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | Sann hvis ingenting er i boksen (gress og snø går fint). Høyst 32 blokker hver vei. |
-| robot tell faste blokker fra (hjørne) til (hjørne) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | Hvor mange blokker som er i boksen. |
+| robot er området fritt fra (hjørne) til (hjørne) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | Sann hvis ingenting er i boksen (gress og snø går fint, en fakkel gjør ikke det). Høyst 32 blokker hver vei. |
+| robot tell blokker fra (hjørne) til (hjørne) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | Hvor mange blokker som er i boksen: alt unntatt luft, gress, snø og vann, så fakler, blomster og skilt telles også. |
 | robot finn ytterkanter fremover opptil (maks) | `agent.findBounds(32)` | De to ytre hjørnene av bygget foran, eller ingenting. |
 
 ### Inventar
@@ -494,7 +495,7 @@ signals.send("lamp-red")
 | bygger linje fra merke med (blokk), bygger fyll fra merke med (blokk) (hvordan) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Bygger fra merket til byggeren. |
 | bygger plasser (blokk), bygger posisjon | `builder.place(Block.Torch)` | Plasserer en blokk der byggeren er, eller sier hvor den er. |
 
-Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
+Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
 
 Kategorien Konsoll har "si (tekst)" (`console.log("tekst")`). Den skriver i loggen under simulatoren.
 
@@ -524,8 +525,8 @@ for eksempel `/gamerule halisoncode:max_robots 4`. Skrur man den ned igjen, fors
 ikke flere.
 
 - `/robot spawn Miner` lager en robot som heter Miner, ved føttene dine. Et navn begynner med en bokstav og har høyst
-  16 bokstaver, sifre, `_` eller `-` (bare a til z, ikke æ, ø og å). Robotene dine har ulike navn (Miner og miner er
-  samme navn).
+  16 bokstaver, sifre, `_` eller `-`, også æ, ø og å (Bærer). Robotene dine har ulike navn (Miner og miner er samme
+  navn).
 - Den første roboten din, den uten navn, er fortsatt standardroboten din. I programmer heter den `agent`, så gamle
   programmer og lagrede verdener virker som før.
 - Hver robot har sitt eget inventar, sin egen plass, sitt eget hjem, sin egen tyngdekraft og hjelp, og lagres med

@@ -50,6 +50,10 @@ jobs:
           npm run build
           npm run staticpkg
 
+      # Issue #434: every block label, pxt's own and ours, has a Norwegian text. Needs the target built above.
+      - name: Norwegian block texts
+        run: node scripts/check-block-texts.mjs
+
       # The Gradle daemon provisions Java 25 itself (gradle/gradle-daemon-jvm.properties), but the wrapper needs a JDK to start.
       - uses: actions/setup-java@v6
         with:

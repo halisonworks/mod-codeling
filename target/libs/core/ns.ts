@@ -23,6 +23,114 @@ namespace agent {
     export function liquid(liquid: Liquid): number {
         return liquid;
     }
+
+    // Issue #433. These actions answer a value, so their own blocks are reporters, and a reporter cannot stand alone
+    // under "on start". Each statement block below has the same label and writes the same call (blockAliasFor), so
+    // `agent.goHome()` on its own line in JavaScript or Python becomes this block, and the block writes it back. The
+    // texts come from the aliased call (also the translations), and JavaScript completion leaves these names out.
+
+    /**
+     * Walk or fly to a position by itself, around walls and through wooden doors.
+     * @param position where to go, eg: pos(0, 0, 5)
+     */
+    //% blockId=agent_move_to_statement block="agent move to %position=positions_pos"
+    //% group="Movement" weight=97 blockAliasFor="agent.moveTo"
+    export function _moveToStatement(position: Position): void {
+        agent.moveTo(position);
+    }
+
+    /**
+     * Walk or fly home by itself, the same way as move to.
+     */
+    //% blockId=agent_go_home_statement block="agent go home"
+    //% group="Movement" weight=95 blockAliasFor="agent.goHome"
+    export function _goHomeStatement(): void {
+        agent.goHome();
+    }
+
+    /**
+     * Walk or fly to another of your robots, the same way as move to, and stop on a free block next to it.
+     * @param robot which of your robots to go to
+     */
+    //% blockId=agent_go_to_robot_statement block="agent go to %robot=robots_get"
+    //% group="Movement" weight=95 blockAliasFor="agent.goToRobot"
+    export function _goToRobotStatement(robot: Robot): void {
+        agent.goToRobot(robot);
+    }
+
+    /**
+     * Walk along a path of one kind of block (dirt path, gravel, planks, ...) until it ends or splits.
+     * @param block the path block, eg: Block.Gravel
+     * @param side the side to keep to, eg: TurnDirection.Left
+     */
+    //% blockId=agent_follow_path_statement block="agent follow path||of %block|keep %side"
+    //% expandableArgumentMode="enabled"
+    //% group="Movement" weight=94 blockAliasFor="agent.followPath"
+    export function _followPathStatement(block?: Block, side?: TurnDirection): void {
+        agent.followPath(block, side);
+    }
+
+    /**
+     * Put items from the robot into the container next to it, as a hopper would.
+     * @param direction where the container is, eg: SixDirection.Forward
+     * @param slot robot slot 1 to 27, or 0 for all slots, eg: 0
+     */
+    //% blockId=agent_store_items_statement block="agent store items %direction|from slot %slot"
+    //% slot.min=0 slot.max=27
+    //% group="Containers" weight=60 blockAliasFor="agent.storeItems"
+    export function _storeItemsStatement(direction: SixDirection, slot: number): void {
+        agent.storeItems(direction, slot);
+    }
+
+    /**
+     * Take items from one stack in the container next to the robot.
+     * @param direction where the container is, eg: SixDirection.Forward
+     * @param slot container slot, or 0 for the first stack, eg: 0
+     * @param count how many at most, eg: 64
+     */
+    //% blockId=agent_take_items_statement block="agent take items %direction|from slot %slot|amount %count"
+    //% slot.min=0 slot.max=54 count.min=1 count.max=64
+    //% group="Containers" weight=59 blockAliasFor="agent.takeItems"
+    export function _takeItemsStatement(direction: SixDirection, slot: number, count: number): void {
+        agent.takeItems(direction, slot, count);
+    }
+
+    /**
+     * Take one kind of item from any slot of the container next to the robot.
+     * @param direction where the container is, eg: SixDirection.Forward
+     * @param item what to take, eg: Item.Cobblestone
+     * @param count how many at most, eg: 64
+     */
+    //% blockId=agent_take_item_statement block="agent take from %direction|item %item|amount %count"
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
+    //% group="Containers" weight=58 blockAliasFor="agent.takeItem"
+    export function _takeItemStatement(direction: SixDirection, item: number, count: number): void {
+        agent.takeItem(direction, item, count);
+    }
+
+    /**
+     * Craft an item from the robot's own inventory, like a player.
+     * @param item what to make, eg: Item.OakPlanks
+     * @param count how many at least, eg: 4
+     */
+    //% blockId=agent_craft_statement block="agent craft %item|amount %count"
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
+    //% group="Crafting" weight=54 blockAliasFor="agent.craft"
+    export function _craftStatement(item: number, count: number): void {
+        agent.craft(item, count);
+    }
+
+    /**
+     * Cut stone with the stonecutter next to the robot, from the robot's own inventory.
+     * @param item what to make, eg: Item.StoneBricks
+     * @param count how many at least, eg: 4
+     */
+    //% blockId=agent_stonecut_statement block="agent stonecut %item|amount %count"
+    //% item.shadow=halisoncode_item count.min=1 count.max=64
+    //% group="Crafting" weight=52 blockAliasFor="agent.stonecut"
+    export function _stonecutStatement(item: number, count: number): void {
+        agent.stonecut(item, count);
+    }
 }
 
 /**
