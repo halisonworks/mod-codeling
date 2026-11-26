@@ -1961,11 +1961,26 @@ public class RobotGameTests {
         List<Result> results = send(helper, owner, "blocks.fill", fill(helper, stone(), from, to, RobotShapes.REPLACE));
         send(results, helper, owner, "blocks.fill", fill(helper, stone(), from, to, RobotShapes.REPLACE));
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(results, List.of(Result.ok(5, "I ran out of stone after 5 blocks."),
-                    Result.ok(0, "I have no stone in my inventory.")), "placed");
+            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, "I ran out of stone after 5 blocks."),
+                    Result.error(Result.Code.NO_ITEMS, "I have no stone in my inventory.")), "a catchable error (issue #438)");
             helper.assertValueEqual(RobotManager.robot(owner).said(), "I have no stone in my inventory.", "said");
             helper.assertValueEqual(count(helper, from, to, Blocks.STONE), 5, "stone in the box");
             helper.assertTrue(inv(owner).isEmpty(), "every stone used");
+        });
+    }
+
+    // Issue #438: a hollow fill with too few blocks, spread over two stacks, as in the lesson "Hus før natta".
+    @GameTest(maxTicks = 100)
+    public void hollowFillWithTooFewBlocksSaysWhy(GameTestHelper helper) {
+        UUID owner = spawn(helper);
+        inv(owner).setItem(2, new ItemStack(Items.STONE, 12));
+        inv(owner).setItem(7, new ItemStack(Items.STONE, 8));
+        BlockPos from = new BlockPos(2, 2, 3), to = new BlockPos(4, 4, 5);
+        List<Result> results = send(helper, owner, "blocks.fill", fill(helper, stone(), from, to, RobotShapes.HOLLOW));
+        helper.succeedWhen(() -> {
+            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, "I ran out of stone after 20 blocks.")), "a catchable error");
+            helper.assertValueEqual(count(helper, from, to, Blocks.STONE), 20, "the blocks set stay");
+            helper.assertValueEqual(RobotManager.robot(owner).said(), "I ran out of stone after 20 blocks.", "said");
         });
     }
 
@@ -1997,7 +2012,7 @@ public class RobotGameTests {
         helper.succeedWhen(() -> {
             helper.assertValueEqual(set.size(), 1, "setItem answered");
             helper.assertValueEqual(set.getFirst().code(), Result.Code.NO_PERMISSION, "setItem refused");
-            helper.assertValueEqual(fill, List.of(Result.ok(2, "I ran out of stone after 2 blocks.")), "placed");
+            helper.assertValueEqual(fill, List.of(Result.error(Result.Code.NO_ITEMS, "I ran out of stone after 2 blocks.")), "placed");
             helper.assertValueEqual(count(helper, from, to, Blocks.STONE), 2, "stone in the line");
             helper.assertTrue(inv(owner).isEmpty(), "every stone used, no planks given");
             helper.getLevel().getServer().getPlayerList().remove(player);
@@ -2237,7 +2252,7 @@ public class RobotGameTests {
         UUID owner = spawn(helper);
         List<Result> results = send(helper, owner, "shapes.maze", maze(helper, 42));
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(results, List.of(Result.ok(0, "I have no stone bricks in my inventory.")), "nothing placed");
+            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, "I have no stone bricks in my inventory.")), "nothing placed");
             helper.assertValueEqual(count(helper, MAZE, MAZE.offset(6, 2, 6), Blocks.STONE_BRICKS) + count(helper, MAZE, MAZE.offset(6, 2, 6), Blocks.OAK_PLANKS), 0, "no maze");
         });
     }
