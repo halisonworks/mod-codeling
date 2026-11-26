@@ -1,7 +1,7 @@
 # Contributing to Halison Code
 
 Thanks for helping. This page says how to build, run and test Halison Code, and what a pull request needs.
-The [README](README.md) has the details on each part; this page links to it instead of repeating it.
+[docs/development.md](docs/development.md) has the details on each part; this page links to it instead of repeating it.
 
 ## Ways to contribute
 
@@ -44,7 +44,7 @@ Halison Code is a volunteer project, so an answer can take some days. Everyone w
 | Bash | any | For `scripts/check-text.sh` (Git Bash on Windows). |
 | Gradle | none | Use the wrapper (`./gradlew`, Gradle 9.8.2). |
 
-IntelliJ IDEA setup: [README, Open in IntelliJ IDEA](README.md#open-in-intellij-idea).
+IntelliJ IDEA setup: [development, Open in IntelliJ IDEA](docs/development.md#open-in-intellij-idea).
 
 ## Build
 
@@ -63,20 +63,20 @@ cd ..
 - `npm run build` twice: the first run regenerates `target/libs/core/sims.d.ts` from `target/sim/api.ts` but bundles the old API info. Running it once is enough when `api.ts` did not change. CI always runs it twice.
 - `./gradlew buildEditor` does `npm ci`, one `npm run build` and `npm run staticpkg` in `target/` (output `target/built/packaged`).
 - Use `node node_modules/pxt-core/built/pxt.js` (what the npm scripts call), never `npx pxt`: that installs an unrelated package.
-- `./gradlew build` makes a Fabric and a NeoForge jar for every Minecraft version in `settings.gradle.kts` and runs the JUnit tests and the server GameTests for all of them. One jar: `./gradlew :<loader>:<version>:build`, for example `:fabric:26.3:build` or `:neoforge:1.21.1:build`. Jar names and paths: [README, Build](README.md#build).
+- `./gradlew build` makes a Fabric and a NeoForge jar for every Minecraft version in `settings.gradle.kts` and runs the JUnit tests and the server GameTests for all of them. One jar: `./gradlew :<loader>:<version>:build`, for example `:fabric:26.3:build` or `:neoforge:1.21.1:build`. Jar names and paths: [development, Build](docs/development.md#build).
 - `src/` holds the 26.3 code. Lines that differ for an older version are Stonecutter `//? if` comments; keep 26.3 active in git. See [docs/architecture.md](docs/architecture.md), "Several Minecraft versions".
 
 ## Run
 
 | What | Command |
 |---|---|
-| Editor and relay without Minecraft | `./gradlew :fabric:26.3:runRelay --args="--print-url"`, then open the printed `EDITOR_URL`. Every command gets a fake answer. See [README, Run without Minecraft](README.md#run-without-minecraft). |
+| Editor and relay without Minecraft | `./gradlew :fabric:26.3:runRelay --args="--print-url"`, then open the printed `EDITOR_URL`. Every command gets a fake answer. See [development, Run without Minecraft](docs/development.md#run-without-minecraft). |
 | Fabric client | `./gradlew :fabric:26.3:runClient` (or `:fabric:1.21.1:runClient`) |
 | NeoForge client | `./gradlew :neoforge:26.3:runClient` (or `:neoforge:1.21.1:runClient`) |
 | Dedicated server | `./gradlew :fabric:26.3:runServer` or `./gradlew :neoforge:26.3:runServer` (same with `1.21.1`) |
 | Editor dev server (pxt) | `npm run serve` in `target/` |
 
-In game: `/robot spawn`, then `/halisoncode` opens the editor. More: [README, Run in Minecraft](README.md#run-in-minecraft).
+In game: `/robot spawn`, then `/halisoncode` opens the editor. More: [development, Run in Minecraft](docs/development.md#run-in-minecraft).
 
 ## Tests
 
@@ -96,7 +96,7 @@ In game: `/robot spawn`, then `/halisoncode` opens the editor. More: [README, Ru
 
 - The editor suite and the client GameTests need Playwright's headless Chromium once: `./gradlew :fabric:26.3:installE2e`, then `node node_modules/playwright-core/cli.js install chromium-headless-shell` in `e2e/`.
 - Client GameTests and client smokes open a real game window (2 to 3 GB of memory). Close your own Minecraft first.
-- Reports, logs and screenshots: [README, Build](README.md#build) and [README, Editor test suite](README.md#editor-test-suite).
+- Reports, logs and screenshots: [development, Build](docs/development.md#build) and [development, Editor test suite](docs/development.md#editor-test-suite).
 - After changing `BlockIds` or `ItemIds`, run `./gradlew :fabric:26.3:test` twice: the first run rewrites `target/libs/core/blocks.d.ts` or `items.d.ts` and fails once. Commit the generated file.
 
 Run the client GameTests yourself before a pull request that touches the client, the camera, screens or the relay: CI only runs them on `main`.
@@ -199,7 +199,7 @@ A new op touches every layer. Follow an existing one end to end; `agent.freeSlot
    - a GameTest in `fabric/src/gametest/java/halisoncode/gametest/RobotGameTests.java`,
    - one line in `e2e/programs/blocks.mjs` keyed by the `blockId`, written the way the editor formats it, with values that differ from the block's defaults. The editor suite fails when a visible block has no line.
 7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/halisoncode/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/halisoncode/lang/en_us.json`, and code sends them with `halisoncode.Messages` (the kinds are in [docs/architecture.md](docs/architecture.md), "Messages to the player"; `PlayerMessageTest` fails otherwise).
-8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/commands.md](docs/commands.md), [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/halisoncode/robot/RobotCommands.java` and in the same tables.
+8. **Docs**: the Editor API table in [docs/development.md](docs/development.md#editor-api) and the command tables in [docs/commands.md](docs/commands.md), [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/halisoncode/robot/RobotCommands.java` and in the same tables.
 
 A change to how old Blocks files load needs a patch rule in `target/editor/extension.ts`, a version bump in `target/package.json` and `target/package-lock.json`, and a fixture in `e2e/fixtures/`.
 

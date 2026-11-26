@@ -10,7 +10,7 @@ pluginManagement {
 plugins {
     // Downloads the Java 25 and 21 toolchains when they are not installed.
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-    // One source tree, several Minecraft versions (issue #189): see stonecutter.gradle.kts and README "Build".
+    // One source tree, several Minecraft versions (issue #189): see stonecutter.gradle.kts and docs/development.md "Build".
     id("dev.kikugie.stonecutter") version "0.10"
     // Picks Fabric Loom per version: net.fabricmc.fabric-loom on 26.x (no obfuscation), fabric-loom-remap before.
     id("dev.kikugie.loom-back-compat") version "0.4.3"

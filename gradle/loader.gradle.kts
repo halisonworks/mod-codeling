@@ -4,7 +4,7 @@
 version = providers.gradleProperty("mod_version").get()
 group = providers.gradleProperty("maven_group").get()
 
-// Jar name rule (README, docs/architecture.md): <modid>-<loader>-<minecraftversion>-<modversion>.jar, e.g.
+// Jar name rule (docs/development.md, docs/architecture.md): <modid>-<loader>-<minecraftversion>-<modversion>.jar, e.g.
 // halisoncode-fabric-26.3-0.0.1.jar. Stonecutter (issue #189) makes one project per loader and version, :fabric:26.3:
 // the loader part is the module's name (the parent project), the Minecraft version is the project's own name.
 extensions.configure<BasePluginExtension> {
