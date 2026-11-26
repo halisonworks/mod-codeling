@@ -6,6 +6,13 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Changed
+
+- Building in survival (issue #438): when the robot runs out of blocks during fill, place, line, shapes, maze or
+  builder, the call now fails with the new error `NO_ITEMS` ("I ran out of oak planks after 90 blocks."), which
+  JavaScript and Python can catch. Before, the program went on as if the build was done. The blocks set so far stay,
+  and the robot still says why over its head.
+
 ## [0.0.6] - 2026-11-26
 
 The sixth pre-release, for testing. Codeling is now called Halison Code.

@@ -947,12 +947,13 @@ public final class RobotManager {
             }
             int slot = free ? -1 : slotWith(robot.inventory(), target.asItem());
             if (!free && slot < 0) {
-                // In survival the robot gathers its own blocks: say why it stopped, not only how many it set.
+                // In survival the robot gathers its own blocks: say why it stopped, and (issue #438) answer with an error the
+                // program can catch, so it can fetch more and go on. The blocks set so far stay.
                 String missing = name(target).replace('_', ' ');
                 String why = entry.step == 0 ? "I have no " + missing + " in my inventory."
                         : "I ran out of " + missing + " after " + entry.step + (entry.step == 1 ? " block." : " blocks.");
                 robot.say(why);
-                buildEnd(robot, queue, entry, "the robot has no " + name(target) + " in its inventory (the owner does not get items free)", Result.ok(entry.step, why));
+                buildEnd(robot, queue, entry, "the robot has no " + name(target) + " in its inventory (the owner does not get items free)", Result.error(Result.Code.NO_ITEMS, why));
                 return;
             }
             ItemStack stack = free ? new ItemStack(target.asItem()) : robot.inventory().getItem(slot);

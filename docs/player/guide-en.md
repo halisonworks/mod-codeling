@@ -207,6 +207,7 @@ The error codes a program can catch:
 | `PROTECTED` | Kept for protected areas. Today the game answers false instead (the action did nothing). |
 | `UNLOADED` | The robot or the block is in a part of the world that is not loaded, or the robot is not spawned. |
 | `OUT_OF_RANGE` | A number is too big or too small, for example a move of more than 64 blocks or a slot above 27. |
+| `NO_ITEMS` | The robot ran out of blocks while it built (fill, place, line, shapes, maze or builder), for example `NO_ITEMS: I ran out of oak planks after 90 blocks.` The blocks it set stay. Give the robot more and build again. |
 
 These end the program and cannot be caught: the stop button, `/robot stop`, "Exit Debug Mode", a lost connection to
 the game, `STOPPED` (the game stopped the robot) and `VERSION` (the editor is older than the game; reload it).
@@ -488,7 +489,7 @@ signals.send("lamp-red")
 | builder line from mark with (block), builder fill from mark with (block) (how) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Builds from the mark to the builder. |
 | builder place (block), builder position | `builder.place(Block.Torch)` | Places a block where the builder is, or tells where it is. |
 
-The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
+The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."), and the call fails with `NO_ITEMS`, which JavaScript and Python can catch (see [Errors](#errors-and-checking-your-own-program)); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
 
 The Console category has "say (text)" (`console.log("text")`). It writes to the log under the simulator.
 

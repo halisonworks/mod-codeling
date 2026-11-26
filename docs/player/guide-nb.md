@@ -211,6 +211,7 @@ Feilkodene et program kan fange:
 | `PROTECTED` | Satt av til beskyttede områder. I dag svarer spillet false i stedet (handlingen gjorde ingenting). |
 | `UNLOADED` | Roboten eller blokken er i en del av verden som ikke er lastet, eller roboten er ikke laget. |
 | `OUT_OF_RANGE` | Et tall er for stort eller for lite, for eksempel en flytting på mer enn 64 blokker eller en plass over 27. |
+| `NO_ITEMS` | Roboten gikk tom for blokker mens den bygde (fyll, plasser, linje, former, labyrint eller byggmester), for eksempel `NO_ITEMS: I ran out of oak planks after 90 blocks.` Blokkene den satt, blir stående. Gi roboten flere og bygg videre. |
 
 Disse avslutter programmet og kan ikke fanges: stoppknappen, `/robot stop`, "Avslutt feilsøking", tapt kontakt
 med spillet, `STOPPED` (spillet stoppet roboten) og `VERSION` (editoren er eldre enn spillet; last den inn på nytt).
@@ -494,7 +495,7 @@ signals.send("lamp-red")
 | bygger linje fra merke med (blokk), bygger fyll fra merke med (blokk) (hvordan) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Bygger fra merket til byggeren. |
 | bygger plasser (blokk), bygger posisjon | `builder.place(Block.Torch)` | Plasserer en blokk der byggeren er, eller sier hvor den er. |
 
-Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
+Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
 
 Kategorien Konsoll har "si (tekst)" (`console.log("tekst")`). Den skriver i loggen under simulatoren.
 
