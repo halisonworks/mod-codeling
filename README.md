@@ -5,7 +5,7 @@ Up to 0.0.5 it was called Codeling. Robots, settings and projects from then are 
 The editor is a custom pxt target that runs in your browser and is served by the mod on `127.0.0.1`.
 Each robot command goes over a local WebSocket to the mod.
 
-**Status: pre-release (0.0.6), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
+**Status: pre-release (0.0.7), for testing.** Releases are on the GitHub releases page. The server has robots with a 27-slot inventory and `/robot` commands, and the browser editor drives them: every robot op (movement, building, inspecting, inventory, containers, crafting, measuring, sensors, camera) is a block, JavaScript and Python call, and each call returns when the robot has finished.
 Plan: [docs/architecture.md](docs/architecture.md).
 
 Not approved by or associated with Mojang or Microsoft. The editor is based on Microsoft MakeCode (pxt), MIT licence.
@@ -188,7 +188,7 @@ Each call waits for the robot and returns the server's answer.
 | `agent.stonecut(Item.StoneBricks, count)` | number made, like `craft`, with the stonecutter recipes and a stonecutter next to the robot (issue #115). |
 | `agent.sortContainer(direction)` | nothing (the log shows true/false): merges equal stacks and orders them by item id. Chests, barrels, shulker boxes, hoppers, dispensers and droppers only. |
 
-Several robots (issues #140, #141, #151): the game rule `halisoncode:max_robots` (1 to 16, default 1) sets how many robots each player may have; the default robot (no name) counts as one, so with the default nothing changes. Named robots come from `/robot spawn <name>` (a letter, then up to 15 letters, digits, `_` or `-`; unique per owner ignoring case; `all`, `follow`, `off` and `on` are reserved). `robots.get("Miner")` (category Robots) returns a `Robot` with every `agent` method; each call adds `"robot": "Miner"` to the `cmd`, and the server looks the robot up under the sender's own UUID, so a name can never reach another player's robot. Each robot has its own queue, so calls to different robots overlap when they run in different `control.runInParallel` blocks (a `thread.runInBackground`); all of one owner's robots share the editor's run, and `control stop` or a lost heartbeat stops them all. Blocks has the Robots category with `robot (name)`, `run in parallel` and the common actions (move, turn, move to, go to robot, position, place, destroy, collect all, say); the other `Robot` methods are JavaScript and Python only, and the agent blocks are unchanged. A dropdown on every agent block would change all of them and a full second block set would double the toolbox, so this was the smaller choice. The sim log prefixes a named robot's lines with its name ("Miner: move 0 2: done").
+Several robots (issues #140, #141, #151): the game rule `halisoncode:max_robots` (1 to 16, default 1) sets how many robots each player may have; the default robot (no name) counts as one, so with the default nothing changes. Named robots come from `/robot spawn <name>` (a letter, then up to 15 letters, digits, `_` or `-`, any letter including æ, ø and å, issue #435; unique per owner ignoring case; `all`, `follow`, `off` and `on` are reserved). `robots.get("Miner")` (category Robots) returns a `Robot` with every `agent` method; each call adds `"robot": "Miner"` to the `cmd`, and the server looks the robot up under the sender's own UUID, so a name can never reach another player's robot. Each robot has its own queue, so calls to different robots overlap when they run in different `control.runInParallel` blocks (a `thread.runInBackground`); all of one owner's robots share the editor's run, and `control stop` or a lost heartbeat stops them all. Blocks has the Robots category with `robot (name)`, `run in parallel` and the common actions (move, turn, move to, go to robot, position, place, destroy, collect all, say); the other `Robot` methods are JavaScript and Python only, and the agent blocks are unchanged. A dropdown on every agent block would change all of them and a full second block set would double the toolbox, so this was the smaller choice. The sim log prefixes a named robot's lines with its name ("Miner: move 0 2: done").
 Save format: `robots.dat` keeps default robots in `links` as before and named ones in a new `named` map (owner, name, robot UUID), so an old save loads as the default robots. An older mod version reading a newer save ignores `named` and treats those robots as stale, removing them without their items when they load.
 
 Positions (category Positions, MakeCode names): `pos(x, y, z)` is relative to your feet with world axes (`~`), `posLocal(x, y, z)` turns with your facing (`^`: x left, y up, z forward), `world(x, y, z)` is absolute; `positions.create`, `createLocal`, `createWorld` are the same without blocks.
@@ -235,50 +235,8 @@ The table is 26.3's on every Minecraft version, so the editor offers the same bl
 The sim log and a dialog say why a program stopped: an expired editor link after a game restart ("Open the editor from the game again with /halisoncode"), no world loaded ("Not in a world"), the game stopped the robot (`/robot stop`, closed tab, 10 s without heartbeat), or a rule error such as a move longer than 64 blocks.
 The first two also appear as a warning in the game log (logger `halisoncode/relay`).
 
-Robot commands (server side). Every action is covered by GameTests. Step 1A commands were tried in game; the step 1B ones (place and below) not yet.
-`<dir>` is `forward`, `back`, `left`, `right`, `up` or `down`, relative to the robot's facing.
-
-| Command | What |
-|---|---|
-| `/robot spawn [name]` | Spawn your robot at your feet facing your way, or move it there. Without a name it is your default robot (`agent`); a new named robot needs room under `halisoncode:max_robots`. Ends the current run. |
-| `/robot list` | Your robots, loaded or not, with positions. |
-| `/robot remove <name>` | Remove a loaded robot; its items go to your inventory (the rest drop at your feet). `agent` is the default robot: that also ends the run, and the next `/robot spawn` gives it back its name, skin and color. |
-| `/robot rename <name> <new>` | Rename a robot; a named robot's queue is cleared. `agent` is the default robot, also as `/robot rename <new>`; it stays `agent` in programs. Name tag items work too (owner and ops). |
-| `/robot nametag <on\|off> [name]` | Show or hide the name tag of one robot, or of all your loaded robots. |
-| `/robot move <forward\|back\|left\|right\|up\|down> <blocks>` | Queue a move, 1 to 64 blocks, 4 ticks per block. Stops early at a solid block; open doors and trapdoors let it through. |
-| `/robot turn <left\|right>` | Queue a 90 degree turn. |
-| `/robot stop [name]` | Without a name: drop the queues of all your robots and end the run. A program running in the editor halts at once and shows "Program stopped". With a name: drop only that robot's queue. |
-| `/robot status` | Position, facing, queue length, run id. |
-| `/robot stop all` | Ops only (gamemaster level): stop every robot. |
-| `/robot place <dir>` | Place the block in the selected slot. |
-| `/robot destroy <dir>` | Break the block as a player with a diamond pickaxe would; drops go into the robot. Bedrock and protected blocks stay. |
-| `/robot inspect <dir>` | Encoded block id (`id \| data << 16`, pre-flattening numbers), `-1` for blocks not in the table. |
-| `/robot detect <dir>` | `true` if the block would stop a move. |
-| `/robot slot <1-27>` | Select a slot. |
-| `/robot give <block> <count> [slot]` | Creative-style give (`setItem`): creative mode, the gamerule `halisoncode:free_items` or the permission `halisoncode.free_items` only. `<block>` is a name such as `stone`, `oak_planks`, `red_wool`, an item id such as `iron_ingot`, or an encoded number. Slot defaults to the selected one. |
-| `/robot inventory` | Opens the robot's inventory screen when the robot is within reach; otherwise prints the selected slot and every non-empty slot. |
-| `/robot collect` | Pick up items within 1 block. |
-| `/robot drop <dir>` | Drop everything (`dropAll`). |
-| `/robot assist <true\|false>` | `PLACE_ON_MOVE`: each move step places the selected block in the spot it leaves. |
-| `/robot gravity <true\|false>` | Gravity mode (`setGravity`): fall after sideways steps, step up 1-block bumps. Saved on the robot. |
-| `/robot sethome` | Saves where the robot stands as its home (`agent.setHome`). Saved on the robot. |
-| `/robot come` | Walks the robot to your block by the `moveTo` path search; when there is no path it teleports there instead (issue #77). Same dimension only (else "use /robot spawn") and loaded chunks only. Answers `walked` or `teleported`. |
-| `/robot camera` | Toggles the view through your robot's eyes (issue #176); `/robot camera off` ends it. Also a key under Controls, Halison Code (unbound by default). Escape opens the pause menu as usual and keeps the camera on. The gamerule `halisoncode:robot_camera` (`owner` default, `ops`, `off`) decides who may (issue #175). |
-| `/robot camera follow` | Toggles the camera behind and above your robot (issue #177), looking down at 55 degrees: mouse orbits, scroll wheel sets the distance (2 to 12), walls pull it in. The camera eases after the robot's turns and in and out at walls, every frame, instead of jumping. Own key "Robot camera: follow". Same rules; programs use `agent.camera(CameraMode.Follow)`. |
-
-Every command that acts on one robot takes an optional robot name as its last word (`/robot move forward 3 Miner`, `/robot give stone 5 1 Miner`, `/robot camera follow Miner`); without it, it acts on your default robot.
-With a permission mod (issue #51) a server decides per player, through NeoForge's permission API, Fabric API's (26.1.2 and
-later) or fabric-permissions-api (Fabric 1.21.x, which LuckPerms carries with it):
-
-| Permission | What it is for | Default |
-|---|---|---|
-| `halisoncode.robot` | `/robot`, and programs that use a robot (`NO_PERMISSION`). Without it `/robot` is an unknown command. The player calls still work, and so does the robot's inventory screen. | everyone |
-| `halisoncode.build` | `blocks.place`, `blocks.fill`, `shapes.line`, `shapes.circle`, `shapes.sphere` and `shapes.maze`. Not `agent.place`. | everyone |
-| `halisoncode.free_items` | `agent.setItem`, `/robot give` and building without items | creative mode, or the gamerule `halisoncode:free_items` |
-| `halisoncode.teleport` | `player.teleport` | the singleplayer host and ops |
-
-The defaults stand without a permission mod, and where it says nothing about the player. Claims, spawn protection and the game
-mode still apply: a permission never overrides them.
+Every command and game rule is in [docs/commands.md](docs/commands.md) (issue #273), and permissions, protection and
+the per-tick limits are in [docs/server-admin.md](docs/server-admin.md) (issue #272).
 
 All commands except `spawn`, `stop`, `status` and `inventory` go through the same validator and queue as the browser commands; `come` is built from your position and skips the validator.
 A robot that is killed drops its inventory where it stood. `/robot spawn` in another dimension moves the inventory to the new robot.

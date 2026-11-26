@@ -6,6 +6,36 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+## [0.0.7] - 2026-11-27
+
+The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.
+
+### Added
+
+- The game's messages in Norwegian (issue #275): with the game set to Norsk bokmål, chat replies to `/robot` and
+  `/halisoncode`, the game rules and the key names are in Norwegian. What the robot says over its head and the robot
+  log stay English for now. CONTRIBUTING.md says how to add another language.
+
+### Changed
+
+- Building in survival (issue #438): when the robot runs out of blocks during fill, place, line, shapes, maze or
+  builder, the call now fails with the new error `NO_ITEMS` ("I ran out of oak planks after 90 blocks."), which
+  JavaScript and Python can catch. Before, the program went on as if the build was done. The blocks set so far stay,
+  and the robot still says why over its head.
+- "agent count solid blocks" is now "agent count blocks" ("robot tell blokker") (issue #436). It counts what it did
+  before, every block but air, grass, snow and water, and the help now says that torches, flowers and signs count too.
+  The JavaScript name `agent.countSolid` stays.
+
+### Fixed
+
+- Robot actions that answer a value (move to, go home, go to robot, follow path, store and take items, craft,
+  stonecut) can stand alone as a block too, without using the answer (issue #433). Before, a program had to put the
+  block in a variable or an "if".
+- Every block has a Norwegian text, also the math, text and list blocks that were English (issue #434). CI now
+  checks it.
+- Robot names may have any letter, also æ, ø and å, as in `/robot spawn Bærer` (issue #435).
+- `/robot spawn` on a chest, a slab or a path puts the robot on top of it, not inside it (issue #437).
+
 ## [0.0.6] - 2026-11-26
 
 The sixth pre-release, for testing. Codeling is now called Halison Code.

@@ -13,7 +13,7 @@ documentation are in English, except the Norwegian player guide and block texts.
 | Report a bug | [Open a bug report](https://github.com/halisonworks/mod-halisoncode/issues/new?template=bug_report.yml). Look in the troubleshooting table of the player guide ([English](docs/player/guide-en.md#troubleshooting), [norsk](docs/player/guide-nb.md)) and in the open issues first. |
 | Suggest an idea | [Open an idea](https://github.com/halisonworks/mod-halisoncode/issues/new?template=feature_request.yml). Say what you want to do and why it is useful or fun; a solution is welcome but not needed. |
 | Report a security problem | Never in a public issue. See [SECURITY.md](SECURITY.md). |
-| Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/halisoncode/`. |
+| Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/halisoncode/`, the game's messages in `common/src/main/resources/assets/halisoncode/lang/nb_no.json`. |
 | Share an example program | Open an idea with the program in it. |
 | Fix a bug or build a feature | See below. |
 
@@ -198,10 +198,26 @@ A new op touches every layer. Follow an existing one end to end; `agent.freeSlot
    - rejections in `fabric/src/test/java/halisoncode/robot/RobotCommandTest.java`,
    - a GameTest in `fabric/src/gametest/java/halisoncode/gametest/RobotGameTests.java`,
    - one line in `e2e/programs/blocks.mjs` keyed by the `blockId`, written the way the editor formats it, with values that differ from the block's defaults. The editor suite fails when a visible block has no line.
-7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/halisoncode/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/halisoncode/lang/en_us.json`, and code sends them with `halisoncode.Messages` (the kinds are in [docs/architecture.md](docs/architecture.md), "Messages to the player"; `PlayerMessageTest` fails otherwise).
-8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/halisoncode/robot/RobotCommands.java` and in the same tables.
+7. **Translations**: the English block text is the `block="..."` string in `api.ts`. Add the Norwegian text to `target/locales/nb/halisoncode/core-strings.json` (key `agent.yourOp|block`). In-game text keys go in `common/src/main/resources/assets/halisoncode/lang/en_us.json` with the Norwegian text in `nb_no.json` next to it (`PlayerMessageTest` checks that both have the same keys and the same number of `%s`), and code sends them with `halisoncode.Messages` (the kinds are in [docs/architecture.md](docs/architecture.md), "Messages to the player"; `PlayerMessageTest` fails otherwise).
+8. **Docs**: the Editor API table in [README.md](README.md#editor-api) and the command tables in [docs/commands.md](docs/commands.md), [docs/player/guide-en.md](docs/player/guide-en.md) and [docs/player/guide-nb.md](docs/player/guide-nb.md). A new `/robot` subcommand goes in `common/src/main/java/halisoncode/robot/RobotCommands.java` and in the same tables.
 
 A change to how old Blocks files load needs a patch rule in `target/editor/extension.ts`, a version bump in `target/package.json` and `target/package-lock.json`, and a fixture in `e2e/fixtures/`.
+
+## Adding a language
+
+Halison Code has two sets of texts, and a new language needs both (issue #275).
+
+1. **The game's messages** (chat replies, game rules, keys): copy
+   `common/src/main/resources/assets/halisoncode/lang/en_us.json` to the game's code for the language, for example
+   `sv_se.json` for Swedish, and translate the texts. Keep every `%s` (the game fills in a robot name, a number or a
+   command there), and keep command words such as `/robot list` in English, because the commands are English.
+   `PlayerMessageTest` today checks `nb_no.json` only: add your file to that test too.
+2. **The editor** (block texts, categories, help): add a folder under `target/locales/` named after the language, as
+   `target/locales/nb/`, and add the language to `availableLocales` in `target/pxtarget.json`.
+3. Run `./gradlew :fabric:26.3:test` and the [editor test suite](README.md#editor-test-suite), and open a
+   pull request.
+
+What the robot says over its head and the messages in the robot log are English for now.
 
 ## Branding and licences
 

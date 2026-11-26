@@ -207,6 +207,7 @@ The error codes a program can catch:
 | `PROTECTED` | Kept for protected areas. Today the game answers false instead (the action did nothing). |
 | `UNLOADED` | The robot or the block is in a part of the world that is not loaded, or the robot is not spawned. |
 | `OUT_OF_RANGE` | A number is too big or too small, for example a move of more than 64 blocks or a slot above 27. |
+| `NO_ITEMS` | The robot ran out of blocks while it built (fill, place, line, shapes, maze or builder), for example `NO_ITEMS: I ran out of oak planks after 90 blocks.` The blocks it set stay. Give the robot more and build again. |
 
 These end the program and cannot be caught: the stop button, `/robot stop`, "Exit Debug Mode", a lost connection to
 the game, `STOPPED` (the game stopped the robot) and `VERSION` (the editor is older than the game; reload it).
@@ -288,8 +289,8 @@ The robot stays where it is and only looks. A position or corner you give must b
 | agent measure gap (axis) up to (max) | `agent.measureGap(Axis.X, 32)` | How wide the valley or corridor is where the robot stands. |
 | agent ground height at (position) | `agent.groundHeight(pos(0, 0, 5))` | The height of the ground there. Leaves do not count. |
 | agent height profile (direction) length (length) | `agent.heightProfile(SixDirection.Forward, 16)` | A list of ground heights along a line. |
-| agent is area free from (corner) to (corner) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | True if nothing is in the box (grass and snow are fine). At most 32 blocks each way. |
-| agent count solid blocks from (corner) to (corner) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | How many blocks are in the box. |
+| agent is area free from (corner) to (corner) | `agent.isAreaFree(pos(1, 0, 1), pos(5, 4, 5))` | True if nothing is in the box (grass and snow are fine; a torch is not). At most 32 blocks each way. |
+| agent count blocks from (corner) to (corner) | `agent.countSolid(pos(1, 0, 1), pos(5, 4, 5))` | How many blocks are in the box: everything except air, grass, snow and water, so torches, flowers and signs count too. |
 | agent find bounds forward up to (max) | `agent.findBounds(32)` | The two outer corners of the building in front, or nothing. |
 
 ### Inventory
@@ -488,7 +489,7 @@ signals.send("lamp-red")
 | builder line from mark with (block), builder fill from mark with (block) (how) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Builds from the mark to the builder. |
 | builder place (block), builder position | `builder.place(Block.Torch)` | Places a block where the builder is, or tells where it is. |
 
-The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
+The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."), and the call fails with `NO_ITEMS`, which JavaScript and Python can catch (see [Errors](#errors-and-checking-your-own-program)); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
 
 The Console category has "say (text)" (`console.log("text")`). It writes to the log under the simulator.
 
@@ -517,7 +518,8 @@ the robot without a name counts as one). It is 1 at first, so everything works w
 it up, for example `/gamerule halisoncode:max_robots 4`. Turning it down again never removes robots; it only stops new ones.
 
 - `/robot spawn Miner` makes a robot called Miner at your feet. A name starts with a letter and has at most 16
-  letters, digits, `_` or `-`. Your robots all have different names (Miner and miner count as the same name).
+  letters (any letter, also æ, ø and å), digits, `_` or `-`. Your robots all have different names (Miner and miner
+  count as the same name).
 - Your first robot, the one without a name, stays your default robot. In programs it is `agent`, so old programs
   and saved worlds work as before.
 - Each robot has its own inventory, slot, home, gravity and assist, and is saved with the world.
@@ -633,6 +635,8 @@ speech bubble takes the place of its tag.
 
 ## Chat commands
 
+All commands and game rules are also in [one list](../commands.md).
+
 A robot name at the end of a command (shown as `[name]`) picks one of your robots. Without it the command is for
 your default robot.
 
@@ -708,6 +712,8 @@ These keep the game fast for everyone.
 - The program runs in your browser. If you close the tab or leave the world, the program stops. After 10 seconds without contact the game stops the robot.
 
 ## Multiplayer
+
+If you run a server, read the [server admin guide](../server-admin.md) (in English).
 
 - The server needs Halison Code for its loader (Fabric Loader and Fabric API, or NeoForge). Every player who joins needs the same loader and Halison Code too.
 - Use the same Halison Code version on the server and on every client. Mixing versions is not supported and has not been tested.

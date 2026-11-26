@@ -136,8 +136,8 @@ namespace pxsim {
 
     /**
      * A robot command the game refused (issue #218). The program gets the text "CODE: message" as the thrown value.
-     * Catchable: an error tied to one command, that is BAD_ARGS, NO_PERMISSION, RATE_LIMITED, PROTECTED, UNLOADED and
-     * OUT_OF_RANGE. Not catchable, they end the program as before: STOPPED, VERSION, a control stop (Stop, /robot stop,
+     * Catchable: an error tied to one command, that is BAD_ARGS, NO_PERMISSION, RATE_LIMITED, PROTECTED, UNLOADED,
+     * OUT_OF_RANGE and NO_ITEMS (issue #438). Not catchable, they end the program as before: STOPPED, VERSION, a control stop (Stop, /robot stop,
      * another editor session) and a lost connection.
      */
     class RobotError {
