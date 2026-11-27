@@ -6,6 +6,13 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Fixed
+
+- A program was stopped with "no heartbeat from the editor" about a minute after the player went back to Minecraft
+  (issue #458), also a program that waited for chat or a signal. The browser slows the timers of a tab it does not
+  show, so the editor's heartbeat could stop. The game's own relay now sends the heartbeat while the editor is
+  connected; closing the tab still stops the program at once.
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.
