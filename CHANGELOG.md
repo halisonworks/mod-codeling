@@ -6,6 +6,11 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Added
+
+- The editor can be installed as an app in Chrome and Edge (issue #450): a window of its own with the Halison Code
+  icon. Opened while Minecraft is closed, it says to start the game first. Projects are shared with the browser tab.
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.

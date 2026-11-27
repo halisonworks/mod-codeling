@@ -958,6 +958,37 @@ async function gallerySection(browser, url) {
 }
 
 // Issue #16 and commit f0cdd02: our name once in the header, pxt (not Microsoft MakeCode) in About, no README panel.
+// Issue #450: the editor is an installable web app. The manifest names it and has icons; the service worker shows a
+// "start Minecraft" page when the editor's server is gone (here: the browser offline), and nothing else is cached.
+async function pwaSection(browser, url) {
+    const context = await browser.newContext({ locale: "en-US", viewport: { width: 1280, height: 800 } });
+    const page = await context.newPage();
+    page.setDefaultTimeout(60000);
+    try {
+        await page.goto(url);
+        await page.locator(".newprojectcard").first().waitFor();
+        const manifest = await page.evaluate(async () => (await fetch(document.querySelector("link[rel=manifest]").href)).json());
+        check(manifest.name === "Halison Code" && manifest.display === "standalone" && manifest.start_url === "/", "web app manifest",
+            `name ${manifest.name}, display ${manifest.display}, start_url ${manifest.start_url}`);
+        for (const icon of manifest.icons ?? []) {
+            const type = await page.evaluate(async src => { const r = await fetch(src); return r.ok ? r.headers.get("content-type") : "HTTP " + r.status; }, icon.src);
+            check(type === "image/png", "web app icon", `${icon.src}: ${type}`);
+        }
+        check((manifest.icons ?? []).some(i => i.sizes === "512x512") && manifest.icons.some(i => i.sizes === "192x192"), "web app icons", JSON.stringify(manifest.icons));
+        const scope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope);
+        check(scope === new URL(url).origin + "/", "service worker", `scope ${scope}`);
+        // The worker controls the next page load; then the editor's server goes away.
+        await page.reload();
+        await page.locator(".newprojectcard").first().waitFor();
+        await context.setOffline(true);
+        await page.goto(new URL(url).origin + "/");
+        const text = await page.locator("main").innerText().catch(() => "");
+        check(text.includes("Start Minecraft first") && text.includes("Start Minecraft først"), "offline page", text.slice(0, 120) || "no page");
+    } finally {
+        await context.close();
+    }
+}
+
 async function brandingSection(page) {
     await page.goto("about:blank");
     await page.goto(page.__editorUrl);
@@ -1019,6 +1050,8 @@ async function main() {
         await fixturesSection(page);
         await savedProjectsSection(browser, relay.url);
         await gallerySection(browser, relay.url);
+        step("installable web app");
+        await pwaSection(browser, relay.url);
         step("header, About box, side panel");
         await brandingSection(page);
     } catch (e) {
