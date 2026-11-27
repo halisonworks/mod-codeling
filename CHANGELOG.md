@@ -6,6 +6,11 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fabric: the chat no longer marks `/halisoncode log`, `/halisoncode report` and the other client commands red with
+  "Incorrect argument for command" while you type them (issue #456). They always ran; now the chat knows them too.
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.
