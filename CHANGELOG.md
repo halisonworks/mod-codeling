@@ -6,6 +6,13 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Changed
+
+- The editor and a closed connection (issue #9): when the connection to the game closes while nothing waits on it
+  (the program is done and listens for no events), the robot log says "Press Run to connect again" instead of showing
+  an error dialog, and the next Run connects again without reloading the page. A program that still needs the game
+  gets the dialog as before.
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.
