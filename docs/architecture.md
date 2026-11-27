@@ -15,6 +15,8 @@ Audience: hobby players who like coding or want to learn it. Singleplayer first,
 | In-game browser (MCEF) | Not in v1. No 26.x build exists. |
 | Robot | A custom server-side entity, one per player in v1, acting through a Fabric `FakePlayer` so protection mods see its edits. |
 
+How the target is rebuilt, its pinned versions and which parts are ours: [editor-target.md](editor-target.md) (issue #342).
+
 ### Is a custom pxt target the right tool?
 
 Yes. pxt documents target creation ([target-creation.md](https://github.com/microsoft/pxt/blob/master/docs/target-creation.md)): a target is a folder with `pxtarget.json`, `/libs` (APIs annotated as blocks), `/sim` (browser simulator) and `/docs`. Python is one flag, `appTheme.python: true`, as in [pxt-arcade](https://github.com/microsoft/pxt-arcade/blob/master/pxtarget.json) and [pxt-microbit](https://github.com/microsoft/pxt-microbit/blob/master/pxtarget.json). Blocks, JS and Python round trip comes with pxt; plain Blockly would need us to write the JS and Python converters ourselves.
