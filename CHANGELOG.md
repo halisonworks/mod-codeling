@@ -6,6 +6,10 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Added
+
+- A mod icon in the mod list (Fabric and NeoForge): the robot head of the editor's logo (issue #198).
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.
