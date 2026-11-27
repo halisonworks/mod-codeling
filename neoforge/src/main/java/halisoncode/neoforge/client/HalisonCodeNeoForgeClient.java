@@ -3,6 +3,7 @@ package halisoncode.neoforge.client;
 import halisoncode.HalisonCode;
 import halisoncode.client.HalisonCodeClient;
 import halisoncode.client.RobotCameraClient;
+import halisoncode.client.RobotEffectsClient;
 import halisoncode.client.RobotRenderer;
 import halisoncode.client.RobotScreen;
 import halisoncode.net.RelayPayloads;
@@ -49,10 +50,12 @@ public final class HalisonCodeNeoForgeClient {
         //? if >=26.1 {
         modBus.addListener((RegisterClientPayloadHandlersEvent event) -> {
             event.register(RelayPayloads.Camera.TYPE, (payload, context) -> RobotCameraClient.receive(Minecraft.getInstance(), payload));
+            event.register(RelayPayloads.Effect.TYPE, (payload, context) -> RobotEffectsClient.receive(Minecraft.getInstance(), payload));
             event.register(RelayPayloads.ToClient.TYPE, (payload, context) -> HalisonCodeClient.receive(payload.json()));
         });
         //?} else {
         /*HalisonCodeNeoForge.camera = (payload, context) -> RobotCameraClient.receive(Minecraft.getInstance(), payload);
+        HalisonCodeNeoForge.effect = (payload, context) -> RobotEffectsClient.receive(Minecraft.getInstance(), payload);
         HalisonCodeNeoForge.toClient = (payload, context) -> HalisonCodeClient.receive(payload.json());
         *///?}
 
