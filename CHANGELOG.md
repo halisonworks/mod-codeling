@@ -6,6 +6,13 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Added
+
+- The robot shows what it does (issues #81, #82): a footstep and a puff for each step, smoke and a low note when a
+  command is refused, and a green outline around the block that detect or inspect looks at. Only the owner sees them,
+  near the robot. `/halisoncode effects off` turns them off on this computer. Placing and breaking already had the
+  game's own sounds.
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.
