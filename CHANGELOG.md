@@ -6,6 +6,11 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Added
+
+- A key opens the editor (issue #7): H by default, the same as typing `/halisoncode`. Change it in Controls, under
+  Halison Code.
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.
