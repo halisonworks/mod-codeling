@@ -72,7 +72,10 @@ public final class HalisonCodeClient {
         EditorLauncher.deleteAll(EditorLauncher.DIR);
     }
 
-    /** A {@code halisoncode:to_client} payload goes to the browser session. Runs on the render thread; deliver is thread-safe. */
+    /**
+     * A {@code halisoncode:to_client} payload goes to the browser session. Runs on the render thread on Fabric, on the
+     * network thread on NeoForge (issue #285); deliver is thread-safe.
+     */
     public static void receive(String json) {
         if (HalisonCode.LOG.detailed()) HalisonCode.LOG.detail("client: from the server: {}", Protocol.describe(json));
         if (relay != null) relay.deliver(json);
@@ -203,20 +206,20 @@ public final class HalisonCodeClient {
             return client.getUser().getName();
         }
 
-        // Called on the relay's Netty thread: checks here are best effort, the send itself runs on the render thread.
+        // Called on a relay thread. Issue #285: the payload is sent from here, not from the render thread, because a
+        // minimised game draws 10 frames a second and every command waited for the next frame (measured: 5 commands a
+        // second minimised, 20 in front). The connection's send is thread safe (it hands the packet to Netty).
         @Override
         public String send(String json) {
             if (client.getConnection() == null) return "Not in a world. Open a world in Minecraft, then run the program again.";
             try {
                 if (!ClientPlatform.INSTANCE.canSend(RelayPayloads.ToServer.TYPE)) return "This server does not have Halison Code installed.";
-            } catch (IllegalStateException e) {
-                return "Not in a world. Open a world in Minecraft, then run the program again.";
-            }
-            client.execute(() -> {
-                if (client.getConnection() == null) return;
                 if (HalisonCode.LOG.detailed() && !json.contains("\"heartbeat\"")) HalisonCode.LOG.detail("client: to the server: {}", Protocol.describe(json));
                 ClientPlatform.INSTANCE.send(new RelayPayloads.ToServer(json));
-            });
+            } catch (IllegalStateException | NullPointerException e) {
+                // The world closed between the check and the send.
+                return "Not in a world. Open a world in Minecraft, then run the program again.";
+            }
             return null;
         }
     }

@@ -28,6 +28,8 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+//? if <26.1
+/*import net.neoforged.neoforge.network.registration.HandlerThread;*/
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 //? if <26.1
 /*import net.neoforged.neoforge.network.handling.IPayloadHandler;*/
@@ -104,11 +106,13 @@ public final class HalisonCodeNeoForge {
         // Handlers run on the server thread (NeoForge's default HandlerThread.MAIN), as Fabric's receiver does.
         registrar.playToServer(RelayPayloads.ToServer.TYPE, RelayPayloads.ToServer.CODEC,
                 (payload, context) -> ServerRelay.receive((ServerPlayer) context.player(), payload.json()));
+        // Before 26.1 the client handlers are registered here; issue #285: ToClient on the network thread, as in
+        // HalisonCodeNeoForgeClient.
         //? if >=26.1 {
         registrar.playToClient(RelayPayloads.ToClient.TYPE, RelayPayloads.ToClient.CODEC);
         registrar.playToClient(RelayPayloads.Camera.TYPE, RelayPayloads.Camera.CODEC);
         //?} else {
-        /*registrar.playToClient(RelayPayloads.ToClient.TYPE, RelayPayloads.ToClient.CODEC, (payload, context) -> toClient.handle(payload, context));
+        /*registrar.executesOn(HandlerThread.NETWORK).playToClient(RelayPayloads.ToClient.TYPE, RelayPayloads.ToClient.CODEC, (payload, context) -> toClient.handle(payload, context));
         registrar.playToClient(RelayPayloads.Camera.TYPE, RelayPayloads.Camera.CODEC, (payload, context) -> camera.handle(payload, context));
         *///?}
     }

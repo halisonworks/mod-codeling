@@ -23,6 +23,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.lifecycle.ClientStartedEvent;
 import net.neoforged.neoforge.client.event.lifecycle.ClientStoppingEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.HandlerThread;
 //?} else {
 /*import halisoncode.neoforge.HalisonCodeNeoForge;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
@@ -45,11 +46,13 @@ public final class HalisonCodeNeoForgeClient {
             event.register(RobotCameraClient.FOLLOW_KEY);
         });
         modBus.addListener((RegisterGuiLayersEvent event) -> event.registerAboveAll(RobotCameraClient.HUD, RobotCameraClient::hud));
-        // Handlers run on the render thread (NeoForge's default HandlerThread.MAIN), as Fabric's receivers do.
+        // The camera handler runs on the render thread (NeoForge's default HandlerThread.MAIN). Issue #285: a reply for the
+        // browser does not wait for the next frame, so ToClient runs on the network thread (HalisonCodeClient.receive is
+        // thread safe). Fabric API has no such option; its receivers always run on the render thread.
         //? if >=26.1 {
         modBus.addListener((RegisterClientPayloadHandlersEvent event) -> {
             event.register(RelayPayloads.Camera.TYPE, (payload, context) -> RobotCameraClient.receive(Minecraft.getInstance(), payload));
-            event.register(RelayPayloads.ToClient.TYPE, (payload, context) -> HalisonCodeClient.receive(payload.json()));
+            event.register(RelayPayloads.ToClient.TYPE, HandlerThread.NETWORK, (payload, context) -> HalisonCodeClient.receive(payload.json()));
         });
         //?} else {
         /*HalisonCodeNeoForge.camera = (payload, context) -> RobotCameraClient.receive(Minecraft.getInstance(), payload);
